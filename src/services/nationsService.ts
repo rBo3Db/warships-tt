@@ -1,35 +1,34 @@
 import type { Nation, NationsApiResponse } from '../types/nation';
 import { FALLBACK_NATIONS } from '../data/nationsFallback';
+import { API_CONFIG } from '../config/api';
 
-export const API_URL = 'https://vortex.worldofwarships.eu/api/encyclopedia/en/nations/';
+export const FALLBACK_MEDIA_PATH = 'https://wows-gloss-icons.wgcdn.co/icons/';
 
-export const NATION_FLAG_EMOJIS: Record<string, string> = {
-  ussr: '🇷🇺',
-  japan: '🇯🇵',
-  usa: '🇺🇸',
-  uk: '🇬🇧',
-  germany: '🇩🇪',
-  france: '🇫🇷',
-  italy: '🇮🇹',
-  europe: '🇪🇺',
-  pan_asia: '🌏',
-  commonwealth: '🌐',
-  pan_america: '🌎',
-  netherlands: '🇳🇱',
-  spain: '🇪🇸',
-};
+interface MediaPathApiResponse {
+  status: string;
+  data: string;
+}
 
-/**
- * Converts integer color format (e.g. 14764062) to hex color string (#e1481e)
- */
-export function intToHexColor(colorInt: number): string {
-  const hex = (colorInt & 0xffffff).toString(16).padStart(6, '0');
-  return `#${hex}`;
+export async function fetchMediaPath(): Promise<string> {
+  try {
+    const response = await fetch(API_CONFIG.ENDPOINTS.MEDIA_PATH);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const json: MediaPathApiResponse = await response.json();
+    if (json.status === 'ok' && typeof json.data === 'string') {
+      return json.data;
+    }
+    throw new Error('Invalid media path API response');
+  } catch (err) {
+    console.warn('Failed to fetch media_path, using fallback:', err);
+    return FALLBACK_MEDIA_PATH;
+  }
 }
 
 export async function fetchNations(): Promise<{ data: Nation[]; isFallback: boolean }> {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_CONFIG.ENDPOINTS.NATIONS);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -37,9 +36,33 @@ export async function fetchNations(): Promise<{ data: Nation[]; isFallback: bool
     if (json.status === 'ok' && Array.isArray(json.data)) {
       return { data: json.data, isFallback: false };
     }
-    throw new Error('Invalid API response shape');
+    throw new Error('Invalid nations API response');
   } catch (err) {
     console.warn('API fetch failed or blocked by CORS, using provided dataset fallback:', err);
     return { data: FALLBACK_NATIONS, isFallback: true };
   }
+}
+
+export interface AppData {
+  nations: Nation[];
+  mediaPath: string;
+}
+
+export async function fetchAppData(): Promise<AppData> {
+  const [nationsRes, mediaPath] = await Promise.all([
+    fetchNations(),
+    fetchMediaPath(),
+  ]);
+
+  return {
+    nations: nationsRes.data,
+    mediaPath,
+  };
+}
+
+export function buildFlagUrl(mediaPath: string, iconPath: string): string {
+  if (!iconPath) return '';
+  if (iconPath.startsWith('http://') || iconPath.startsWith('https://')) return iconPath;
+  const base = mediaPath.endsWith('/') ? mediaPath : `${mediaPath}/`;
+  return `${base}${iconPath}`;
 }

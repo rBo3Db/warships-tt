@@ -1,16 +1,16 @@
 import { use, useState, Suspense } from 'react';
-import type { Nation } from '../../types/nation';
-import { fetchNations } from '../../services/nationsService';
+import { fetchAppData, buildFlagUrl, type AppData } from '../../services/nationsService';
 import { Loader } from '../ui/Loader';
 import { getLanguageTitle } from '../../utils/language';
 import styles from './App.module.css';
 
 interface NationsListProps {
-  nationsPromise: Promise<{ data: Nation[]; isFallback: boolean }>;
+  dataPromise: Promise<AppData>;
 }
 
-function NationsList({ nationsPromise }: NationsListProps) {
-  const { data: nations } = use(nationsPromise);
+function NationsList({ dataPromise }: NationsListProps) {
+  // Получаем и страны, и динамический mediaPath из эндпоинта
+  const { nations, mediaPath } = use(dataPromise);
 
   const [selectedLang, setSelectedLang] = useState('ru');
   const [selectedNationId, setSelectedNationId] = useState<number | null>(null);
@@ -42,7 +42,7 @@ function NationsList({ nationsPromise }: NationsListProps) {
       <div className={styles.list}>
         {nations.map((nation) => {
           const title = nation.localization?.mark?.[selectedLang] || nation.name;
-          const flagUrl = `https://vortex.worldofwarships.eu/${nation.icons.default}`;
+          const flagUrl = buildFlagUrl(mediaPath, nation.icons.large || nation.icons.default);
           const isSelected = selectedNationId === nation.id;
 
           return (
@@ -68,11 +68,11 @@ function NationsList({ nationsPromise }: NationsListProps) {
 }
 
 export function App() {
-  const [nationsPromise] = useState(() => fetchNations());
+  const [dataPromise] = useState(() => fetchAppData());
 
   return (
     <Suspense fallback={<Loader text="Загрузка наций..." />}>
-      <NationsList nationsPromise={nationsPromise} />
+      <NationsList dataPromise={dataPromise} />
     </Suspense>
   );
 }
