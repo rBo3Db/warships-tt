@@ -1,0 +1,45 @@
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.langPicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: transparent;
+  color: inherit;
+  border-radius: 4px;
+}
+
+.itemSelected {
+  border-color: #0066cc;
+  outline: 2px solid #0066cc;
+}
+
+.flag {
+  width: 32px;
+  height: 20px;
+  object-fit: cover;
+}
+
+.name {
+  font-size: 14px;
+}
