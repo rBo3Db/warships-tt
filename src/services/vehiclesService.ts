@@ -6,7 +6,102 @@ import type {
   VehicleTypesMap,
 } from '../types/vehicle';
 import { API_CONFIG } from '../config/api';
-import { getCachedVehiclesString, setCachedVehiclesString } from './storageService';
+import {
+  STORAGE_KEYS,
+  getCachedItem,
+  setCachedItem,
+  getCachedVehiclesString,
+  setCachedVehiclesString,
+} from './storageService';
+
+export function parseVehicleTypes(rawText: string): VehicleTypesMap {
+  try {
+    const json: VehicleTypesApiResponse = JSON.parse(rawText);
+    if (json.status === 'ok' && json.data) {
+      return json.data;
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+export async function fetchVehicleTypesRaw(): Promise<string | null> {
+  try {
+    const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLE_TYPES);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+      return text;
+    }
+    throw new Error('Invalid vehicle_types response');
+  } catch (err) {
+    console.warn('Failed to fetch vehicle_types from primary endpoint, trying direct origin:', err);
+    try {
+      const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicle_types_common/`;
+      const directResp = await fetch(directUrl);
+      if (directResp.ok) {
+        const text = await directResp.text();
+        if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+          return text;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    console.error('Failed to fetch vehicle types from API:', err);
+    return null;
+  }
+}
+
+let initialTypesFetchedFromNetwork = false;
+
+export async function getInitialVehicleTypes(): Promise<VehicleTypesMap> {
+  const cachedRaw = await getCachedItem(STORAGE_KEYS.VEHICLE_TYPES);
+  if (cachedRaw) {
+    const types = parseVehicleTypes(cachedRaw);
+    if (Object.keys(types).length > 0) return types;
+  }
+
+  const freshText = await fetchVehicleTypesRaw();
+  if (freshText) {
+    const types = parseVehicleTypes(freshText);
+    if (Object.keys(types).length > 0) {
+      await setCachedItem(STORAGE_KEYS.VEHICLE_TYPES, freshText);
+      initialTypesFetchedFromNetwork = true;
+      return types;
+    }
+  }
+  return {};
+}
+
+export async function fetchVehicleTypes(): Promise<VehicleTypesMap> {
+  return getInitialVehicleTypes();
+}
+
+export async function syncVehicleTypes(onChanged: (types: VehicleTypesMap) => void): Promise<void> {
+  if (initialTypesFetchedFromNetwork) {
+    initialTypesFetchedFromNetwork = false;
+    return;
+  }
+
+  const freshText = await fetchVehicleTypesRaw();
+  if (!freshText) return;
+
+  const cachedText = await getCachedItem(STORAGE_KEYS.VEHICLE_TYPES);
+  if (cachedText && cachedText === freshText) {
+    console.log('[Sync] Vehicle types identical to server. Skipping re-render.');
+    return;
+  }
+
+  console.log('[Sync] New vehicle types received! Updating cache and re-rendering.');
+  await setCachedItem(STORAGE_KEYS.VEHICLE_TYPES, freshText);
+  const types = parseVehicleTypes(freshText);
+  if (Object.keys(types).length > 0) {
+    onChanged(types);
+  }
+}
+
 
 const KNOWN_SHIP_TYPES = ['Cruiser', 'Battleship', 'Destroyer', 'Submarine', 'AirCarrier'];
 
@@ -21,42 +116,6 @@ function normalizeVehiclesMap(data: Record<string, VehicleRaw>): Vehicle[] {
     id,
     type: resolveShipType(raw.tags),
   }));
-}
-
-let cachedVehicleTypesPromise: Promise<VehicleTypesMap> | null = null;
-
-export async function fetchVehicleTypes(): Promise<VehicleTypesMap> {
-  if (cachedVehicleTypesPromise) {
-    return cachedVehicleTypesPromise;
-  }
-
-  cachedVehicleTypesPromise = (async () => {
-    try {
-      const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLE_TYPES);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const json: VehicleTypesApiResponse = await response.json();
-      if (json.status === 'ok' && json.data) {
-        return json.data;
-      }
-      throw new Error('Invalid vehicle_types response');
-    } catch (err) {
-      console.warn('Failed to fetch vehicle_types from primary endpoint, trying direct origin:', err);
-      try {
-        const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicle_types_common/`;
-        const directResp = await fetch(directUrl);
-        if (directResp.ok) {
-          const json: VehicleTypesApiResponse = await directResp.json();
-          if (json.status === 'ok' && json.data) return json.data;
-        }
-      } catch {
-        // ignore direct failure
-      }
-      console.error('Failed to fetch vehicle types from API:', err);
-      return {};
-    }
-  })();
-
-  return cachedVehicleTypesPromise;
 }
 
 let initialFetchedFromNetwork = false;

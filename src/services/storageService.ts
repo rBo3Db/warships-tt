@@ -64,38 +64,54 @@ async function deleteIdbItem(key: string): Promise<void> {
   }
 }
 
+export const STORAGE_KEYS = {
+  VEHICLES: 'wows_vehicles_json',
+  NATIONS: 'wows_nations_json',
+  MEDIA_PATH: 'wows_media_path_json',
+  VEHICLE_TYPES: 'wows_vehicle_types_json',
+} as const;
+
 /**
- * Gets cached vehicles JSON string from localStorage (or IndexedDB fallback)
+ * Gets cached JSON string by key from localStorage (or IndexedDB fallback)
  */
-export async function getCachedVehiclesString(): Promise<string | null> {
+export async function getCachedItem(key: string): Promise<string | null> {
   try {
-    const fromLs = localStorage.getItem(LS_KEY);
+    const fromLs = localStorage.getItem(key);
     if (fromLs) return fromLs;
   } catch {
     // localStorage might be disabled or restricted
   }
-  return getIdbItem(LS_KEY);
+  return getIdbItem(key);
 }
 
 /**
- * Saves vehicles JSON string to localStorage.
- * If 3.6MB exceeds the browser's localStorage quota (often ~5MB), gracefully saves to IndexedDB.
+ * Saves JSON string by key to localStorage (with IndexedDB fallback on quota exceed)
  */
-export async function setCachedVehiclesString(rawText: string): Promise<void> {
+export async function setCachedItem(key: string, rawText: string): Promise<void> {
   try {
-    localStorage.setItem(LS_KEY, rawText);
-    // If successfully saved to localStorage, remove any previous IndexedDB fallback to save space
-    await deleteIdbItem(LS_KEY);
+    localStorage.setItem(key, rawText);
+    await deleteIdbItem(key);
     return;
   } catch (err) {
-    console.warn('[Cache] localStorage quota exceeded, saving to IndexedDB instead:', err);
+    console.warn(`[Cache] localStorage quota exceeded for key ${key}, saving to IndexedDB instead:`, err);
   }
 
-  // Remove potential partial entry from localStorage and write to IndexedDB
   try {
-    localStorage.removeItem(LS_KEY);
+    localStorage.removeItem(key);
   } catch {
     // ignore
   }
-  await setIdbItem(LS_KEY, rawText);
+  await setIdbItem(key, rawText);
 }
+
+/**
+ * Aliases for vehicles cache
+ */
+export async function getCachedVehiclesString(): Promise<string | null> {
+  return getCachedItem(STORAGE_KEYS.VEHICLES);
+}
+
+export async function setCachedVehiclesString(rawText: string): Promise<void> {
+  return setCachedItem(STORAGE_KEYS.VEHICLES, rawText);
+}
+

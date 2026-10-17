@@ -1,7 +1,7 @@
 import { use, useState, useRef, useMemo, useEffect, Suspense } from 'react';
 import type { Vehicle } from '../../types/vehicle';
-import { fetchAppData, buildFlagUrl, type AppData } from '../../services/nationsService';
-import { buildMediaUrl, syncVehicles } from '../../services/vehiclesService';
+import { fetchAppData, buildFlagUrl, syncAppData, type AppData } from '../../services/nationsService';
+import { buildMediaUrl } from '../../services/vehiclesService';
 import { Loader } from '../ui/Loader';
 import { TechTree } from '../TechTree/TechTree';
 import { getLanguageTitle } from '../../utils/language';
@@ -36,14 +36,16 @@ function doesShipMatch(ship: Vehicle, q: string, lang: string): boolean {
 }
 
 function NationsList({ dataPromise }: NationsListProps) {
-  const { nations, mediaPath, vehicleTypes, vehicles: initialVehicles } = use(dataPromise);
-  const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
+  const initialData = use(dataPromise);
+  const [appData, setAppData] = useState<AppData>(initialData);
 
   useEffect(() => {
-    syncVehicles((newVehicles) => {
-      setVehicles(newVehicles);
+    syncAppData((partial) => {
+      setAppData((prev) => ({ ...prev, ...partial }));
     });
   }, []);
+
+  const { nations, mediaPath, vehicleTypes, vehicles } = appData;
 
   // Available language codes from nations data
   const languages = useMemo(() => {
