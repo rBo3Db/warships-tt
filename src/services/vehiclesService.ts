@@ -6,6 +6,7 @@ import type {
   VehicleTypesMap,
 } from '../types/vehicle';
 import { API_CONFIG } from '../config/api';
+import { getCachedVehiclesString, setCachedVehiclesString } from './storageService';
 
 const KNOWN_SHIP_TYPES = ['Cruiser', 'Battleship', 'Destroyer', 'Submarine', 'AirCarrier'];
 
@@ -58,42 +59,126 @@ export async function fetchVehicleTypes(): Promise<VehicleTypesMap> {
   return cachedVehicleTypesPromise;
 }
 
-let cachedVehiclesPromise: Promise<Vehicle[]> | null = null;
+let initialFetchedFromNetwork = false;
 
-export async function fetchVehicles(): Promise<Vehicle[]> {
-  if (cachedVehiclesPromise) {
-    return cachedVehiclesPromise;
+export function parseAndNormalizeVehicles(jsonText: string): Vehicle[] {
+  try {
+    const json: VehiclesApiResponse = JSON.parse(jsonText);
+    if (json.status === 'ok' && json.data) {
+      return normalizeVehiclesMap(json.data);
+    }
+  } catch (err) {
+    console.warn('[Cache] Failed to parse vehicles JSON:', err);
+  }
+  return [];
+}
+
+/**
+ * Retrieves cached vehicles from localStorage/IndexedDB if available.
+ */
+export async function getCachedVehicles(): Promise<Vehicle[] | null> {
+  const cachedRaw = await getCachedVehiclesString();
+  if (!cachedRaw) return null;
+  const vehicles = parseAndNormalizeVehicles(cachedRaw);
+  return vehicles.length > 0 ? vehicles : null;
+}
+
+/**
+ * Fetches raw vehicles dump from backend API as text string.
+ */
+export async function fetchVehiclesRaw(): Promise<string | null> {
+  try {
+    const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLES);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+      return text;
+    }
+    throw new Error('Invalid vehicles API response content');
+  } catch (err) {
+    console.warn('Primary vehicles endpoint failed, trying direct origin:', err);
+    try {
+      const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicles/`;
+      const directResp = await fetch(directUrl);
+      if (directResp.ok) {
+        const text = await directResp.text();
+        if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+          return text;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    console.error('Failed to fetch vehicles from network:', err);
+    return null;
+  }
+}
+
+/**
+ * Returns cached vehicles immediately if available.
+ * If not in cache, fetches from network and populates cache.
+ */
+export async function getInitialVehicles(): Promise<Vehicle[]> {
+  const cached = await getCachedVehicles();
+  if (cached && cached.length > 0) {
+    return cached;
   }
 
-  cachedVehiclesPromise = (async () => {
-    try {
-      const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLES);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const json: VehiclesApiResponse = await response.json();
-      if (json.status === 'ok' && json.data) {
-        return normalizeVehiclesMap(json.data);
-      }
-      throw new Error('Invalid vehicles dump response');
-    } catch (err) {
-      console.warn('Failed to fetch vehicles from primary endpoint, trying direct origin:', err);
-      try {
-        const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicles/`;
-        const directResp = await fetch(directUrl);
-        if (directResp.ok) {
-          const json: VehiclesApiResponse = await directResp.json();
-          if (json.status === 'ok' && json.data) {
-            return normalizeVehiclesMap(json.data);
-          }
-        }
-      } catch {
-        // ignore direct failure
-      }
-      console.error('Failed to fetch vehicles from API:', err);
-      return [];
+  // Not in cache: perform initial network fetch
+  const freshText = await fetchVehiclesRaw();
+  if (freshText) {
+    const vehicles = parseAndNormalizeVehicles(freshText);
+    if (vehicles.length > 0) {
+      await setCachedVehiclesString(freshText);
+      initialFetchedFromNetwork = true;
+      return vehicles;
     }
-  })();
+  }
 
-  return cachedVehiclesPromise;
+  return [];
+}
+
+/**
+ * Alias for getInitialVehicles for backward compatibility
+ */
+export async function fetchVehicles(): Promise<Vehicle[]> {
+  return getInitialVehicles();
+}
+
+/**
+ * Background synchronization:
+ * 1. Fetches fresh vehicles file from backend.
+ * 2. Compares with locally stored version.
+ * 3. If identical -> does nothing (no re-render).
+ * 4. If changed -> updates storage and invokes onChanged callback with new vehicles.
+ */
+export async function syncVehicles(onChanged: (newVehicles: Vehicle[]) => void): Promise<void> {
+  // If we already fetched fresh data in this session during initial load, skip duplicate request
+  if (initialFetchedFromNetwork) {
+    initialFetchedFromNetwork = false;
+    return;
+  }
+
+  const freshText = await fetchVehiclesRaw();
+  if (!freshText) {
+    console.warn('[Sync] Could not reach backend for vehicles update');
+    return;
+  }
+
+  const cachedText = await getCachedVehiclesString();
+
+  // Fast comparison: raw strings comparison
+  if (cachedText && cachedText === freshText) {
+    console.log('[Sync] Vehicles file is identical to server. Skipping re-render.');
+    return;
+  }
+
+  console.log('[Sync] New vehicles file received from server! Updating cache and re-rendering.');
+  await setCachedVehiclesString(freshText);
+  const updatedVehicles = parseAndNormalizeVehicles(freshText);
+  if (updatedVehicles.length > 0) {
+    onChanged(updatedVehicles);
+  }
 }
 
 export function buildMediaUrl(mediaPath: string, path?: string): string {
