@@ -16,6 +16,9 @@ export interface UiTranslations {
   premiums: string;
   viewTree: string;
   viewGrid: string;
+  searchPlaceholder: string;
+  searchClear: string;
+  foundInOtherNations: string;
 }
 
 export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
@@ -37,6 +40,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Premium & Special Ships',
     viewTree: 'Tech Tree',
     viewGrid: 'Catalog',
+    searchPlaceholder: 'Search ship by name, tier, or class...',
+    searchClear: 'Clear',
+    foundInOtherNations: 'Found in other nations:',
   },
   ru: {
     title: 'Справочник кораблей',
@@ -56,6 +62,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Премиум и особые корабли',
     viewTree: 'Дерево развития',
     viewGrid: 'Каталог',
+    searchPlaceholder: 'Поиск корабля по названию, уровню или классу...',
+    searchClear: 'Очистить',
+    foundInOtherNations: 'Найдено в других нациях:',
   },
   de: {
     title: 'Kriegsschiffe-Enzyklopädie',
@@ -75,6 +84,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Premium- & Spezialschiffe',
     viewTree: 'Forschungsbaum',
     viewGrid: 'Katalog',
+    searchPlaceholder: 'Schiff nach Name, Stufe oder Klasse suchen...',
+    searchClear: 'Löschen',
+    foundInOtherNations: 'In anderen Nationen gefunden:',
   },
   fr: {
     title: 'Encyclopédie des navires',
@@ -94,6 +106,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Navires premium et spéciaux',
     viewTree: 'Arbre',
     viewGrid: 'Catalogue',
+    searchPlaceholder: 'Rechercher par nom, rang ou classe...',
+    searchClear: 'Effacer',
+    foundInOtherNations: "Trouvé dans d'autres nations :",
   },
   es: {
     title: 'Enciclopedia de barcos',
@@ -113,6 +128,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Barcos premium y especiales',
     viewTree: 'Árbol',
     viewGrid: 'Catálogo',
+    searchPlaceholder: 'Buscar barco por nombre, nivel o clase...',
+    searchClear: 'Borrar',
+    foundInOtherNations: 'Encontrado en otras naciones:',
   },
   es_mx: {
     title: 'Enciclopedia de barcos',
@@ -132,6 +150,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Barcos premium y especiales',
     viewTree: 'Árbol',
     viewGrid: 'Catálogo',
+    searchPlaceholder: 'Buscar barco por nombre, nivel o clase...',
+    searchClear: 'Borrar',
+    foundInOtherNations: 'Encontrado en otras naciones:',
   },
   pt_br: {
     title: 'Enciclopédia de Navios',
@@ -151,6 +172,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Navios premium e especiais',
     viewTree: 'Árvore',
     viewGrid: 'Catálogo',
+    searchPlaceholder: 'Buscar navio por nome, nível ou classe...',
+    searchClear: 'Limpar',
+    foundInOtherNations: 'Encontrado em outras nações:',
   },
   it: {
     title: 'Enciclopedia delle navi',
@@ -170,6 +194,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Navi premium e speciali',
     viewTree: 'Albero',
     viewGrid: 'Catalogo',
+    searchPlaceholder: 'Cerca nave per nome, livello o classe...',
+    searchClear: 'Cancella',
+    foundInOtherNations: 'Trovato in altre nazioni:',
   },
   pl: {
     title: 'Encyklopedia okrętów',
@@ -189,6 +216,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Okręty premium i specjalne',
     viewTree: 'Drzewo',
     viewGrid: 'Katalog',
+    searchPlaceholder: 'Szukaj okrętu według nazwy, poziomu lub klasy...',
+    searchClear: 'Wyczyść',
+    foundInOtherNations: 'Znaleziono w innych narodach:',
   },
   nl: {
     title: 'Oorlogsschepen encyclopedie',
@@ -208,6 +238,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Premium & speciale schepen',
     viewTree: 'Boom',
     viewGrid: 'Catalogus',
+    searchPlaceholder: 'Zoek schip op naam, niveau of klasse...',
+    searchClear: 'Wissen',
+    foundInOtherNations: 'Gevonden in andere naties:',
   },
   cs: {
     title: 'Encyklopedie válečných lodí',
@@ -227,6 +260,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Prémiové a speciální lodě',
     viewTree: 'Strom',
     viewGrid: 'Katalog',
+    searchPlaceholder: 'Hledat loď podle názvu, úrovně nebo třídy...',
+    searchClear: 'Vymazat',
+    foundInOtherNations: 'Nalezeno v jiných národech:',
   },
   tr: {
     title: 'Savaş Gemileri Ansiklopedisi',
@@ -246,6 +282,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Premium ve Özel Gemiler',
     viewTree: 'Ağaç',
     viewGrid: 'Katalog',
+    searchPlaceholder: 'Gemi adı, seviyesi veya sınıfına göre ara...',
+    searchClear: 'Temizle',
+    foundInOtherNations: 'Diğer uluslarda bulundu:',
   },
   uk: {
     title: 'Довідник кораблів',
@@ -265,6 +304,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'Преміум та особливі кораблі',
     viewTree: 'Дерево',
     viewGrid: 'Каталог',
+    searchPlaceholder: 'Пошук корабля за назвою, рівнем або класом...',
+    searchClear: 'Очистити',
+    foundInOtherNations: 'Знайдено в інших націях:',
   },
   ja: {
     title: '艦艇百科事典',
@@ -284,6 +326,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'プレミアム・特別艦艇',
     viewTree: 'ツリー',
     viewGrid: 'カタログ',
+    searchPlaceholder: '艦艇名、Tier、艦種で検索...',
+    searchClear: 'クリア',
+    foundInOtherNations: '他国家で見つかった艦艇:',
   },
   ko: {
     title: '군함 백과사전',
@@ -303,6 +348,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: '프리미엄 및 특별 군함',
     viewTree: '계통도',
     viewGrid: '목록',
+    searchPlaceholder: '군함 이름, 단계 또는 함종으로 검색...',
+    searchClear: '지우기',
+    foundInOtherNations: '다른 국가에서 검색됨:',
   },
   th: {
     title: 'สารานุกรมเรือรบ',
@@ -322,6 +370,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: 'เรือรบพรีเมียมและพิเศษ',
     viewTree: 'สายวิจัย',
     viewGrid: 'แคตตาล็อก',
+    searchPlaceholder: 'ค้นหาเรือรบตามชื่อ ระดับ หรือชั้นเรือ...',
+    searchClear: 'ล้าง',
+    foundInOtherNations: 'พบในประเทศอื่น:',
   },
   zh_cn: {
     title: '战舰百科',
@@ -341,6 +392,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: '金币与特种战舰',
     viewTree: '科技树',
     viewGrid: '图鉴',
+    searchPlaceholder: '按战舰名称、等级或类型搜索...',
+    searchClear: '清除',
+    foundInOtherNations: '在其他系别中找到:',
   },
   zh_sg: {
     title: '战舰百科',
@@ -360,6 +414,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: '金币与特种战舰',
     viewTree: '科技树',
     viewGrid: '图鉴',
+    searchPlaceholder: '按战舰名称、等级或类型搜索...',
+    searchClear: '清除',
+    foundInOtherNations: '在其他系别中找到:',
   },
   zh_tw: {
     title: '戰艦百科',
@@ -379,6 +436,9 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premiums: '加值與特殊艦艇',
     viewTree: '科技樹',
     viewGrid: '圖鑑',
+    searchPlaceholder: '依艦艇名稱、階級或類型搜尋...',
+    searchClear: '清除',
+    foundInOtherNations: '在其他國家中找到:',
   },
 };
 

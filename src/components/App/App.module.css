@@ -13,9 +13,68 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
   border-bottom: 1px solid #ddd;
   padding-bottom: 12px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 420px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 5px 26px 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.clearSearchBtn {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 13px;
+  padding: 0 2px;
+}
+
+.otherNationsBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #fdf8e6;
+  border: 1px solid #e8d89e;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #664d03;
+}
+
+.otherNationChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: #fff;
+  border: 1px solid #d4c28c;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.otherNationChip:hover {
+  background: #fdfdfd;
+  border-color: #0066cc;
 }
 
 .title {

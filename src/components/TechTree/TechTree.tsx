@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useLayoutEffect, useCallback } from 'react';
+import { useMemo, useState, useRef, useLayoutEffect, useEffect, useCallback } from 'react';
 import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
 import type { UiTranslations } from '../../utils/i18n';
 import { buildTechTreeData } from '../../utils/techTree';
@@ -12,6 +12,8 @@ interface TechTreeProps {
   mediaPath: string;
   vehicleTypes: VehicleTypesMap;
   ui: UiTranslations;
+  searchQuery?: string;
+  matchingShipIds?: Set<string>;
 }
 
 interface SvgLineCoords {
@@ -29,12 +31,16 @@ export function TechTree({
   mediaPath,
   vehicleTypes,
   ui,
+  searchQuery = '',
+  matchingShipIds,
 }: TechTreeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredShipId, setHoveredShipId] = useState<string | null>(null);
   const [svgLines, setSvgLines] = useState<SvgLineCoords[]>([]);
 
   const treeData = useMemo(() => buildTechTreeData(nationShips), [nationShips]);
+
+  const isSearchActive = Boolean(searchQuery && searchQuery.trim().length > 0);
 
   // Recalculate line coordinates between nodes
   const updateLines = useCallback(() => {
@@ -77,6 +83,17 @@ export function TechTree({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [updateLines, selectedLang]);
+
+  // Auto-scroll horizontally to the first matching ship when searching
+  useEffect(() => {
+    if (!isSearchActive || !matchingShipIds || matchingShipIds.size === 0) return;
+    const container = containerRef.current;
+    if (!container) return;
+    const firstMatchedEl = container.querySelector<HTMLElement>('[data-ship-matched="true"]');
+    if (firstMatchedEl) {
+      firstMatchedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [isSearchActive, matchingShipIds]);
 
   // Calculate lineage (ancestors + descendants) for highlighting
   const activeLineage = useMemo(() => {
@@ -154,7 +171,14 @@ export function TechTree({
           {svgLines.map((line) => {
             const key = `${line.fromId}->${line.toId}`;
             const isActive = activeLineage.linkKeys.has(key);
-            const isDimmed = hoveredShipId !== null && !isActive;
+            const isLineSearchMatch =
+              isSearchActive &&
+              matchingShipIds &&
+              (matchingShipIds.has(line.fromId) || matchingShipIds.has(line.toId));
+
+            const isDimmed =
+              (hoveredShipId !== null && !isActive) ||
+              (isSearchActive && !isLineSearchMatch && !isActive);
 
             const dx = Math.max(30, (line.x2 - line.x1) * 0.45);
             const pathD = `M ${line.x1} ${line.y1} C ${line.x1 + dx} ${line.y1}, ${line.x2 - dx} ${line.y2}, ${line.x2} ${line.y2}`;
@@ -164,9 +188,11 @@ export function TechTree({
                 key={key}
                 d={pathD}
                 fill="none"
-                stroke={isActive ? '#0066cc' : isDimmed ? '#ddd' : '#888'}
-                strokeWidth={isActive ? 2.5 : 1.5}
-                markerEnd={isActive ? 'url(#arrowActive)' : isDimmed ? 'none' : 'url(#arrow)'}
+                stroke={isActive || isLineSearchMatch ? '#0066cc' : isDimmed ? '#eee' : '#888'}
+                strokeWidth={isActive || isLineSearchMatch ? 2.5 : 1.5}
+                markerEnd={
+                  isActive || isLineSearchMatch ? 'url(#arrowActive)' : isDimmed ? 'none' : 'url(#arrow)'
+                }
               />
             );
           })}
@@ -217,15 +243,21 @@ export function TechTree({
 
                         const isHovered = hoveredShipId === ship.id;
                         const isInLineage = activeLineage.nodeIds.has(ship.id);
-                        const isDimmed = hoveredShipId !== null && !isInLineage;
+                        const isMatch = isSearchActive && Boolean(matchingShipIds?.has(ship.id));
+                        const isDimmed =
+                          (hoveredShipId !== null && !isInLineage) ||
+                          (isSearchActive && !isMatch && !isInLineage);
 
                         return (
                           <div
                             key={ship.id}
                             data-ship-node={ship.id}
+                            data-ship-matched={isMatch ? 'true' : 'false'}
                             className={`${styles.nodeCard} ${
                               isHovered || isInLineage ? styles.nodeCardActive : ''
-                            } ${isDimmed ? styles.nodeCardDimmed : ''}`}
+                            } ${isMatch ? styles.nodeCardMatch : ''} ${
+                              isDimmed ? styles.nodeCardDimmed : ''
+                            }`}
                             onMouseEnter={() => setHoveredShipId(ship.id)}
                             onMouseLeave={() => setHoveredShipId(null)}
                           >
@@ -281,8 +313,17 @@ export function TechTree({
               const isPremium = ship.tags?.includes('uiPremium');
               const isSpecial = ship.tags?.includes('special') || ship.tags?.includes('uiSpecial');
 
+              const isMatch = isSearchActive && Boolean(matchingShipIds?.has(ship.id));
+              const isDimmed = isSearchActive && !isMatch;
+
               return (
-                <div key={ship.id} className={styles.premiumCard}>
+                <div
+                  key={ship.id}
+                  data-ship-matched={isMatch ? 'true' : 'false'}
+                  className={`${styles.premiumCard} ${isMatch ? styles.nodeCardMatch : ''} ${
+                    isDimmed ? styles.nodeCardDimmed : ''
+                  }`}
+                >
                   <div className={styles.nodeHeader}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span>{toRomanTier(ship.level)}</span>

@@ -105,8 +105,15 @@
   box-shadow: 0 0 0 1px #0066cc;
 }
 
+.nodeCardMatch {
+  border-color: #0066cc !important;
+  background: #e8f2fc !important;
+  box-shadow: 0 0 0 2px #0066cc;
+  opacity: 1 !important;
+}
+
 .nodeCardDimmed {
-  opacity: 0.45;
+  opacity: 0.25;
 }
 
 .nodeHeader {
