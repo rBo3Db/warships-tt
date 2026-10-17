@@ -14,34 +14,44 @@ interface NationsListProps {
 function NationsList({ dataPromise }: NationsListProps) {
   const { nations, mediaPath, vehicleTypes, vehicles } = use(dataPromise);
 
-  const [selectedLang, setSelectedLang] = useState('ru');
-  const [selectedNation, setSelectedNation] = useState<string>(() => nations[0]?.name || 'usa');
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-
-  const shipsSectionRef = useRef<HTMLDivElement>(null);
-
-  const ui = useMemo(() => getUiTranslation(selectedLang), [selectedLang]);
-
-  // Список языков
+  // Available language codes from nations data
   const languages = useMemo(() => {
     return Array.from(
       new Set(nations.flatMap((n) => Object.keys(n.localization?.mark || {})))
     );
   }, [nations]);
 
-  // Сортировка типов кораблей
+  const [selectedLang, setSelectedLang] = useState<string>(() => {
+    if (typeof navigator !== 'undefined') {
+      const raw = navigator.language.toLowerCase().replace('-', '_');
+      if (languages.includes(raw)) return raw;
+      const base = raw.split('_')[0];
+      if (languages.includes(base)) return base;
+    }
+    return languages.includes('en') ? 'en' : languages[0] || 'en';
+  });
+
+  const [selectedNation, setSelectedNation] = useState<string>(() => nations[0]?.name || 'usa');
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+
+  const shipsSectionRef = useRef<HTMLDivElement>(null);
+
+  // Current localized UI strings
+  const ui = useMemo(() => getUiTranslation(selectedLang), [selectedLang]);
+
+  // Sorted ship types by sort_order
   const sortedTypes = useMemo(() => {
     return Object.entries(vehicleTypes).sort(
       ([, a], [, b]) => a.sort_order - b.sort_order
     );
   }, [vehicleTypes]);
 
-  // Выбранная нация
+  // Selected nation object
   const currentNationObj = useMemo(() => {
     return nations.find((n) => n.name === selectedNation) || nations[0];
   }, [nations, selectedNation]);
 
-  // Фильтрация кораблей
+  // Filter and sort ships
   const filteredShips = useMemo(() => {
     return vehicles
       .filter((ship) => !selectedNation || ship.nation === selectedNation)
@@ -77,14 +87,14 @@ function NationsList({ dataPromise }: NationsListProps) {
           >
             {languages.map((code) => (
               <option key={code} value={code}>
-                {getLanguageTitle(code)} ({code})
+                {getLanguageTitle(code, selectedLang)} ({code})
               </option>
             ))}
           </select>
         </div>
       </header>
 
-      {/* Список наций */}
+      {/* Nations list */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{ui.nations}</h2>
         <div className={styles.list}>
@@ -113,7 +123,7 @@ function NationsList({ dataPromise }: NationsListProps) {
         </div>
       </section>
 
-      {/* Фильтр типов кораблей */}
+      {/* Ship classes filter */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{ui.classes}</h2>
         <div className={styles.list}>
@@ -151,7 +161,7 @@ function NationsList({ dataPromise }: NationsListProps) {
         </div>
       </section>
 
-      {/* Секция кораблей с плавным скроллом */}
+      {/* Ships section */}
       <section ref={shipsSectionRef} className={styles.section}>
         <div className={styles.shipsHeader}>
           <h2 className={styles.sectionTitle}>

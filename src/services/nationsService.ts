@@ -1,10 +1,7 @@
 import type { Nation, NationsApiResponse } from '../types/nation';
 import type { Vehicle, VehicleTypesMap } from '../types/vehicle';
-import { FALLBACK_NATIONS } from '../data/nationsFallback';
 import { API_CONFIG } from '../config/api';
 import { fetchVehicleTypes, fetchVehicles } from './vehiclesService';
-
-export const FALLBACK_MEDIA_PATH = 'https://wows-gloss-icons.wgcdn.co/icons/';
 
 interface MediaPathApiResponse {
   status: string;
@@ -23,12 +20,12 @@ export async function fetchMediaPath(): Promise<string> {
     }
     throw new Error('Invalid media path API response');
   } catch (err) {
-    console.warn('Failed to fetch media_path, using fallback:', err);
-    return FALLBACK_MEDIA_PATH;
+    console.error('Failed to fetch media_path from API:', err);
+    return '';
   }
 }
 
-export async function fetchNations(): Promise<{ data: Nation[]; isFallback: boolean }> {
+export async function fetchNations(): Promise<{ data: Nation[] }> {
   try {
     const response = await fetch(API_CONFIG.ENDPOINTS.NATIONS);
     if (!response.ok) {
@@ -36,12 +33,12 @@ export async function fetchNations(): Promise<{ data: Nation[]; isFallback: bool
     }
     const json: NationsApiResponse = await response.json();
     if (json.status === 'ok' && Array.isArray(json.data)) {
-      return { data: json.data, isFallback: false };
+      return { data: json.data };
     }
     throw new Error('Invalid nations API response');
   } catch (err) {
-    console.warn('API fetch failed or blocked by CORS, using provided dataset fallback:', err);
-    return { data: FALLBACK_NATIONS, isFallback: true };
+    console.error('Failed to fetch nations from API:', err);
+    return { data: [] };
   }
 }
 

@@ -5,8 +5,6 @@ import type {
   VehicleTypesApiResponse,
   VehicleTypesMap,
 } from '../types/vehicle';
-import { FALLBACK_VEHICLE_TYPES } from '../data/vehicleTypesFallback';
-import { FALLBACK_VEHICLES } from '../data/vehiclesFallback';
 import { API_CONFIG } from '../config/api';
 
 const KNOWN_SHIP_TYPES = ['Cruiser', 'Battleship', 'Destroyer', 'Submarine', 'AirCarrier'];
@@ -52,8 +50,8 @@ export async function fetchVehicleTypes(): Promise<VehicleTypesMap> {
       } catch {
         // ignore direct failure
       }
-      console.warn('Using fallback vehicle types:', err);
-      return FALLBACK_VEHICLE_TYPES;
+      console.error('Failed to fetch vehicle types from API:', err);
+      return {};
     }
   })();
 
@@ -90,8 +88,8 @@ export async function fetchVehicles(): Promise<Vehicle[]> {
       } catch {
         // ignore direct failure
       }
-      console.warn('Using fallback vehicles sample dataset:', err);
-      return normalizeVehiclesMap(FALLBACK_VEHICLES);
+      console.error('Failed to fetch vehicles from API:', err);
+      return [];
     }
   })();
 
