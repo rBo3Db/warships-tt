@@ -11,6 +11,11 @@ export interface UiTranslations {
   premium: string;
   special: string;
   loading: string;
+  techTree: string;
+  researchable: string;
+  premiums: string;
+  viewTree: string;
+  viewGrid: string;
 }
 
 export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
@@ -27,6 +32,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Special',
     loading: 'Loading...',
+    techTree: 'Tech Tree',
+    researchable: 'Researchable Ships',
+    premiums: 'Premium & Special Ships',
+    viewTree: 'Tech Tree',
+    viewGrid: 'Catalog',
   },
   ru: {
     title: 'Справочник кораблей',
@@ -41,6 +51,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Премиум',
     special: 'Особый',
     loading: 'Загрузка...',
+    techTree: 'Дерево развития',
+    researchable: 'Исследуемые корабли',
+    premiums: 'Премиум и особые корабли',
+    viewTree: 'Дерево развития',
+    viewGrid: 'Каталог',
   },
   de: {
     title: 'Kriegsschiffe-Enzyklopädie',
@@ -55,6 +70,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Spezial',
     loading: 'Laden...',
+    techTree: 'Forschungsbaum',
+    researchable: 'Erforschbare Schiffe',
+    premiums: 'Premium- & Spezialschiffe',
+    viewTree: 'Forschungsbaum',
+    viewGrid: 'Katalog',
   },
   fr: {
     title: 'Encyclopédie des navires',
@@ -69,6 +89,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Spécial',
     loading: 'Chargement...',
+    techTree: 'Arbre technologique',
+    researchable: 'Navires de recherche',
+    premiums: 'Navires premium et spéciaux',
+    viewTree: 'Arbre',
+    viewGrid: 'Catalogue',
   },
   es: {
     title: 'Enciclopedia de barcos',
@@ -83,6 +108,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Especial',
     loading: 'Cargando...',
+    techTree: 'Árbol tecnológico',
+    researchable: 'Barcos investigables',
+    premiums: 'Barcos premium y especiales',
+    viewTree: 'Árbol',
+    viewGrid: 'Catálogo',
   },
   es_mx: {
     title: 'Enciclopedia de barcos',
@@ -97,6 +127,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Especial',
     loading: 'Cargando...',
+    techTree: 'Árbol tecnológico',
+    researchable: 'Barcos investigables',
+    premiums: 'Barcos premium y especiales',
+    viewTree: 'Árbol',
+    viewGrid: 'Catálogo',
   },
   pt_br: {
     title: 'Enciclopédia de Navios',
@@ -111,6 +146,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Especial',
     loading: 'Carregando...',
+    techTree: 'Árvore tecnológica',
+    researchable: 'Navios pesquisáveis',
+    premiums: 'Navios premium e especiais',
+    viewTree: 'Árvore',
+    viewGrid: 'Catálogo',
   },
   it: {
     title: 'Enciclopedia delle navi',
@@ -125,6 +165,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Speciale',
     loading: 'Caricamento...',
+    techTree: 'Albero tecnologico',
+    researchable: 'Navi ricercabili',
+    premiums: 'Navi premium e speciali',
+    viewTree: 'Albero',
+    viewGrid: 'Catalogo',
   },
   pl: {
     title: 'Encyklopedia okrętów',
@@ -139,6 +184,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Specjalny',
     loading: 'Ładowanie...',
+    techTree: 'Drzewo technologiczne',
+    researchable: 'Okręty do zbadania',
+    premiums: 'Okręty premium i specjalne',
+    viewTree: 'Drzewo',
+    viewGrid: 'Katalog',
   },
   nl: {
     title: 'Oorlogsschepen encyclopedie',
@@ -153,6 +203,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Speciaal',
     loading: 'Laden...',
+    techTree: 'Technologieboom',
+    researchable: 'Onderzoekbare schepen',
+    premiums: 'Premium & speciale schepen',
+    viewTree: 'Boom',
+    viewGrid: 'Catalogus',
   },
   cs: {
     title: 'Encyklopedie válečných lodí',
@@ -167,6 +222,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Prémiová',
     special: 'Speciální',
     loading: 'Načítání...',
+    techTree: 'Technologický strom',
+    researchable: 'Vyzkoumatelné lodě',
+    premiums: 'Prémiové a speciální lodě',
+    viewTree: 'Strom',
+    viewGrid: 'Katalog',
   },
   tr: {
     title: 'Savaş Gemileri Ansiklopedisi',
@@ -181,6 +241,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Premium',
     special: 'Özel',
     loading: 'Yükleniyor...',
+    techTree: 'Teknoloji Ağacı',
+    researchable: 'Araştırılabilir Gemiler',
+    premiums: 'Premium ve Özel Gemiler',
+    viewTree: 'Ağaç',
+    viewGrid: 'Katalog',
   },
   uk: {
     title: 'Довідник кораблів',
@@ -195,6 +260,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'Преміум',
     special: 'Особливий',
     loading: 'Завантаження...',
+    techTree: 'Дерево розвитку',
+    researchable: 'Досліджувані кораблі',
+    premiums: 'Преміум та особливі кораблі',
+    viewTree: 'Дерево',
+    viewGrid: 'Каталог',
   },
   ja: {
     title: '艦艇百科事典',
@@ -209,6 +279,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'プレミアム',
     special: '特別',
     loading: '読み込み中...',
+    techTree: '技術ツリー',
+    researchable: '研究可能艦艇',
+    premiums: 'プレミアム・特別艦艇',
+    viewTree: 'ツリー',
+    viewGrid: 'カタログ',
   },
   ko: {
     title: '군함 백과사전',
@@ -223,6 +298,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: '프리미엄',
     special: '특별',
     loading: '불러오는 중...',
+    techTree: '연구 계통도',
+    researchable: '연구 가능 군함',
+    premiums: '프리미엄 및 특별 군함',
+    viewTree: '계통도',
+    viewGrid: '목록',
   },
   th: {
     title: 'สารานุกรมเรือรบ',
@@ -237,6 +317,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: 'พรีเมียม',
     special: 'พิเศษ',
     loading: 'กำลังโหลด...',
+    techTree: 'สายการวิจัย',
+    researchable: 'เรือรบที่วิจัยได้',
+    premiums: 'เรือรบพรีเมียมและพิเศษ',
+    viewTree: 'สายวิจัย',
+    viewGrid: 'แคตตาล็อก',
   },
   zh_cn: {
     title: '战舰百科',
@@ -251,6 +336,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: '金币',
     special: '特种',
     loading: '加载中...',
+    techTree: '科技树',
+    researchable: '可研发战舰',
+    premiums: '金币与特种战舰',
+    viewTree: '科技树',
+    viewGrid: '图鉴',
   },
   zh_sg: {
     title: '战舰百科',
@@ -265,6 +355,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: '金币',
     special: '特种',
     loading: '加载中...',
+    techTree: '科技树',
+    researchable: '可研发战舰',
+    premiums: '金币与特种战舰',
+    viewTree: '科技树',
+    viewGrid: '图鉴',
   },
   zh_tw: {
     title: '戰艦百科',
@@ -279,6 +374,11 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     premium: '加值',
     special: '特殊',
     loading: '載入中...',
+    techTree: '科技樹',
+    researchable: '可研發艦艇',
+    premiums: '加值與特殊艦艇',
+    viewTree: '科技樹',
+    viewGrid: '圖鑑',
   },
 };
 
