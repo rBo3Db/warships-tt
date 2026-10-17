@@ -11,7 +11,7 @@ export interface LoaderProps {
 }
 
 export const Loader: FC<LoaderProps> = ({
-  text = 'Загрузка...',
+  text,
   size = 'md',
   fullScreen = false,
 }) => {

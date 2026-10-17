@@ -1,6 +1,8 @@
 import type { Nation, NationsApiResponse } from '../types/nation';
+import type { Vehicle, VehicleTypesMap } from '../types/vehicle';
 import { FALLBACK_NATIONS } from '../data/nationsFallback';
 import { API_CONFIG } from '../config/api';
+import { fetchVehicleTypes, fetchVehicles } from './vehiclesService';
 
 export const FALLBACK_MEDIA_PATH = 'https://wows-gloss-icons.wgcdn.co/icons/';
 
@@ -46,17 +48,23 @@ export async function fetchNations(): Promise<{ data: Nation[]; isFallback: bool
 export interface AppData {
   nations: Nation[];
   mediaPath: string;
+  vehicleTypes: VehicleTypesMap;
+  vehicles: Vehicle[];
 }
 
 export async function fetchAppData(): Promise<AppData> {
-  const [nationsRes, mediaPath] = await Promise.all([
+  const [nationsRes, mediaPath, vehicleTypes, vehicles] = await Promise.all([
     fetchNations(),
     fetchMediaPath(),
+    fetchVehicleTypes(),
+    fetchVehicles(),
   ]);
 
   return {
     nations: nationsRes.data,
     mediaPath,
+    vehicleTypes,
+    vehicles,
   };
 }
 
