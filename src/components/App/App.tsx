@@ -64,22 +64,26 @@ function NationsList({ dataPromise }: NationsListProps) {
     return languages.includes('en') ? 'en' : languages[0] || 'en';
   });
 
-  const [selectedNation, setSelectedNation] = useState<string>(() => nations[0]?.name || 'usa');
+  const [selectedNation, setSelectedNation] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'tree' | 'grid'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const CHUNK_SIZE = 36;
+  const [displayLimit, setDisplayLimit] = useState(CHUNK_SIZE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const shipsSectionRef = useRef<HTMLDivElement>(null);
 
   // Current localized UI strings
   const ui = useMemo(() => getUiTranslation(selectedLang), [selectedLang]);
 
-  // All ships of current nation
+  // All ships of current nation (or all ships if no nation selected)
   const currentNationShips = useMemo(() => {
+    if (!selectedNation) return vehicles;
     return vehicles.filter((s) => s.nation === selectedNation);
   }, [vehicles, selectedNation]);
 
-  // Matching ships inside the currently selected nation
+  // Matching ships inside the currently displayed list
   const matchingShipIds = useMemo(() => {
     const q = searchQuery.trim();
     if (!q) return new Set<string>();
@@ -92,10 +96,10 @@ function NationsList({ dataPromise }: NationsListProps) {
     return set;
   }, [currentNationShips, searchQuery, selectedLang]);
 
-  // Matching ships in other nations (if not found in current nation)
+  // Matching ships in other nations (only when a specific nation is selected)
   const otherNationMatches = useMemo(() => {
     const q = searchQuery.trim();
-    if (!q || matchingShipIds.size > 0) return [];
+    if (!selectedNation || !q || matchingShipIds.size > 0) return [];
     const result: Vehicle[] = [];
     for (const ship of vehicles) {
       if (ship.nation !== selectedNation && doesShipMatch(ship, q, selectedLang)) {
@@ -113,10 +117,12 @@ function NationsList({ dataPromise }: NationsListProps) {
     );
   }, [vehicleTypes]);
 
-  // Selected nation object
-  const currentNationObj = useMemo(() => {
-    return nations.find((n) => n.name === selectedNation) || nations[0];
-  }, [nations, selectedNation]);
+  // Current section title
+  const currentNationTitle = useMemo(() => {
+    if (!selectedNation) return ui.allNations;
+    const currentNationObj = nations.find((n) => n.name === selectedNation);
+    return currentNationObj?.localization?.mark?.[selectedLang] || currentNationObj?.name || selectedNation;
+  }, [selectedNation, nations, selectedLang, ui.allNations]);
 
   // Filter and sort ships for catalog view
   const filteredCatalogShips = useMemo(() => {
@@ -134,8 +140,40 @@ function NationsList({ dataPromise }: NationsListProps) {
       });
   }, [currentNationShips, selectedType, searchQuery, matchingShipIds, selectedLang]);
 
-  const handleSelectNation = (nationName: string) => {
-    setSelectedNation(nationName);
+  // Reset display limit when filter, nation or search changes
+  useEffect(() => {
+    setDisplayLimit(CHUNK_SIZE);
+  }, [selectedNation, selectedType, searchQuery]);
+
+  // Infinite scroll observer: loads next chunk when scrolling near bottom
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setDisplayLimit((prev) => {
+            if (prev < filteredCatalogShips.length) {
+              return Math.min(prev + CHUNK_SIZE, filteredCatalogShips.length);
+            }
+            return prev;
+          });
+        }
+      },
+      { rootMargin: '400px' }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [filteredCatalogShips.length]);
+
+  const visibleCatalogShips = useMemo(() => {
+    return filteredCatalogShips.slice(0, displayLimit);
+  }, [filteredCatalogShips, displayLimit]);
+
+  const handleSelectNation = (nationName: string | null) => {
+    setSelectedNation((prev) => (prev === nationName ? null : nationName));
     shipsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -143,9 +181,6 @@ function NationsList({ dataPromise }: NationsListProps) {
     setSelectedNation(ship.nation);
     shipsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-
-  const currentNationTitle =
-    currentNationObj?.localization?.mark?.[selectedLang] || currentNationObj?.name || '';
 
   return (
     <div className={styles.container}>
@@ -217,6 +252,13 @@ function NationsList({ dataPromise }: NationsListProps) {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{ui.nations}</h2>
         <div className={styles.list}>
+          <button
+            type="button"
+            className={`${styles.item} ${selectedNation === null ? styles.itemSelected : ''}`}
+            onClick={() => handleSelectNation(null)}
+          >
+            <span>{ui.allNations}</span>
+          </button>
           {nations.map((nation) => {
             const title = nation.localization?.mark?.[selectedLang] || nation.name;
             const flagUrl = buildFlagUrl(mediaPath, nation.icons.large || nation.icons.default);
@@ -264,14 +306,16 @@ function NationsList({ dataPromise }: NationsListProps) {
               {ui.viewTree}
             </button>
             <span className={styles.count}>
-              ({searchQuery ? matchingShipIds.size : currentNationShips.length})
+              ({searchQuery ? matchingShipIds.size : filteredCatalogShips.length})
             </span>
           </div>
         </div>
 
         {viewMode === 'tree' ? (
           /* Tree View with drawn connections and search highlighting */
-          currentNationShips.length === 0 ? (
+          !selectedNation ? (
+            <div className={styles.empty}>{ui.selectNationForTree}</div>
+          ) : currentNationShips.length === 0 ? (
             <div className={styles.empty}>{ui.noShips}</div>
           ) : (
             <TechTree
@@ -325,7 +369,7 @@ function NationsList({ dataPromise }: NationsListProps) {
               <div className={styles.empty}>{ui.noShips}</div>
             ) : (
               <div className={styles.grid}>
-                {filteredCatalogShips.map((ship) => {
+                {visibleCatalogShips.map((ship) => {
                   const shipTitle =
                     ship.localization?.mark?.[selectedLang] ||
                     ship.localization?.shortmark?.[selectedLang] ||
@@ -338,6 +382,11 @@ function NationsList({ dataPromise }: NationsListProps) {
                     ship.icons?.medium || ship.icons?.large || ship.icons?.small || ship.icons?.default
                   );
 
+                  const shipNation = nations.find((n) => n.name === ship.nation);
+                  const shipFlagUrl = shipNation
+                    ? buildFlagUrl(mediaPath, shipNation.icons.small || shipNation.icons.default)
+                    : null;
+
                   const isPremium = ship.tags?.includes('uiPremium');
                   const isSpecial = ship.tags?.includes('special') || ship.tags?.includes('uiSpecial');
 
@@ -346,6 +395,16 @@ function NationsList({ dataPromise }: NationsListProps) {
                       <div className={styles.cardHeader}>
                         <div className={styles.tierType}>
                           <span>{toRomanTier(ship.level)}</span>
+                          {shipFlagUrl && (
+                            <img
+                              src={shipFlagUrl}
+                              alt={ship.nation}
+                              title={shipNation?.localization?.mark?.[selectedLang] || ship.nation}
+                              className={styles.flag}
+                              style={{ width: 18, height: 12, objectFit: 'cover', borderRadius: 2 }}
+                              loading="lazy"
+                            />
+                          )}
                           {typeIconUrl && (
                             <img
                               src={typeIconUrl}
@@ -379,6 +438,22 @@ function NationsList({ dataPromise }: NationsListProps) {
                     </div>
                   );
                 })}
+
+                {/* Infinite scroll sentinel */}
+                {displayLimit < filteredCatalogShips.length && (
+                  <div
+                    ref={loadMoreRef}
+                    style={{
+                      gridColumn: '1 / -1',
+                      height: 50,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span className={styles.count}>{ui.loading}</span>
+                  </div>
+                )}
               </div>
             )}
           </>

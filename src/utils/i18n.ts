@@ -2,6 +2,8 @@ export interface UiTranslations {
   title: string;
   language: string;
   nations: string;
+  allNations: string;
+  selectNationForTree: string;
   classes: string;
   allTypes: string;
   ships: string;
@@ -21,16 +23,18 @@ export interface UiTranslations {
   foundInOtherNations: string;
 }
 
-export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
+export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
   en: {
     title: 'Warships Encyclopedia',
     language: 'Language:',
     nations: 'Nations',
+    allNations: 'All Nations',
+    selectNationForTree: 'Select a nation above to view its tech tree',
     classes: 'Ship Classes',
     allTypes: 'All Types',
     ships: 'Ships',
     found: 'Found',
-    noShips: 'No ships found for selected nation and filter',
+    noShips: 'No ships found for selected filter',
     noImage: 'No image',
     premium: 'Premium',
     special: 'Special',
@@ -48,11 +52,13 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
     title: 'Справочник кораблей',
     language: 'Язык:',
     nations: 'Нации',
+    allNations: 'Все нации',
+    selectNationForTree: 'Выберите нацию выше, чтобы открыть дерево развития',
     classes: 'Классы кораблей',
     allTypes: 'Все типы',
     ships: 'Корабли',
     found: 'Найдено',
-    noShips: 'Для выбранной нации и фильтра корабли не найдены',
+    noShips: 'Для выбранного фильтра корабли не найдены',
     noImage: 'Нет изображения',
     premium: 'Премиум',
     special: 'Особый',
@@ -443,5 +449,7 @@ export const UI_TRANSLATIONS: Record<string, UiTranslations> = {
 };
 
 export function getUiTranslation(lang: string): UiTranslations {
-  return UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
+  const base = UI_TRANSLATIONS.en as UiTranslations;
+  const current = UI_TRANSLATIONS[lang] || {};
+  return { ...base, ...current };
 }
