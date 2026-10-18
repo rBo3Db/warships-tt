@@ -183,3 +183,15 @@
   border: 1px solid #ccc;
   background: #fff;
 }
+
+.premiumTierWrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.premiumTypeIcon {
+  width: 14px;
+  height: 14px;
+}
+

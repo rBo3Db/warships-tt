@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Nation } from '../../types/nation';
 import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
 import {
@@ -11,45 +11,144 @@ import {
   getCachedVehiclesSync,
   loadAndSyncVehicles,
 } from '../../services/nationsService';
+import { getUiTranslation } from '../../utils/i18n';
 import { Loader } from '../ui/Loader';
+import { ErrorCard } from '../ui/ErrorCard';
+import { CenteredContainer } from '../ui/CenteredContainer';
 import { Encyclopedia } from '../Encyclopedia';
 
 export function App() {
   // 1. Synchronously read each resource from localStorage on frame 0.
-  // Whichever resource exists in cache is immediately available with 0ms delay!
   const [nations, setNations] = useState<Nation[] | null>(() => getCachedNationsSync());
   const [mediaPath, setMediaPath] = useState<string | null>(() => getCachedMediaPathSync());
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypesMap | null>(() => getCachedVehicleTypesSync());
   const [vehicles, setVehicles] = useState<Vehicle[] | null>(() => getCachedVehiclesSync());
 
-  // 2. Each resource loads and syncs completely independently in parallel:
-  // - Fast resources (mediaPath 100B, nations 5KB, types 2KB) finish in ~30ms and render instantly.
-  // - Heavy vehicles (~3.6MB) load independently without blocking the Header, NationsBar, or language selector.
-  useEffect(() => {
-    loadAndSyncNations(setNations, nations !== null);
-    loadAndSyncMediaPath(setMediaPath, mediaPath !== null);
-    loadAndSyncVehicleTypes(setVehicleTypes, vehicleTypes !== null);
-    loadAndSyncVehicles(setVehicles, vehicles !== null);
+  // Error tracking states
+  const [globalError, setGlobalError] = useState<string | null>(null);
+  const [bannerError, setBannerError] = useState<string | null>(null);
+  const [vehiclesError, setVehiclesError] = useState<string | null>(null);
+
+  // Initial language for system messages
+  const defaultLang = useMemo(() => {
+    if (typeof navigator !== 'undefined') {
+      const code = navigator.language.toLowerCase().split('-')[0];
+      return code || 'en';
+    }
+    return 'en';
   }, []);
 
-  // Cold start fallback: only shows if literally nothing is in cache yet (first ~30ms of brand new visit)
+  const ui = useMemo(() => getUiTranslation(defaultLang), [defaultLang]);
+
+  // Main loader and sync coordinator
+  const loadAll = useCallback(() => {
+    setGlobalError(null);
+    setBannerError(null);
+
+    const handleSyncError = () => {
+      setBannerError(ui.syncFailedBanner);
+    };
+
+    loadAndSyncNations(
+      setNations,
+      nations !== null,
+      () => {
+        if (!nations) setGlobalError(ui.serverErrorDesc);
+        else handleSyncError();
+      }
+    );
+
+    loadAndSyncMediaPath(
+      setMediaPath,
+      mediaPath !== null,
+      () => {
+        if (!mediaPath) setGlobalError(ui.serverErrorDesc);
+        else handleSyncError();
+      }
+    );
+
+    loadAndSyncVehicleTypes(
+      setVehicleTypes,
+      vehicleTypes !== null,
+      () => {
+        if (!vehicleTypes) setGlobalError(ui.serverErrorDesc);
+        else handleSyncError();
+      }
+    );
+
+    loadAndSyncVehicles(
+      (v) => {
+        setVehicles(v);
+        setVehiclesError(null);
+      },
+      vehicles !== null,
+      () => {
+        if (!vehicles) {
+          setVehiclesError(ui.shipsLoadError);
+        } else {
+          handleSyncError();
+        }
+      }
+    );
+  }, [nations, mediaPath, vehicleTypes, vehicles, ui]);
+
+  // Load and sync on mount
+  useEffect(() => {
+    loadAll();
+  }, []);
+
+  // Dedicated retry for catalog vehicles
+  const handleRetryVehicles = useCallback(() => {
+    setVehiclesError(null);
+    loadAndSyncVehicles(
+      (v) => {
+        setVehicles(v);
+        setVehiclesError(null);
+      },
+      false,
+      () => setVehiclesError(ui.shipsLoadError)
+    );
+  }, [ui]);
+
+  // Cold start fallback: only if literally nothing is in cache yet
   const isCompletelyEmpty = !nations && !mediaPath && !vehicleTypes && !vehicles;
   if (isCompletelyEmpty) {
-    return <Loader />;
+    if (globalError) {
+      return (
+        <CenteredContainer>
+          <ErrorCard
+            title={ui.connectionError}
+            message={globalError}
+            retryLabel={ui.retry}
+            onRetry={loadAll}
+          />
+        </CenteredContainer>
+      );
+    }
+    return (
+      <CenteredContainer>
+        <Loader />
+      </CenteredContainer>
+    );
   }
 
-  // Progressive rendering:
-  // Header and NationsBar appear immediately, while Catalog shows its own loader until vehicles arrive!
+  // Progressive rendering with non-blocking error banner & localized ship retry
   return (
     <Encyclopedia
       nations={nations}
       mediaPath={mediaPath}
       vehicleTypes={vehicleTypes}
       vehicles={vehicles}
+      bannerError={bannerError}
+      onRetryBanner={loadAll}
+      onDismissBanner={() => setBannerError(null)}
+      vehiclesError={vehiclesError}
+      onRetryVehicles={handleRetryVehicles}
     />
   );
 }
 
 export default App;
+
 
 

@@ -122,7 +122,8 @@ export function getCachedMediaPathSync(): string | null {
  */
 export async function loadAndSyncMediaPath(
   onUpdate: (path: string) => void,
-  hasInitialSync = false
+  hasInitialSync = false,
+  onError?: (err: Error) => void
 ): Promise<void> {
   let cachedRaw: string | null = null;
   if (!hasInitialSync) {
@@ -135,19 +136,26 @@ export async function loadAndSyncMediaPath(
     cachedRaw = getCachedItemSync(STORAGE_KEYS.MEDIA_PATH);
   }
 
-  const freshText = await fetchMediaPathRaw();
-  if (!freshText) return;
+  try {
+    const freshText = await fetchMediaPathRaw();
+    if (!freshText) {
+      throw new Error('Failed to fetch media_path');
+    }
 
-  if (cachedRaw && cachedRaw === freshText) {
-    console.log('[Sync] Media path identical to server. Skipping re-render.');
-    return;
-  }
+    if (cachedRaw && cachedRaw === freshText) {
+      console.log('[Sync] Media path identical to server. Skipping re-render.');
+      return;
+    }
 
-  console.log('[Sync] New media path received! Updating cache and re-rendering.');
-  await setCachedItem(STORAGE_KEYS.MEDIA_PATH, freshText);
-  const path = parseMediaPath(freshText);
-  if (path) {
-    onUpdate(path);
+    console.log('[Sync] New media path received! Updating cache and re-rendering.');
+    await setCachedItem(STORAGE_KEYS.MEDIA_PATH, freshText);
+    const path = parseMediaPath(freshText);
+    if (path) {
+      onUpdate(path);
+    }
+  } catch (err) {
+    console.warn('[Sync] Error syncing media path:', err);
+    onError?.(err instanceof Error ? err : new Error(String(err)));
   }
 }
 
@@ -242,7 +250,8 @@ export function getCachedNationsSync(): Nation[] | null {
  */
 export async function loadAndSyncNations(
   onUpdate: (nations: Nation[]) => void,
-  hasInitialSync = false
+  hasInitialSync = false,
+  onError?: (err: Error) => void
 ): Promise<void> {
   let cachedRaw: string | null = null;
   if (!hasInitialSync) {
@@ -255,19 +264,26 @@ export async function loadAndSyncNations(
     cachedRaw = getCachedItemSync(STORAGE_KEYS.NATIONS);
   }
 
-  const freshText = await fetchNationsRaw();
-  if (!freshText) return;
+  try {
+    const freshText = await fetchNationsRaw();
+    if (!freshText) {
+      throw new Error('Failed to fetch nations');
+    }
 
-  if (cachedRaw && cachedRaw === freshText) {
-    console.log('[Sync] Nations identical to server. Skipping re-render.');
-    return;
-  }
+    if (cachedRaw && cachedRaw === freshText) {
+      console.log('[Sync] Nations identical to server. Skipping re-render.');
+      return;
+    }
 
-  console.log('[Sync] New nations received! Updating cache and re-rendering.');
-  await setCachedItem(STORAGE_KEYS.NATIONS, freshText);
-  const nations = parseNations(freshText);
-  if (nations.length > 0) {
-    onUpdate(nations);
+    console.log('[Sync] New nations received! Updating cache and re-rendering.');
+    await setCachedItem(STORAGE_KEYS.NATIONS, freshText);
+    const nations = parseNations(freshText);
+    if (nations.length > 0) {
+      onUpdate(nations);
+    }
+  } catch (err) {
+    console.warn('[Sync] Error syncing nations:', err);
+    onError?.(err instanceof Error ? err : new Error(String(err)));
   }
 }
 

@@ -8,6 +8,7 @@ import { NationsBar } from '../NationsBar';
 import { Catalog } from '../Catalog';
 import { TechTree } from '../TechTree/TechTree';
 import { ScrollToTop } from '../ui/ScrollToTop';
+import { ErrorBanner } from '../ui/ErrorBanner';
 import styles from './Encyclopedia.module.css';
 
 interface EncyclopediaProps {
@@ -15,6 +16,11 @@ interface EncyclopediaProps {
   mediaPath: string | null;
   vehicleTypes: VehicleTypesMap | null;
   vehicles: Vehicle[] | null;
+  bannerError?: string | null;
+  onRetryBanner?: () => void;
+  onDismissBanner?: () => void;
+  vehiclesError?: string | null;
+  onRetryVehicles?: () => void;
 }
 
 export function Encyclopedia({
@@ -22,6 +28,11 @@ export function Encyclopedia({
   mediaPath,
   vehicleTypes,
   vehicles,
+  bannerError = null,
+  onRetryBanner,
+  onDismissBanner,
+  vehiclesError = null,
+  onRetryVehicles,
 }: EncyclopediaProps) {
   const safeNations = useMemo(() => nations || [], [nations]);
   const safeMediaPath = mediaPath || '';
@@ -140,6 +151,17 @@ export function Encyclopedia({
 
   return (
     <div className={styles.container}>
+      {/* Warning banner when background sync failed but cached data is displayed */}
+      {bannerError && (
+        <ErrorBanner
+          message={bannerError}
+          retryLabel={ui.retry}
+          onRetry={onRetryBanner}
+          dismissLabel={ui.dismiss}
+          onDismiss={onDismissBanner}
+        />
+      )}
+
       {/* Header with Search and Language Picker */}
       <Header
         searchQuery={searchQuery}
@@ -194,7 +216,7 @@ export function Encyclopedia({
           /* Tree View */
           !selectedNation ? (
             <div className={styles.empty}>{ui.selectNationForTree}</div>
-          ) : currentNationShips.length === 0 && !isVehiclesLoading ? (
+          ) : currentNationShips.length === 0 && !isVehiclesLoading && !vehiclesError ? (
             <div className={styles.empty}>{ui.noShips}</div>
           ) : (
             <TechTree
@@ -206,6 +228,8 @@ export function Encyclopedia({
               searchQuery={searchQuery}
               matchingShipIds={matchingShipIds}
               isLoading={isVehiclesLoading}
+              errorMessage={vehiclesError}
+              onRetry={onRetryVehicles}
             />
           )
         ) : (
@@ -228,6 +252,8 @@ export function Encyclopedia({
             nations={safeNations}
             ui={ui}
             isLoading={isVehiclesLoading}
+            errorMessage={vehiclesError}
+            onRetry={onRetryVehicles}
           />
         )}
       </section>

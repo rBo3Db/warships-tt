@@ -28,6 +28,12 @@ export interface UiTranslations {
   searchClear: string;
   foundInOtherNations: string;
   scrollToTop: string;
+  connectionError: string;
+  serverErrorDesc: string;
+  syncFailedBanner: string;
+  shipsLoadError: string;
+  retry: string;
+  dismiss: string;
 }
 
 export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
@@ -61,6 +67,12 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     searchClear: 'Clear',
     foundInOtherNations: 'Found in other nations:',
     scrollToTop: 'Scroll to top',
+    connectionError: 'Connection Error',
+    serverErrorDesc: 'Failed to connect to the server. Please check your internet connection.',
+    syncFailedBanner: 'Could not refresh data from server. Showing cached version.',
+    shipsLoadError: 'Failed to load ships catalog.',
+    retry: 'Try Again',
+    dismiss: 'Dismiss',
   },
   ru: {
     title: 'Справочник кораблей',
@@ -92,6 +104,12 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     searchClear: 'Очистить',
     foundInOtherNations: 'Найдено в других нациях:',
     scrollToTop: 'Наверх',
+    connectionError: 'Ошибка подключения',
+    serverErrorDesc: 'Не удалось подключиться к серверу. Пожалуйста, проверьте интернет-соединение.',
+    syncFailedBanner: 'Не удалось проверить обновления на сервере. Показаны сохранённые данные.',
+    shipsLoadError: 'Не удалось загрузить каталог кораблей.',
+    retry: 'Попробовать снова',
+    dismiss: 'Закрыть',
   },
   de: {
     title: 'Kriegsschiffe-Enzyklopädie',

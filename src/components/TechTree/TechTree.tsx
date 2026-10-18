@@ -2,6 +2,8 @@ import { useMemo, useState, useRef, useLayoutEffect, useEffect, useCallback } fr
 import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
 import type { UiTranslations } from '../../utils/i18n';
 import { Loader } from '../ui/Loader';
+import { ErrorCard } from '../ui/ErrorCard';
+import { CenteredContainer } from '../ui/CenteredContainer';
 import { buildTechTreeData } from '../../utils/techTree';
 import { toRomanTier } from '../../utils/roman';
 import { buildMediaUrl } from '../../services/vehiclesService';
@@ -16,6 +18,8 @@ interface TechTreeProps {
   searchQuery?: string;
   matchingShipIds?: Set<string>;
   isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
 }
 
 interface SvgLineCoords {
@@ -36,6 +40,8 @@ export function TechTree({
   searchQuery = '',
   matchingShipIds,
   isLoading = false,
+  errorMessage,
+  onRetry,
 }: TechTreeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredShipId, setHoveredShipId] = useState<string | null>(null);
@@ -140,11 +146,24 @@ export function TechTree({
     return { nodeIds, linkKeys };
   }, [hoveredShipId, treeData.links]);
 
+  if (errorMessage) {
+    return (
+      <CenteredContainer minHeight="section" className={styles.wrapper}>
+        <ErrorCard
+          title={ui.shipsLoadError}
+          message={errorMessage}
+          retryLabel={ui.retry}
+          onRetry={onRetry}
+        />
+      </CenteredContainer>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className={styles.wrapper} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <CenteredContainer minHeight="section" className={styles.wrapper}>
         <Loader />
-      </div>
+      </CenteredContainer>
     );
   }
 
@@ -336,9 +355,9 @@ export function TechTree({
                   }`}
                 >
                   <div className={styles.nodeHeader}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div className={styles.premiumTierWrapper}>
                       <span>{toRomanTier(ship.level)}</span>
-                      {typeIcon && <img src={typeIcon} alt={ship.type} style={{ width: 14, height: 14 }} />}
+                      {typeIcon && <img src={typeIcon} alt={ship.type} className={styles.premiumTypeIcon} />}
                     </div>
                     <div>
                       {isPremium && <span className={styles.badge}>{ui.premium}</span>}

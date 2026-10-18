@@ -3,6 +3,7 @@ import type { Vehicle, VehicleTypesMap, VehicleTypeInfo } from '../../types/vehi
 import type { Nation } from '../../types/nation';
 import type { UiTranslations } from '../../utils/i18n';
 import { Loader } from '../ui/Loader';
+import { ErrorCard } from '../ui/ErrorCard';
 import { CatalogFilters } from './CatalogFilters';
 import { ShipCard } from './ShipCard';
 import styles from './Catalog.module.css';
@@ -25,6 +26,8 @@ interface CatalogProps {
   nations: Nation[];
   ui: UiTranslations;
   isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
 }
 
 export function Catalog({
@@ -45,6 +48,8 @@ export function Catalog({
   nations,
   ui,
   isLoading = false,
+  errorMessage = null,
+  onRetry,
 }: CatalogProps) {
   return (
     <>
@@ -61,7 +66,14 @@ export function Catalog({
         ui={ui}
       />
 
-      {isLoading ? (
+      {errorMessage ? (
+        <ErrorCard
+          title={ui.shipsLoadError}
+          message={errorMessage}
+          retryLabel={ui.retry}
+          onRetry={onRetry}
+        />
+      ) : isLoading ? (
         <div className={styles.loadingContainer}>
           <Loader />
         </div>

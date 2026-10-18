@@ -118,7 +118,8 @@ export function getCachedVehicleTypesSync(): VehicleTypesMap | null {
  */
 export async function loadAndSyncVehicleTypes(
   onUpdate: (types: VehicleTypesMap) => void,
-  hasInitialSync = false
+  hasInitialSync = false,
+  onError?: (err: Error) => void
 ): Promise<void> {
   let cachedRaw: string | null = null;
   if (!hasInitialSync) {
@@ -131,19 +132,26 @@ export async function loadAndSyncVehicleTypes(
     cachedRaw = getCachedItemSync(STORAGE_KEYS.VEHICLE_TYPES);
   }
 
-  const freshText = await fetchVehicleTypesRaw();
-  if (!freshText) return;
+  try {
+    const freshText = await fetchVehicleTypesRaw();
+    if (!freshText) {
+      throw new Error('Failed to fetch vehicle types');
+    }
 
-  if (cachedRaw && cachedRaw === freshText) {
-    console.log('[Sync] Vehicle types identical to server. Skipping re-render.');
-    return;
-  }
+    if (cachedRaw && cachedRaw === freshText) {
+      console.log('[Sync] Vehicle types identical to server. Skipping re-render.');
+      return;
+    }
 
-  console.log('[Sync] New vehicle types received! Updating cache and re-rendering.');
-  await setCachedItem(STORAGE_KEYS.VEHICLE_TYPES, freshText);
-  const types = parseVehicleTypes(freshText);
-  if (Object.keys(types).length > 0) {
-    onUpdate(types);
+    console.log('[Sync] New vehicle types received! Updating cache and re-rendering.');
+    await setCachedItem(STORAGE_KEYS.VEHICLE_TYPES, freshText);
+    const types = parseVehicleTypes(freshText);
+    if (Object.keys(types).length > 0) {
+      onUpdate(types);
+    }
+  } catch (err) {
+    console.warn('[Sync] Error syncing vehicle types:', err);
+    onError?.(err instanceof Error ? err : new Error(String(err)));
   }
 }
 
@@ -300,7 +308,8 @@ export function getCachedVehiclesSync(): Vehicle[] | null {
  */
 export async function loadAndSyncVehicles(
   onUpdate: (vehicles: Vehicle[]) => void,
-  hasInitialSync = false
+  hasInitialSync = false,
+  onError?: (err: Error) => void
 ): Promise<void> {
   let cachedRaw: string | null = null;
   if (!hasInitialSync) {
@@ -315,22 +324,26 @@ export async function loadAndSyncVehicles(
     cachedRaw = getCachedItemSync(STORAGE_KEYS.VEHICLES);
   }
 
-  const freshText = await fetchVehiclesRaw();
-  if (!freshText) {
-    console.warn('[Sync] Could not reach backend for vehicles update');
-    return;
-  }
+  try {
+    const freshText = await fetchVehiclesRaw();
+    if (!freshText) {
+      throw new Error('Failed to fetch vehicles from network');
+    }
 
-  if (cachedRaw && cachedRaw === freshText) {
-    console.log('[Sync] Vehicles file is identical to server. Skipping re-render.');
-    return;
-  }
+    if (cachedRaw && cachedRaw === freshText) {
+      console.log('[Sync] Vehicles file is identical to server. Skipping re-render.');
+      return;
+    }
 
-  console.log('[Sync] New vehicles file received from server! Updating cache and re-rendering.');
-  await setCachedVehiclesString(freshText);
-  const vehicles = parseAndNormalizeVehicles(freshText);
-  if (vehicles.length > 0) {
-    onUpdate(vehicles);
+    console.log('[Sync] New vehicles file received from server! Updating cache and re-rendering.');
+    await setCachedVehiclesString(freshText);
+    const vehicles = parseAndNormalizeVehicles(freshText);
+    if (vehicles.length > 0) {
+      onUpdate(vehicles);
+    }
+  } catch (err) {
+    console.warn('[Sync] Error syncing vehicles:', err);
+    onError?.(err instanceof Error ? err : new Error(String(err)));
   }
 }
 
