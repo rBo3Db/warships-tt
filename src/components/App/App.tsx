@@ -1,12 +1,14 @@
 import { use, useState, useRef, useMemo, useEffect, Suspense } from 'react';
 import type { Vehicle } from '../../types/vehicle';
-import { fetchAppData, buildFlagUrl, syncAppData, type AppData } from '../../services/nationsService';
-import { buildMediaUrl } from '../../services/vehiclesService';
-import { Loader } from '../ui/Loader';
-import { TechTree } from '../TechTree/TechTree';
-import { getLanguageTitle } from '../../utils/language';
-import { toRomanTier } from '../../utils/roman';
+import { fetchAppData, syncAppData, type AppData } from '../../services/nationsService';
 import { getUiTranslation } from '../../utils/i18n';
+import { toRomanTier } from '../../utils/roman';
+import { Loader } from '../ui/Loader';
+import { Header } from '../Header';
+import { NationsBar } from '../NationsBar';
+import { Catalog } from '../Catalog';
+import { TechTree } from '../TechTree/TechTree';
+import { ScrollToTop } from '../ui/ScrollToTop';
 import styles from './App.module.css';
 
 interface NationsListProps {
@@ -34,8 +36,6 @@ function doesShipMatch(ship: Vehicle, q: string, lang: string): boolean {
     typeLower.includes(lower)
   );
 }
-
-const TIERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
 function NationsList({ dataPromise }: NationsListProps) {
   const initialData = use(dataPromise);
@@ -125,7 +125,11 @@ function NationsList({ dataPromise }: NationsListProps) {
   const currentNationTitle = useMemo(() => {
     if (!selectedNation) return ui.allNations;
     const currentNationObj = nations.find((n) => n.name === selectedNation);
-    return currentNationObj?.localization?.mark?.[selectedLang] || currentNationObj?.name || selectedNation;
+    return (
+      currentNationObj?.localization?.mark?.[selectedLang] ||
+      currentNationObj?.name ||
+      selectedNation
+    );
   }, [selectedNation, nations, selectedLang, ui.allNations]);
 
   // Filter and sort ships for catalog view
@@ -205,113 +209,36 @@ function NationsList({ dataPromise }: NationsListProps) {
 
   return (
     <div className={styles.container}>
-      <header className={styles.topBar}>
-        <h1 className={styles.title}>{ui.title}</h1>
+      {/* Header with Search and Language Picker */}
+      <Header
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSearchClear={() => setSearchQuery('')}
+        selectedLang={selectedLang}
+        onLangChange={setSelectedLang}
+        languages={languages}
+        ui={ui}
+        otherNationMatches={otherNationMatches}
+        nations={nations}
+        mediaPath={mediaPath}
+        onJumpToShip={handleJumpToOtherNationShip}
+      />
 
-        {/* Search Input */}
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder={ui.searchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              className={styles.clearSearchBtn}
-              onClick={() => setSearchQuery('')}
-              title={ui.searchClear}
-            >
-              ✕
-            </button>
-          )}
-        </div>
+      {/* Nations horizontal list */}
+      <NationsBar
+        nations={nations}
+        selectedNation={selectedNation}
+        onSelectNation={handleSelectNation}
+        mediaPath={mediaPath}
+        selectedLang={selectedLang}
+        ui={ui}
+      />
 
-        {/* Language Selector */}
-        <div className={styles.langPicker}>
-          <label htmlFor="language-select">{ui.language} </label>
-          <select
-            id="language-select"
-            value={selectedLang}
-            onChange={(e) => setSelectedLang(e.target.value)}
-          >
-            {languages.map((code) => (
-              <option key={code} value={code}>
-                {getLanguageTitle(code, selectedLang)} ({code})
-              </option>
-            ))}
-          </select>
-        </div>
-      </header>
-
-      {/* Other nations search hints */}
-      {otherNationMatches.length > 0 && (
-        <div className={styles.otherNationsBanner}>
-          <span>{ui.foundInOtherNations}</span>
-          {otherNationMatches.map((ship) => {
-            const nat = nations.find((n) => n.name === ship.nation);
-            const flag = nat ? buildFlagUrl(mediaPath, nat.icons.small || nat.icons.default) : null;
-            const shipTitle = ship.localization?.mark?.[selectedLang] || ship.name;
-            return (
-              <button
-                key={ship.id}
-                type="button"
-                className={styles.otherNationChip}
-                onClick={() => handleJumpToOtherNationShip(ship)}
-              >
-                {flag && <img src={flag} alt={ship.nation} className={styles.flag} style={{ width: 16, height: 10 }} />}
-                <span>{shipTitle} ({toRomanTier(ship.level)})</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Nations list */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{ui.nations}</h2>
-        <div className={styles.list}>
-          <button
-            type="button"
-            className={`${styles.item} ${selectedNation === null ? styles.itemSelected : ''}`}
-            onClick={() => handleSelectNation(null)}
-          >
-            <span>{ui.allNations}</span>
-          </button>
-          {nations.map((nation) => {
-            const title = nation.localization?.mark?.[selectedLang] || nation.name;
-            const flagUrl = buildFlagUrl(mediaPath, nation.icons.large || nation.icons.default);
-            const isSelected = selectedNation === nation.name;
-
-            return (
-              <button
-                key={nation.id}
-                type="button"
-                className={`${styles.item} ${isSelected ? styles.itemSelected : ''}`}
-                onClick={() => handleSelectNation(nation.name)}
-              >
-                <img
-                  src={flagUrl}
-                  alt={title}
-                  className={styles.flag}
-                  loading="lazy"
-                />
-                <span>{title}</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* View Switcher and Filters */}
+      {/* View Switcher (Catalog / Tree) and Section Title */}
       <section ref={shipsSectionRef} className={styles.section}>
         <div className={styles.shipsHeader}>
-          <h2 className={styles.sectionTitle}>
-            {currentNationTitle}
-          </h2>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <h2 className={styles.sectionTitle}>{currentNationTitle}</h2>
+          <div className={styles.viewSwitcher}>
             <button
               type="button"
               className={`${styles.item} ${viewMode === 'grid' ? styles.itemSelected : ''}`}
@@ -333,7 +260,7 @@ function NationsList({ dataPromise }: NationsListProps) {
         </div>
 
         {viewMode === 'tree' ? (
-          /* Tree View with drawn connections and search highlighting */
+          /* Tree View */
           !selectedNation ? (
             <div className={styles.empty}>{ui.selectNationForTree}</div>
           ) : currentNationShips.length === 0 ? (
@@ -350,186 +277,30 @@ function NationsList({ dataPromise }: NationsListProps) {
             />
           )
         ) : (
-          /* Catalog view with class filter */
-          <>
-            {/* Class filter */}
-            <div className={styles.list}>
-              <button
-                type="button"
-                className={`${styles.item} ${selectedType === null ? styles.itemSelected : ''}`}
-                onClick={() => setSelectedType(null)}
-              >
-                {ui.allTypes}
-              </button>
-              {sortedTypes.map(([typeKey, typeInfo]) => {
-                const isSelected = selectedType === typeKey;
-                const typeTitle = typeInfo.localization?.mark?.[selectedLang] || typeKey;
-                const iconUrl = buildMediaUrl(mediaPath, typeInfo.icons?.default);
-
-                return (
-                  <button
-                    key={typeKey}
-                    type="button"
-                    className={`${styles.item} ${isSelected ? styles.itemSelected : ''}`}
-                    onClick={() => setSelectedType(isSelected ? null : typeKey)}
-                  >
-                    {iconUrl && (
-                      <img
-                        src={iconUrl}
-                        alt={typeTitle}
-                        className={styles.typeIcon}
-                        loading="lazy"
-                      />
-                    )}
-                    <span>{typeTitle}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Status toggle: All / Researchable / Premium */}
-            <div className={styles.list}>
-              <button
-                type="button"
-                className={`${styles.item} ${selectedStatus === 'all' ? styles.itemSelected : ''}`}
-                onClick={() => setSelectedStatus('all')}
-              >
-                {ui.allStatuses}
-              </button>
-              <button
-                type="button"
-                className={`${styles.item} ${selectedStatus === 'researchable' ? styles.itemSelected : ''}`}
-                onClick={() => setSelectedStatus(selectedStatus === 'researchable' ? 'all' : 'researchable')}
-              >
-                {ui.onlyResearchable}
-              </button>
-              <button
-                type="button"
-                className={`${styles.item} ${selectedStatus === 'premium' ? styles.itemSelected : ''}`}
-                onClick={() => setSelectedStatus(selectedStatus === 'premium' ? 'all' : 'premium')}
-              >
-                {ui.onlyPremium}
-              </button>
-            </div>
-
-            {/* Tier filter: All / I ... XI */}
-            <div className={styles.list}>
-              <button
-                type="button"
-                className={`${styles.item} ${selectedTier === null ? styles.itemSelected : ''}`}
-                onClick={() => setSelectedTier(null)}
-              >
-                {ui.allTiers}
-              </button>
-              {TIERS.map((tier) => {
-                const isSelected = selectedTier === tier;
-                return (
-                  <button
-                    key={tier}
-                    type="button"
-                    className={`${styles.item} ${isSelected ? styles.itemSelected : ''}`}
-                    onClick={() => setSelectedTier(isSelected ? null : tier)}
-                  >
-                    <span>{toRomanTier(tier)}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {filteredCatalogShips.length === 0 ? (
-              <div className={styles.empty}>{ui.noShips}</div>
-            ) : (
-              <div className={styles.grid}>
-                {visibleCatalogShips.map((ship) => {
-                  const shipTitle =
-                    ship.localization?.mark?.[selectedLang] ||
-                    ship.localization?.shortmark?.[selectedLang] ||
-                    ship.name;
-
-                  const typeInfo = vehicleTypes[ship.type];
-                  const typeIconUrl = buildMediaUrl(mediaPath, typeInfo?.icons?.default);
-                  const shipImgUrl = buildMediaUrl(
-                    mediaPath,
-                    ship.icons?.medium || ship.icons?.large || ship.icons?.small || ship.icons?.default
-                  );
-
-                  const shipNation = nations.find((n) => n.name === ship.nation);
-                  const shipFlagUrl = shipNation
-                    ? buildFlagUrl(mediaPath, shipNation.icons.small || shipNation.icons.default)
-                    : null;
-
-                  const isPremium = ship.tags?.includes('uiPremium');
-                  const isSpecial = ship.tags?.includes('special') || ship.tags?.includes('uiSpecial');
-
-                  return (
-                    <div key={ship.id} className={styles.card}>
-                      <div className={styles.cardHeader}>
-                        <div className={styles.tierType}>
-                          <span>{toRomanTier(ship.level)}</span>
-                          {shipFlagUrl && (
-                            <img
-                              src={shipFlagUrl}
-                              alt={ship.nation}
-                              title={shipNation?.localization?.mark?.[selectedLang] || ship.nation}
-                              className={styles.flag}
-                              style={{ width: 18, height: 12, objectFit: 'cover', borderRadius: 2 }}
-                              loading="lazy"
-                            />
-                          )}
-                          {typeIconUrl && (
-                            <img
-                              src={typeIconUrl}
-                              alt={ship.type}
-                              className={styles.typeIcon}
-                              title={typeInfo?.localization?.mark?.[selectedLang] || ship.type}
-                              loading="lazy"
-                            />
-                          )}
-                        </div>
-                        <div>
-                          {isPremium && <span className={styles.badge}>{ui.premium}</span>}
-                          {isSpecial && <span className={styles.badge}>{ui.special}</span>}
-                        </div>
-                      </div>
-
-                      <h3 className={styles.shipName} title={shipTitle}>
-                        {shipTitle}
-                      </h3>
-
-                      {shipImgUrl ? (
-                        <img
-                          src={shipImgUrl}
-                          alt={shipTitle}
-                          className={styles.shipImage}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className={styles.empty}>{ui.noImage}</div>
-                      )}
-                    </div>
-                  );
-                })}
-
-                {/* Infinite scroll sentinel */}
-                {displayLimit < filteredCatalogShips.length && (
-                  <div
-                    ref={loadMoreRef}
-                    style={{
-                      gridColumn: '1 / -1',
-                      height: 50,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <span className={styles.count}>{ui.loading}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </>
+          /* Catalog View */
+          <Catalog
+            ships={visibleCatalogShips}
+            totalFilteredCount={filteredCatalogShips.length}
+            displayLimit={displayLimit}
+            loadMoreRef={loadMoreRef}
+            sortedTypes={sortedTypes}
+            selectedType={selectedType}
+            onSelectType={setSelectedType}
+            selectedStatus={selectedStatus}
+            onSelectStatus={setSelectedStatus}
+            selectedTier={selectedTier}
+            onSelectTier={setSelectedTier}
+            selectedLang={selectedLang}
+            mediaPath={mediaPath}
+            vehicleTypes={vehicleTypes}
+            nations={nations}
+            ui={ui}
+          />
         )}
       </section>
+
+      {/* Floating Scroll to Top Button */}
+      <ScrollToTop label={ui.scrollToTop} threshold={400} />
     </div>
   );
 }

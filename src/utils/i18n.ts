@@ -27,6 +27,7 @@ export interface UiTranslations {
   searchPlaceholder: string;
   searchClear: string;
   foundInOtherNations: string;
+  scrollToTop: string;
 }
 
 export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
@@ -59,6 +60,7 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     searchPlaceholder: 'Search ship by name, tier, or class...',
     searchClear: 'Clear',
     foundInOtherNations: 'Found in other nations:',
+    scrollToTop: 'Scroll to top',
   },
   ru: {
     title: 'Справочник кораблей',
@@ -89,6 +91,7 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     searchPlaceholder: 'Поиск корабля по названию, уровню или классу...',
     searchClear: 'Очистить',
     foundInOtherNations: 'Найдено в других нациях:',
+    scrollToTop: 'Наверх',
   },
   de: {
     title: 'Kriegsschiffe-Enzyklopädie',
