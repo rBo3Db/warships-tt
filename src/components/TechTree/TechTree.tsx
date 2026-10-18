@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef, useLayoutEffect, useEffect, useCallback } from 'react';
 import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
 import type { UiTranslations } from '../../utils/i18n';
+import { Loader } from '../ui/Loader';
 import { buildTechTreeData } from '../../utils/techTree';
 import { toRomanTier } from '../../utils/roman';
 import { buildMediaUrl } from '../../services/vehiclesService';
@@ -14,6 +15,7 @@ interface TechTreeProps {
   ui: UiTranslations;
   searchQuery?: string;
   matchingShipIds?: Set<string>;
+  isLoading?: boolean;
 }
 
 interface SvgLineCoords {
@@ -33,6 +35,7 @@ export function TechTree({
   ui,
   searchQuery = '',
   matchingShipIds,
+  isLoading = false,
 }: TechTreeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredShipId, setHoveredShipId] = useState<string | null>(null);
@@ -136,6 +139,14 @@ export function TechTree({
 
     return { nodeIds, linkKeys };
   }, [hoveredShipId, treeData.links]);
+
+  if (isLoading) {
+    return (
+      <div className={styles.wrapper} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrapper}>

@@ -14,7 +14,18 @@ import {
   syncVehicles,
   parseVehicleTypes,
   parseAndNormalizeVehicles,
+  getCachedVehicleTypesSync,
+  loadAndSyncVehicleTypes,
+  getCachedVehiclesSync,
+  loadAndSyncVehicles,
 } from './vehiclesService';
+
+export {
+  getCachedVehicleTypesSync,
+  loadAndSyncVehicleTypes,
+  getCachedVehiclesSync,
+  loadAndSyncVehicles,
+};
 
 interface MediaPathApiResponse {
   status: string;
@@ -96,6 +107,50 @@ export async function syncMediaPath(onChanged: (path: string) => void): Promise<
   }
 }
 
+/**
+ * Synchronously retrieves cached media path from localStorage (0ms delay)
+ */
+export function getCachedMediaPathSync(): string | null {
+  const raw = getCachedItemSync(STORAGE_KEYS.MEDIA_PATH);
+  if (!raw) return null;
+  const path = parseMediaPath(raw);
+  return path || null;
+}
+
+/**
+ * Loads media path from cache if not yet present, then syncs with backend.
+ */
+export async function loadAndSyncMediaPath(
+  onUpdate: (path: string) => void,
+  hasInitialSync = false
+): Promise<void> {
+  let cachedRaw: string | null = null;
+  if (!hasInitialSync) {
+    cachedRaw = await getCachedItem(STORAGE_KEYS.MEDIA_PATH);
+    if (cachedRaw) {
+      const path = parseMediaPath(cachedRaw);
+      if (path) onUpdate(path);
+    }
+  } else {
+    cachedRaw = getCachedItemSync(STORAGE_KEYS.MEDIA_PATH);
+  }
+
+  const freshText = await fetchMediaPathRaw();
+  if (!freshText) return;
+
+  if (cachedRaw && cachedRaw === freshText) {
+    console.log('[Sync] Media path identical to server. Skipping re-render.');
+    return;
+  }
+
+  console.log('[Sync] New media path received! Updating cache and re-rendering.');
+  await setCachedItem(STORAGE_KEYS.MEDIA_PATH, freshText);
+  const path = parseMediaPath(freshText);
+  if (path) {
+    onUpdate(path);
+  }
+}
+
 export function parseNations(rawText: string): Nation[] {
   try {
     const json: NationsApiResponse = JSON.parse(rawText);
@@ -169,6 +224,50 @@ export async function syncNations(onChanged: (nations: Nation[]) => void): Promi
   const nations = parseNations(freshText);
   if (nations.length > 0) {
     onChanged(nations);
+  }
+}
+
+/**
+ * Synchronously retrieves cached nations from localStorage (0ms delay)
+ */
+export function getCachedNationsSync(): Nation[] | null {
+  const raw = getCachedItemSync(STORAGE_KEYS.NATIONS);
+  if (!raw) return null;
+  const nations = parseNations(raw);
+  return nations.length > 0 ? nations : null;
+}
+
+/**
+ * Loads nations from cache if not yet present, then syncs with backend.
+ */
+export async function loadAndSyncNations(
+  onUpdate: (nations: Nation[]) => void,
+  hasInitialSync = false
+): Promise<void> {
+  let cachedRaw: string | null = null;
+  if (!hasInitialSync) {
+    cachedRaw = await getCachedItem(STORAGE_KEYS.NATIONS);
+    if (cachedRaw) {
+      const nations = parseNations(cachedRaw);
+      if (nations.length > 0) onUpdate(nations);
+    }
+  } else {
+    cachedRaw = getCachedItemSync(STORAGE_KEYS.NATIONS);
+  }
+
+  const freshText = await fetchNationsRaw();
+  if (!freshText) return;
+
+  if (cachedRaw && cachedRaw === freshText) {
+    console.log('[Sync] Nations identical to server. Skipping re-render.');
+    return;
+  }
+
+  console.log('[Sync] New nations received! Updating cache and re-rendering.');
+  await setCachedItem(STORAGE_KEYS.NATIONS, freshText);
+  const nations = parseNations(freshText);
+  if (nations.length > 0) {
+    onUpdate(nations);
   }
 }
 

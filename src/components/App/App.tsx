@@ -1,40 +1,55 @@
 import { useState, useEffect } from 'react';
+import type { Nation } from '../../types/nation';
+import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
 import {
-  fetchAppData,
-  getCachedAppDataSync,
-  syncAppData,
-  type AppData,
+  getCachedNationsSync,
+  loadAndSyncNations,
+  getCachedMediaPathSync,
+  loadAndSyncMediaPath,
+  getCachedVehicleTypesSync,
+  loadAndSyncVehicleTypes,
+  getCachedVehiclesSync,
+  loadAndSyncVehicles,
 } from '../../services/nationsService';
 import { Loader } from '../ui/Loader';
 import { Encyclopedia } from '../Encyclopedia';
 
 export function App() {
-  // 1. Synchronously read from localStorage on frame 0.
-  // If user has visited before, appData is available immediately with 0ms delay!
-  const [appData, setAppData] = useState<AppData | null>(() => getCachedAppDataSync());
+  // 1. Synchronously read each resource from localStorage on frame 0.
+  // Whichever resource exists in cache is immediately available with 0ms delay!
+  const [nations, setNations] = useState<Nation[] | null>(() => getCachedNationsSync());
+  const [mediaPath, setMediaPath] = useState<string | null>(() => getCachedMediaPathSync());
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleTypesMap | null>(() => getCachedVehicleTypesSync());
+  const [vehicles, setVehicles] = useState<Vehicle[] | null>(() => getCachedVehiclesSync());
 
+  // 2. Each resource loads and syncs completely independently in parallel:
+  // - Fast resources (mediaPath 100B, nations 5KB, types 2KB) finish in ~30ms and render instantly.
+  // - Heavy vehicles (~3.6MB) load independently without blocking the Header, NationsBar, or language selector.
   useEffect(() => {
-    if (!appData) {
-      // Cold start: cache is empty, load all data with Loader
-      fetchAppData().then((data) => {
-        setAppData(data);
-      });
-    } else {
-      // Warm start: UI already rendered on frame 0, sync in background silently
-      syncAppData((partial) => {
-        setAppData((prev) => (prev ? { ...prev, ...partial } : null));
-      });
-    }
+    loadAndSyncNations(setNations, nations !== null);
+    loadAndSyncMediaPath(setMediaPath, mediaPath !== null);
+    loadAndSyncVehicleTypes(setVehicleTypes, vehicleTypes !== null);
+    loadAndSyncVehicles(setVehicles, vehicles !== null);
   }, []);
 
-  // Cold start fallback: only shows when cache is completely empty
-  if (!appData) {
+  // Cold start fallback: only shows if literally nothing is in cache yet (first ~30ms of brand new visit)
+  const isCompletelyEmpty = !nations && !mediaPath && !vehicleTypes && !vehicles;
+  if (isCompletelyEmpty) {
     return <Loader />;
   }
 
-  // Instant render: zero spinner flash on page reload
-  return <Encyclopedia appData={appData} />;
+  // Progressive rendering:
+  // Header and NationsBar appear immediately, while Catalog shows its own loader until vehicles arrive!
+  return (
+    <Encyclopedia
+      nations={nations}
+      mediaPath={mediaPath}
+      vehicleTypes={vehicleTypes}
+      vehicles={vehicles}
+    />
+  );
 }
 
 export default App;
+
 

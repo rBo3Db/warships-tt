@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
-import type { Vehicle } from '../../types/vehicle';
-import type { AppData } from '../../services/nationsService';
+import type { Nation } from '../../types/nation';
+import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
 import { getUiTranslation } from '../../utils/i18n';
 import { useShipsFilter } from '../../hooks/useShipsFilter';
 import { Header } from '../Header';
@@ -11,18 +11,31 @@ import { ScrollToTop } from '../ui/ScrollToTop';
 import styles from './Encyclopedia.module.css';
 
 interface EncyclopediaProps {
-  appData: AppData;
+  nations: Nation[] | null;
+  mediaPath: string | null;
+  vehicleTypes: VehicleTypesMap | null;
+  vehicles: Vehicle[] | null;
 }
 
-export function Encyclopedia({ appData }: EncyclopediaProps) {
-  const { nations, mediaPath, vehicleTypes, vehicles } = appData;
+export function Encyclopedia({
+  nations,
+  mediaPath,
+  vehicleTypes,
+  vehicles,
+}: EncyclopediaProps) {
+  const safeNations = useMemo(() => nations || [], [nations]);
+  const safeMediaPath = mediaPath || '';
+  const safeVehicleTypes = useMemo(() => vehicleTypes || {}, [vehicleTypes]);
+  const isVehiclesLoading = vehicles === null;
+  const safeVehicles = useMemo(() => vehicles || [], [vehicles]);
 
   // Available language codes from nations data
   const languages = useMemo(() => {
-    return Array.from(
-      new Set(nations.flatMap((n) => Object.keys(n.localization?.mark || {})))
+    const list = Array.from(
+      new Set(safeNations.flatMap((n) => Object.keys(n.localization?.mark || {})))
     );
-  }, [nations]);
+    return list.length > 0 ? list : ['en', 'ru'];
+  }, [safeNations]);
 
   const [selectedLang, setSelectedLang] = useState<string>(() => {
     if (typeof navigator !== 'undefined') {
@@ -56,7 +69,7 @@ export function Encyclopedia({ appData }: EncyclopediaProps) {
     otherNationMatches,
     filteredCatalogShips,
   } = useShipsFilter({
-    vehicles,
+    vehicles: safeVehicles,
     selectedNation,
     selectedType,
     selectedTier,
@@ -67,21 +80,21 @@ export function Encyclopedia({ appData }: EncyclopediaProps) {
 
   // Sorted ship types by sort_order
   const sortedTypes = useMemo(() => {
-    return Object.entries(vehicleTypes).sort(
+    return Object.entries(safeVehicleTypes).sort(
       ([, a], [, b]) => a.sort_order - b.sort_order
     );
-  }, [vehicleTypes]);
+  }, [safeVehicleTypes]);
 
   // Current section title
   const currentNationTitle = useMemo(() => {
     if (!selectedNation) return ui.allNations;
-    const currentNationObj = nations.find((n) => n.name === selectedNation);
+    const currentNationObj = safeNations.find((n) => n.name === selectedNation);
     return (
       currentNationObj?.localization?.mark?.[selectedLang] ||
       currentNationObj?.name ||
       selectedNation
     );
-  }, [selectedNation, nations, selectedLang, ui.allNations]);
+  }, [selectedNation, safeNations, selectedLang, ui.allNations]);
 
   // Reset display limit when filter, nation, tier, status or search changes
   useEffect(() => {
@@ -137,17 +150,17 @@ export function Encyclopedia({ appData }: EncyclopediaProps) {
         languages={languages}
         ui={ui}
         otherNationMatches={otherNationMatches}
-        nations={nations}
-        mediaPath={mediaPath}
+        nations={safeNations}
+        mediaPath={safeMediaPath}
         onJumpToShip={handleJumpToOtherNationShip}
       />
 
       {/* Nations horizontal list */}
       <NationsBar
-        nations={nations}
+        nations={safeNations}
         selectedNation={selectedNation}
         onSelectNation={handleSelectNation}
-        mediaPath={mediaPath}
+        mediaPath={safeMediaPath}
         selectedLang={selectedLang}
         ui={ui}
       />
@@ -181,17 +194,18 @@ export function Encyclopedia({ appData }: EncyclopediaProps) {
           /* Tree View */
           !selectedNation ? (
             <div className={styles.empty}>{ui.selectNationForTree}</div>
-          ) : currentNationShips.length === 0 ? (
+          ) : currentNationShips.length === 0 && !isVehiclesLoading ? (
             <div className={styles.empty}>{ui.noShips}</div>
           ) : (
             <TechTree
               nationShips={currentNationShips}
               selectedLang={selectedLang}
-              mediaPath={mediaPath}
-              vehicleTypes={vehicleTypes}
+              mediaPath={safeMediaPath}
+              vehicleTypes={safeVehicleTypes}
               ui={ui}
               searchQuery={searchQuery}
               matchingShipIds={matchingShipIds}
+              isLoading={isVehiclesLoading}
             />
           )
         ) : (
@@ -209,10 +223,11 @@ export function Encyclopedia({ appData }: EncyclopediaProps) {
             selectedTier={selectedTier}
             onSelectTier={setSelectedTier}
             selectedLang={selectedLang}
-            mediaPath={mediaPath}
-            vehicleTypes={vehicleTypes}
-            nations={nations}
+            mediaPath={safeMediaPath}
+            vehicleTypes={safeVehicleTypes}
+            nations={safeNations}
             ui={ui}
+            isLoading={isVehiclesLoading}
           />
         )}
       </section>

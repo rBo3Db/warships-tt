@@ -2,6 +2,7 @@ import type { RefObject } from 'react';
 import type { Vehicle, VehicleTypesMap, VehicleTypeInfo } from '../../types/vehicle';
 import type { Nation } from '../../types/nation';
 import type { UiTranslations } from '../../utils/i18n';
+import { Loader } from '../ui/Loader';
 import { CatalogFilters } from './CatalogFilters';
 import { ShipCard } from './ShipCard';
 import styles from './Catalog.module.css';
@@ -23,6 +24,7 @@ interface CatalogProps {
   vehicleTypes: VehicleTypesMap;
   nations: Nation[];
   ui: UiTranslations;
+  isLoading?: boolean;
 }
 
 export function Catalog({
@@ -42,6 +44,7 @@ export function Catalog({
   vehicleTypes,
   nations,
   ui,
+  isLoading = false,
 }: CatalogProps) {
   return (
     <>
@@ -58,7 +61,11 @@ export function Catalog({
         ui={ui}
       />
 
-      {totalFilteredCount === 0 ? (
+      {isLoading ? (
+        <div className={styles.loadingContainer}>
+          <Loader />
+        </div>
+      ) : totalFilteredCount === 0 ? (
         <div className={styles.empty}>{ui.noShips}</div>
       ) : (
         <div className={styles.grid}>

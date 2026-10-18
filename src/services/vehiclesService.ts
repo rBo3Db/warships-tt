@@ -9,6 +9,7 @@ import { API_CONFIG } from '../config/api';
 import {
   STORAGE_KEYS,
   getCachedItem,
+  getCachedItemSync,
   setCachedItem,
   getCachedVehiclesString,
   setCachedVehiclesString,
@@ -99,6 +100,50 @@ export async function syncVehicleTypes(onChanged: (types: VehicleTypesMap) => vo
   const types = parseVehicleTypes(freshText);
   if (Object.keys(types).length > 0) {
     onChanged(types);
+  }
+}
+
+/**
+ * Synchronously retrieves cached vehicle types from localStorage (0ms delay)
+ */
+export function getCachedVehicleTypesSync(): VehicleTypesMap | null {
+  const raw = getCachedItemSync(STORAGE_KEYS.VEHICLE_TYPES);
+  if (!raw) return null;
+  const types = parseVehicleTypes(raw);
+  return Object.keys(types).length > 0 ? types : null;
+}
+
+/**
+ * Loads vehicle types from cache if not yet present, then syncs with backend.
+ */
+export async function loadAndSyncVehicleTypes(
+  onUpdate: (types: VehicleTypesMap) => void,
+  hasInitialSync = false
+): Promise<void> {
+  let cachedRaw: string | null = null;
+  if (!hasInitialSync) {
+    cachedRaw = await getCachedItem(STORAGE_KEYS.VEHICLE_TYPES);
+    if (cachedRaw) {
+      const types = parseVehicleTypes(cachedRaw);
+      if (Object.keys(types).length > 0) onUpdate(types);
+    }
+  } else {
+    cachedRaw = getCachedItemSync(STORAGE_KEYS.VEHICLE_TYPES);
+  }
+
+  const freshText = await fetchVehicleTypesRaw();
+  if (!freshText) return;
+
+  if (cachedRaw && cachedRaw === freshText) {
+    console.log('[Sync] Vehicle types identical to server. Skipping re-render.');
+    return;
+  }
+
+  console.log('[Sync] New vehicle types received! Updating cache and re-rendering.');
+  await setCachedItem(STORAGE_KEYS.VEHICLE_TYPES, freshText);
+  const types = parseVehicleTypes(freshText);
+  if (Object.keys(types).length > 0) {
+    onUpdate(types);
   }
 }
 
@@ -237,6 +282,55 @@ export async function syncVehicles(onChanged: (newVehicles: Vehicle[]) => void):
   const updatedVehicles = parseAndNormalizeVehicles(freshText);
   if (updatedVehicles.length > 0) {
     onChanged(updatedVehicles);
+  }
+}
+
+/**
+ * Synchronously retrieves cached vehicles from localStorage (0ms delay)
+ */
+export function getCachedVehiclesSync(): Vehicle[] | null {
+  const raw = getCachedItemSync(STORAGE_KEYS.VEHICLES);
+  if (!raw) return null;
+  const vehicles = parseAndNormalizeVehicles(raw);
+  return vehicles.length > 0 ? vehicles : null;
+}
+
+/**
+ * Loads vehicles from cache/IndexedDB if not yet present, then syncs with backend.
+ */
+export async function loadAndSyncVehicles(
+  onUpdate: (vehicles: Vehicle[]) => void,
+  hasInitialSync = false
+): Promise<void> {
+  let cachedRaw: string | null = null;
+  if (!hasInitialSync) {
+    cachedRaw = await getCachedVehiclesString();
+    if (cachedRaw) {
+      const vehicles = parseAndNormalizeVehicles(cachedRaw);
+      if (vehicles.length > 0) {
+        onUpdate(vehicles);
+      }
+    }
+  } else {
+    cachedRaw = getCachedItemSync(STORAGE_KEYS.VEHICLES);
+  }
+
+  const freshText = await fetchVehiclesRaw();
+  if (!freshText) {
+    console.warn('[Sync] Could not reach backend for vehicles update');
+    return;
+  }
+
+  if (cachedRaw && cachedRaw === freshText) {
+    console.log('[Sync] Vehicles file is identical to server. Skipping re-render.');
+    return;
+  }
+
+  console.log('[Sync] New vehicles file received from server! Updating cache and re-rendering.');
+  await setCachedVehiclesString(freshText);
+  const vehicles = parseAndNormalizeVehicles(freshText);
+  if (vehicles.length > 0) {
+    onUpdate(vehicles);
   }
 }
 

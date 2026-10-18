@@ -129,3 +129,12 @@
   color: #888;
   font-size: 0.85rem;
 }
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 240px;
+  padding: 40px;
+}
+
