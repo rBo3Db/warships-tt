@@ -66,7 +66,7 @@ function NationsList({ dataPromise }: NationsListProps) {
 
   const [selectedNation, setSelectedNation] = useState<string>(() => nations[0]?.name || 'usa');
   const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'tree' | 'grid'>('tree');
+  const [viewMode, setViewMode] = useState<'tree' | 'grid'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
 
   const shipsSectionRef = useRef<HTMLDivElement>(null);
@@ -251,17 +251,17 @@ function NationsList({ dataPromise }: NationsListProps) {
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <button
               type="button"
-              className={`${styles.item} ${viewMode === 'tree' ? styles.itemSelected : ''}`}
-              onClick={() => setViewMode('tree')}
-            >
-              {ui.viewTree}
-            </button>
-            <button
-              type="button"
               className={`${styles.item} ${viewMode === 'grid' ? styles.itemSelected : ''}`}
               onClick={() => setViewMode('grid')}
             >
               {ui.viewGrid}
+            </button>
+            <button
+              type="button"
+              className={`${styles.item} ${viewMode === 'tree' ? styles.itemSelected : ''}`}
+              onClick={() => setViewMode('tree')}
+            >
+              {ui.viewTree}
             </button>
             <span className={styles.count}>
               ({searchQuery ? matchingShipIds.size : currentNationShips.length})
