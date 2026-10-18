@@ -35,6 +35,8 @@ function doesShipMatch(ship: Vehicle, q: string, lang: string): boolean {
   );
 }
 
+const TIERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
+
 function NationsList({ dataPromise }: NationsListProps) {
   const initialData = use(dataPromise);
   const [appData, setAppData] = useState<AppData>(initialData);
@@ -66,6 +68,8 @@ function NationsList({ dataPromise }: NationsListProps) {
 
   const [selectedNation, setSelectedNation] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedTier, setSelectedTier] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<'all' | 'researchable' | 'premium'>('all');
   const [viewMode, setViewMode] = useState<'tree' | 'grid'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -129,6 +133,15 @@ function NationsList({ dataPromise }: NationsListProps) {
     const q = searchQuery.trim();
     return currentNationShips
       .filter((ship) => !selectedType || ship.type === selectedType)
+      .filter((ship) => selectedTier === null || ship.level === selectedTier)
+      .filter((ship) => {
+        if (selectedStatus === 'all') return true;
+        const isPrem =
+          ship.tags?.includes('uiPremium') ||
+          ship.tags?.includes('special') ||
+          ship.tags?.includes('uiSpecial');
+        return selectedStatus === 'premium' ? isPrem : !isPrem;
+      })
       .filter((ship) => !q || matchingShipIds.has(ship.id))
       .sort((a, b) => {
         if (a.level !== b.level) {
@@ -138,12 +151,20 @@ function NationsList({ dataPromise }: NationsListProps) {
         const nameB = b.localization?.mark?.[selectedLang] || b.name;
         return nameA.localeCompare(nameB);
       });
-  }, [currentNationShips, selectedType, searchQuery, matchingShipIds, selectedLang]);
+  }, [
+    currentNationShips,
+    selectedType,
+    selectedTier,
+    selectedStatus,
+    searchQuery,
+    matchingShipIds,
+    selectedLang,
+  ]);
 
-  // Reset display limit when filter, nation or search changes
+  // Reset display limit when filter, nation, tier, status or search changes
   useEffect(() => {
     setDisplayLimit(CHUNK_SIZE);
-  }, [selectedNation, selectedType, searchQuery]);
+  }, [selectedNation, selectedType, selectedTier, selectedStatus, searchQuery]);
 
   // Infinite scroll observer: loads next chunk when scrolling near bottom
   useEffect(() => {
@@ -331,6 +352,7 @@ function NationsList({ dataPromise }: NationsListProps) {
         ) : (
           /* Catalog view with class filter */
           <>
+            {/* Class filter */}
             <div className={styles.list}>
               <button
                 type="button"
@@ -360,6 +382,55 @@ function NationsList({ dataPromise }: NationsListProps) {
                       />
                     )}
                     <span>{typeTitle}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Status toggle: All / Researchable / Premium */}
+            <div className={styles.list}>
+              <button
+                type="button"
+                className={`${styles.item} ${selectedStatus === 'all' ? styles.itemSelected : ''}`}
+                onClick={() => setSelectedStatus('all')}
+              >
+                {ui.allStatuses}
+              </button>
+              <button
+                type="button"
+                className={`${styles.item} ${selectedStatus === 'researchable' ? styles.itemSelected : ''}`}
+                onClick={() => setSelectedStatus(selectedStatus === 'researchable' ? 'all' : 'researchable')}
+              >
+                {ui.onlyResearchable}
+              </button>
+              <button
+                type="button"
+                className={`${styles.item} ${selectedStatus === 'premium' ? styles.itemSelected : ''}`}
+                onClick={() => setSelectedStatus(selectedStatus === 'premium' ? 'all' : 'premium')}
+              >
+                {ui.onlyPremium}
+              </button>
+            </div>
+
+            {/* Tier filter: All / I ... XI */}
+            <div className={styles.list}>
+              <button
+                type="button"
+                className={`${styles.item} ${selectedTier === null ? styles.itemSelected : ''}`}
+                onClick={() => setSelectedTier(null)}
+              >
+                {ui.allTiers}
+              </button>
+              {TIERS.map((tier) => {
+                const isSelected = selectedTier === tier;
+                return (
+                  <button
+                    key={tier}
+                    type="button"
+                    className={`${styles.item} ${isSelected ? styles.itemSelected : ''}`}
+                    onClick={() => setSelectedTier(isSelected ? null : tier)}
+                  >
+                    <span>{toRomanTier(tier)}</span>
                   </button>
                 );
               })}

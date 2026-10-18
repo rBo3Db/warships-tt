@@ -6,6 +6,12 @@ export interface UiTranslations {
   selectNationForTree: string;
   classes: string;
   allTypes: string;
+  tiers: string;
+  allTiers: string;
+  status: string;
+  allStatuses: string;
+  onlyResearchable: string;
+  onlyPremium: string;
   ships: string;
   found: string;
   noShips: string;
@@ -32,6 +38,12 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     selectNationForTree: 'Select a nation above to view its tech tree',
     classes: 'Ship Classes',
     allTypes: 'All Types',
+    tiers: 'Tiers',
+    allTiers: 'All Tiers',
+    status: 'Status',
+    allStatuses: 'All',
+    onlyResearchable: 'Researchable',
+    onlyPremium: 'Premium & Special',
     ships: 'Ships',
     found: 'Found',
     noShips: 'No ships found for selected filter',
@@ -56,6 +68,12 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     selectNationForTree: 'Выберите нацию выше, чтобы открыть дерево развития',
     classes: 'Классы кораблей',
     allTypes: 'Все типы',
+    tiers: 'Уровни',
+    allTiers: 'Все уровни',
+    status: 'Статус',
+    allStatuses: 'Все',
+    onlyResearchable: 'Исследуемые',
+    onlyPremium: 'Премиум и особые',
     ships: 'Корабли',
     found: 'Найдено',
     noShips: 'Для выбранного фильтра корабли не найдены',
