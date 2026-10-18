@@ -1,12 +1,19 @@
 import type { Nation, NationsApiResponse } from '../types/nation';
 import type { Vehicle, VehicleTypesMap } from '../types/vehicle';
 import { API_CONFIG } from '../config/api';
-import { STORAGE_KEYS, getCachedItem, setCachedItem } from './storageService';
+import {
+  STORAGE_KEYS,
+  getCachedItem,
+  setCachedItem,
+  getCachedItemSync,
+} from './storageService';
 import {
   fetchVehicleTypes,
   fetchVehicles,
   syncVehicleTypes,
   syncVehicles,
+  parseVehicleTypes,
+  parseAndNormalizeVehicles,
 } from './vehiclesService';
 
 interface MediaPathApiResponse {
@@ -186,6 +193,46 @@ export async function fetchAppData(): Promise<AppData> {
     vehicleTypes,
     vehicles,
   };
+}
+
+/**
+ * Synchronously retrieves all 4 resources from localStorage.
+ * If all 4 are present in localStorage, returns AppData immediately (0ms, frame 0, no network, no promise delay).
+ */
+export function getCachedAppDataSync(): AppData | null {
+  try {
+    const nationsRaw = getCachedItemSync(STORAGE_KEYS.NATIONS);
+    const mediaPathRaw = getCachedItemSync(STORAGE_KEYS.MEDIA_PATH);
+    const typesRaw = getCachedItemSync(STORAGE_KEYS.VEHICLE_TYPES);
+    const vehiclesRaw = getCachedItemSync(STORAGE_KEYS.VEHICLES);
+
+    if (!nationsRaw || !mediaPathRaw || !typesRaw || !vehiclesRaw) {
+      return null;
+    }
+
+    const nations = parseNations(nationsRaw);
+    const mediaPath = parseMediaPath(mediaPathRaw);
+    const vehicleTypes = parseVehicleTypes(typesRaw);
+    const vehicles = parseAndNormalizeVehicles(vehiclesRaw);
+
+    if (
+      nations.length === 0 ||
+      !mediaPath ||
+      Object.keys(vehicleTypes).length === 0 ||
+      vehicles.length === 0
+    ) {
+      return null;
+    }
+
+    return {
+      nations,
+      mediaPath,
+      vehicleTypes,
+      vehicles,
+    };
+  } catch {
+    return null;
+  }
 }
 
 /**

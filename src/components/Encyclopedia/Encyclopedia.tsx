@@ -1,6 +1,6 @@
-import { use, useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import type { Vehicle } from '../../types/vehicle';
-import { syncAppData, type AppData } from '../../services/nationsService';
+import type { AppData } from '../../services/nationsService';
 import { getUiTranslation } from '../../utils/i18n';
 import { useShipsFilter } from '../../hooks/useShipsFilter';
 import { Header } from '../Header';
@@ -11,19 +11,10 @@ import { ScrollToTop } from '../ui/ScrollToTop';
 import styles from './Encyclopedia.module.css';
 
 interface EncyclopediaProps {
-  dataPromise: Promise<AppData>;
+  appData: AppData;
 }
 
-export function Encyclopedia({ dataPromise }: EncyclopediaProps) {
-  const initialData = use(dataPromise);
-  const [appData, setAppData] = useState<AppData>(initialData);
-
-  useEffect(() => {
-    syncAppData((partial) => {
-      setAppData((prev) => ({ ...prev, ...partial }));
-    });
-  }, []);
-
+export function Encyclopedia({ appData }: EncyclopediaProps) {
   const { nations, mediaPath, vehicleTypes, vehicles } = appData;
 
   // Available language codes from nations data

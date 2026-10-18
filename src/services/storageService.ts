@@ -72,15 +72,22 @@ export const STORAGE_KEYS = {
 } as const;
 
 /**
+ * Synchronously gets cached item from localStorage (0ms delay for instant first paint)
+ */
+export function getCachedItemSync(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Gets cached JSON string by key from localStorage (or IndexedDB fallback)
  */
 export async function getCachedItem(key: string): Promise<string | null> {
-  try {
-    const fromLs = localStorage.getItem(key);
-    if (fromLs) return fromLs;
-  } catch {
-    // localStorage might be disabled or restricted
-  }
+  const fromLs = getCachedItemSync(key);
+  if (fromLs) return fromLs;
   return getIdbItem(key);
 }
 
