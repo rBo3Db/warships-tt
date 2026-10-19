@@ -1,5 +1,6 @@
 import { useI18n, useConfig } from '../../context';
 import { toRomanTier } from '../../utils/roman';
+import { ShipStatus } from '../../types/vehicle';
 import styles from './Catalog.module.css';
 
 export const TIERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
@@ -7,8 +8,8 @@ export const TIERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 export interface CatalogFiltersProps {
   selectedType: string | null;
   onSelectType: (type: string | null) => void;
-  selectedStatus: 'all' | 'researchable' | 'premium';
-  onSelectStatus: (status: 'all' | 'researchable' | 'premium') => void;
+  selectedStatus: ShipStatus;
+  onSelectStatus: (status: ShipStatus) => void;
   selectedTier: number | null;
   onSelectTier: (tier: number | null) => void;
 }
@@ -65,22 +66,30 @@ export function CatalogFilters({
       <div className={styles.list}>
         <button
           type="button"
-          className={`${styles.item} ${selectedStatus === 'all' ? styles.itemSelected : ''}`}
-          onClick={() => onSelectStatus('all')}
+          className={`${styles.item} ${selectedStatus === ShipStatus.ALL ? styles.itemSelected : ''}`}
+          onClick={() => onSelectStatus(ShipStatus.ALL)}
         >
           {ui.allStatuses}
         </button>
         <button
           type="button"
-          className={`${styles.item} ${selectedStatus === 'researchable' ? styles.itemSelected : ''}`}
-          onClick={() => onSelectStatus(selectedStatus === 'researchable' ? 'all' : 'researchable')}
+          className={`${styles.item} ${selectedStatus === ShipStatus.RESEARCHABLE ? styles.itemSelected : ''}`}
+          onClick={() =>
+            onSelectStatus(
+              selectedStatus === ShipStatus.RESEARCHABLE ? ShipStatus.ALL : ShipStatus.RESEARCHABLE
+            )
+          }
         >
           {ui.onlyResearchable}
         </button>
         <button
           type="button"
-          className={`${styles.item} ${selectedStatus === 'premium' ? styles.itemSelected : ''}`}
-          onClick={() => onSelectStatus(selectedStatus === 'premium' ? 'all' : 'premium')}
+          className={`${styles.item} ${selectedStatus === ShipStatus.PREMIUM ? styles.itemSelected : ''}`}
+          onClick={() =>
+            onSelectStatus(
+              selectedStatus === ShipStatus.PREMIUM ? ShipStatus.ALL : ShipStatus.PREMIUM
+            )
+          }
         >
           {ui.onlyPremium}
         </button>
