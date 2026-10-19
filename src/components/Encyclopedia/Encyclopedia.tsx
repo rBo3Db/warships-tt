@@ -5,7 +5,7 @@ import { useShipsFilter } from './useShipsFilter';
 import { useVehicles } from './useVehicles';
 import { Header } from '../Header';
 import { NationsBar } from '../NationsBar';
-import { Catalog } from '../Catalog';
+import { Catalog, CatalogFilters } from '../Catalog';
 import { TechTree } from '../TechTree/TechTree';
 import { ScrollToTop } from '../ui/ScrollToTop';
 import { ErrorBanner } from '../ui/ErrorBanner';
@@ -177,21 +177,25 @@ export function Encyclopedia() {
           )
         ) : (
           /* Catalog View */
-          <Catalog
-            ships={visibleCatalogShips}
-            totalFilteredCount={filteredCatalogShips.length}
-            displayLimit={displayLimit}
-            loadMoreRef={loadMoreRef}
-            selectedType={selectedType}
-            onSelectType={setSelectedType}
-            selectedStatus={selectedStatus}
-            onSelectStatus={setSelectedStatus}
-            selectedTier={selectedTier}
-            onSelectTier={setSelectedTier}
-            isLoading={isVehiclesLoading}
-            errorMessage={vehiclesError}
-            onRetry={retryVehicles}
-          />
+          <>
+            <CatalogFilters
+              selectedType={selectedType}
+              onSelectType={setSelectedType}
+              selectedStatus={selectedStatus}
+              onSelectStatus={setSelectedStatus}
+              selectedTier={selectedTier}
+              onSelectTier={setSelectedTier}
+            />
+            <Catalog
+              ships={visibleCatalogShips}
+              totalFilteredCount={filteredCatalogShips.length}
+              displayLimit={displayLimit}
+              loadMoreRef={loadMoreRef}
+              isLoading={isVehiclesLoading}
+              errorMessage={vehiclesError}
+              onRetry={retryVehicles}
+            />
+          </>
         )}
       </section>
 
