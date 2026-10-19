@@ -12,6 +12,7 @@ import {
   loadAndSyncVehicles,
 } from '../../services/nationsService';
 import { getUiTranslation } from '../../utils/i18n';
+import { DEFAULT_LANGUAGE } from '../../config/languages';
 import { I18nProvider, ConfigProvider } from '../../context';
 import { ColdStartFallback } from './ColdStartFallback';
 import { Encyclopedia } from '../Encyclopedia';
@@ -32,9 +33,9 @@ export function App() {
   const defaultLang = useMemo(() => {
     if (typeof navigator !== 'undefined') {
       const code = navigator.language.toLowerCase().split('-')[0];
-      return code || 'en';
+      return code || DEFAULT_LANGUAGE;
     }
-    return 'en';
+    return DEFAULT_LANGUAGE;
   }, []);
 
   const ui = useMemo(() => getUiTranslation(defaultLang), [defaultLang]);

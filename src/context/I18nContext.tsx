@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
 import { getUiTranslation, type UiTranslations } from '../utils/i18n';
+import { DEFAULT_LANGUAGE, FALLBACK_LANGUAGES } from '../config/languages';
 
 export interface I18nContextValue {
   lang: string;
@@ -22,7 +23,7 @@ export function I18nProvider({
   initialLang,
 }: I18nProviderProps) {
   const languages = useMemo(() => {
-    return availableLanguages.length > 0 ? availableLanguages : ['en', 'ru'];
+    return availableLanguages.length > 0 ? availableLanguages : [...FALLBACK_LANGUAGES];
   }, [availableLanguages]);
 
   const [lang, setLang] = useState<string>(() => {
@@ -33,7 +34,7 @@ export function I18nProvider({
       const base = raw.split('_')[0];
       if (languages.includes(base)) return base;
     }
-    return languages.includes('en') ? 'en' : languages[0] || 'en';
+    return languages.includes(DEFAULT_LANGUAGE) ? DEFAULT_LANGUAGE : languages[0] || DEFAULT_LANGUAGE;
   });
 
   const ui = useMemo(() => getUiTranslation(lang), [lang]);
