@@ -1,3 +1,5 @@
+import { DEFAULT_LANGUAGE } from '../config/languages';
+
 const LANGUAGE_DICTIONARY: Record<string, Record<string, string>> = {
   ru: {
     ru: 'Русский',
@@ -305,7 +307,7 @@ function toBcp47(code: string): string {
  * If currentLang is 'en', targetCode 'en' -> 'English'.
  * If currentLang is 'de', targetCode 'en' -> 'Englisch'.
  */
-export function getLanguageTitle(targetCode: string, currentLang: string = 'en'): string {
+export function getLanguageTitle(targetCode: string, currentLang: string = DEFAULT_LANGUAGE): string {
   // 1. Check explicit dictionary for current language
   const currentDict = LANGUAGE_DICTIONARY[currentLang];
   if (currentDict && currentDict[targetCode]) {
