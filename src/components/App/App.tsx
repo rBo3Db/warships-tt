@@ -12,9 +12,7 @@ import {
   loadAndSyncVehicles,
 } from '../../services/nationsService';
 import { getUiTranslation } from '../../utils/i18n';
-import { Loader } from '../ui/Loader';
-import { ErrorCard } from '../ui/ErrorCard';
-import { CenteredContainer } from '../ui/CenteredContainer';
+import { ColdStartFallback } from './ColdStartFallback';
 import { Encyclopedia } from '../Encyclopedia';
 
 export function App() {
@@ -113,22 +111,12 @@ export function App() {
   // Cold start fallback: only if literally nothing is in cache yet
   const isCompletelyEmpty = !nations && !mediaPath && !vehicleTypes && !vehicles;
   if (isCompletelyEmpty) {
-    if (globalError) {
-      return (
-        <CenteredContainer>
-          <ErrorCard
-            title={ui.connectionError}
-            message={globalError}
-            retryLabel={ui.retry}
-            onRetry={loadAll}
-          />
-        </CenteredContainer>
-      );
-    }
     return (
-      <CenteredContainer>
-        <Loader />
-      </CenteredContainer>
+      <ColdStartFallback
+        error={globalError}
+        ui={ui}
+        onRetry={loadAll}
+      />
     );
   }
 
