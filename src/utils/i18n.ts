@@ -38,6 +38,12 @@ export interface UiTranslations {
   shipsLoadError: string;
   retry: string;
   dismiss: string;
+  sortBy: string;
+  sortTierAsc: string;
+  sortTierDesc: string;
+  sortNameAsc: string;
+  sortNameDesc: string;
+  sortType: string;
 }
 
 export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
@@ -77,6 +83,12 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     shipsLoadError: 'Failed to load ships catalog.',
     retry: 'Try Again',
     dismiss: 'Dismiss',
+    sortBy: 'Sort:',
+    sortTierAsc: 'Tier ↑',
+    sortTierDesc: 'Tier ↓',
+    sortNameAsc: 'A–Z',
+    sortNameDesc: 'Z–A',
+    sortType: 'Class',
   },
   ru: {
     title: 'Справочник кораблей',
@@ -114,6 +126,12 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
     shipsLoadError: 'Не удалось загрузить каталог кораблей.',
     retry: 'Попробовать снова',
     dismiss: 'Закрыть',
+    sortBy: 'Сортировка:',
+    sortTierAsc: 'Уровень ↑',
+    sortTierDesc: 'Уровень ↓',
+    sortNameAsc: 'А–Я',
+    sortNameDesc: 'Я–А',
+    sortType: 'По классу',
   },
   de: {
     title: 'Kriegsschiffe-Enzyklopädie',

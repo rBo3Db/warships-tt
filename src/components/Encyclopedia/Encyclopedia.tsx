@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
-import { type Vehicle, ShipStatus } from '../../types/vehicle';
+import { type Vehicle, ShipStatus, ShipSortOption } from '../../types/vehicle';
 import { useI18n, useConfig } from '../../context';
 import { useShipsFilter } from './useShipsFilter';
 import { useVehicles } from './useVehicles';
@@ -29,6 +29,7 @@ export function Encyclopedia() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ShipStatus>(ShipStatus.ALL);
+  const [selectedSort, setSelectedSort] = useState<ShipSortOption>(ShipSortOption.TIER_ASC);
   const [viewMode, setViewMode] = useState<'tree' | 'grid'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -49,6 +50,7 @@ export function Encyclopedia() {
     selectedType,
     selectedTier,
     selectedStatus,
+    selectedSort,
     searchQuery,
     selectedLang: lang,
   });
@@ -64,10 +66,10 @@ export function Encyclopedia() {
     );
   }, [selectedNation, getNation, lang, ui.allNations]);
 
-  // Reset display limit when filter, nation, tier, status or search changes
+  // Reset display limit when filter, nation, tier, status, sort or search changes
   useEffect(() => {
     setDisplayLimit(CHUNK_SIZE);
-  }, [selectedNation, selectedType, selectedTier, selectedStatus, searchQuery]);
+  }, [selectedNation, selectedType, selectedTier, selectedStatus, selectedSort, searchQuery]);
 
   // Infinite scroll observer: loads next chunk when scrolling near bottom
   useEffect(() => {
@@ -185,6 +187,8 @@ export function Encyclopedia() {
               onSelectStatus={setSelectedStatus}
               selectedTier={selectedTier}
               onSelectTier={setSelectedTier}
+              selectedSort={selectedSort}
+              onSelectSort={setSelectedSort}
             />
             <Catalog
               ships={visibleCatalogShips}

@@ -1,5 +1,5 @@
-import type { ShipStatus } from '../../types/vehicle';
-import { TypeFilter, StatusFilter, TierFilter, TIERS } from './filters';
+import type { ShipStatus, ShipSortOption } from '../../types/vehicle';
+import { TypeFilter, StatusFilter, TierFilter, SortFilter, TIERS } from './filters';
 import styles from './Catalog.module.css';
 
 export { TIERS };
@@ -11,6 +11,8 @@ export interface CatalogFiltersProps {
   onSelectStatus: (status: ShipStatus) => void;
   selectedTier: number | null;
   onSelectTier: (tier: number | null) => void;
+  selectedSort: ShipSortOption;
+  onSelectSort: (sort: ShipSortOption) => void;
 }
 
 export function CatalogFilters({
@@ -20,12 +22,15 @@ export function CatalogFilters({
   onSelectStatus,
   selectedTier,
   onSelectTier,
+  selectedSort,
+  onSelectSort,
 }: CatalogFiltersProps) {
   return (
     <div className={styles.filtersContainer}>
       <TypeFilter selectedType={selectedType} onSelectType={onSelectType} />
       <StatusFilter selectedStatus={selectedStatus} onSelectStatus={onSelectStatus} />
       <TierFilter selectedTier={selectedTier} onSelectTier={onSelectTier} />
+      <SortFilter selectedSort={selectedSort} onSelectSort={onSelectSort} />
     </div>
   );
 }

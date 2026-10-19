@@ -1,7 +1,15 @@
 import { useMemo } from 'react';
-import { type Vehicle, ShipStatus } from '../../types/vehicle';
+import { type Vehicle, ShipStatus, ShipSortOption } from '../../types/vehicle';
 import { toRomanTier } from '../../utils/roman';
 import { isPremiumOrSpecial, getShipTitle } from '../../utils/ship';
+
+const CLASS_SORT_ORDER: Record<string, number> = {
+  Submarine: 1,
+  Destroyer: 2,
+  Cruiser: 3,
+  Battleship: 4,
+  AirCarrier: 5,
+};
 
 export interface UseShipsFilterParams {
   vehicles: Vehicle[];
@@ -9,6 +17,7 @@ export interface UseShipsFilterParams {
   selectedType: string | null;
   selectedTier: number | null;
   selectedStatus: ShipStatus;
+  selectedSort?: ShipSortOption;
   searchQuery: string;
   selectedLang: string;
 }
@@ -41,6 +50,7 @@ export function useShipsFilter({
   selectedType,
   selectedTier,
   selectedStatus,
+  selectedSort = ShipSortOption.TIER_ASC,
   searchQuery,
   selectedLang,
 }: UseShipsFilterParams) {
@@ -90,18 +100,40 @@ export function useShipsFilter({
       })
       .filter((ship) => !q || matchingShipIds.has(ship.id))
       .sort((a, b) => {
-        if (a.level !== b.level) {
-          return a.level - b.level;
-        }
         const nameA = getShipTitle(a, selectedLang);
         const nameB = getShipTitle(b, selectedLang);
-        return nameA.localeCompare(nameB);
+
+        switch (selectedSort) {
+          case ShipSortOption.TIER_DESC:
+            if (a.level !== b.level) return b.level - a.level;
+            return nameA.localeCompare(nameB);
+
+          case ShipSortOption.NAME_ASC:
+            return nameA.localeCompare(nameB);
+
+          case ShipSortOption.NAME_DESC:
+            return nameB.localeCompare(nameA);
+
+          case ShipSortOption.TYPE: {
+            const orderA = CLASS_SORT_ORDER[a.type] ?? 99;
+            const orderB = CLASS_SORT_ORDER[b.type] ?? 99;
+            if (orderA !== orderB) return orderA - orderB;
+            if (a.level !== b.level) return a.level - b.level;
+            return nameA.localeCompare(nameB);
+          }
+
+          case ShipSortOption.TIER_ASC:
+          default:
+            if (a.level !== b.level) return a.level - b.level;
+            return nameA.localeCompare(nameB);
+        }
       });
   }, [
     currentNationShips,
     selectedType,
     selectedTier,
     selectedStatus,
+    selectedSort,
     searchQuery,
     matchingShipIds,
     selectedLang,

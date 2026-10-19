@@ -69,3 +69,14 @@ export const ShipStatus = {
 } as const;
 
 export type ShipStatus = (typeof ShipStatus)[keyof typeof ShipStatus];
+
+export const ShipSortOption = {
+  TIER_ASC: 'tier_asc',
+  TIER_DESC: 'tier_desc',
+  NAME_ASC: 'name_asc',
+  NAME_DESC: 'name_desc',
+  TYPE: 'type',
+} as const;
+
+export type ShipSortOption = (typeof ShipSortOption)[keyof typeof ShipSortOption];
+
