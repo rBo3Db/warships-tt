@@ -35,29 +35,19 @@ export function useAppBootstrap(): AppBootstrapState {
   const loadBootstrapData = useCallback(() => {
     setBootstrapError(null);
 
-    loadAndSyncNations(
-      setNations,
-      nations !== null,
-      () => {
-        if (!nations) setBootstrapError(ui.serverErrorDesc);
+    const handleSyncError = (hasCachedData: boolean) => {
+      if (!hasCachedData) {
+        setBootstrapError(ui.serverErrorDesc);
       }
-    );
+    };
 
-    loadAndSyncMediaPath(
-      setMediaPath,
-      mediaPath !== null,
-      () => {
-        if (!mediaPath) setBootstrapError(ui.serverErrorDesc);
-      }
-    );
+    const hasNations = nations !== null;
+    const hasMediaPath = mediaPath !== null;
+    const hasVehicleTypes = vehicleTypes !== null;
 
-    loadAndSyncVehicleTypes(
-      setVehicleTypes,
-      vehicleTypes !== null,
-      () => {
-        if (!vehicleTypes) setBootstrapError(ui.serverErrorDesc);
-      }
-    );
+    loadAndSyncNations(setNations, hasNations, () => handleSyncError(hasNations));
+    loadAndSyncMediaPath(setMediaPath, hasMediaPath, () => handleSyncError(hasMediaPath));
+    loadAndSyncVehicleTypes(setVehicleTypes, hasVehicleTypes, () => handleSyncError(hasVehicleTypes));
   }, [nations, mediaPath, vehicleTypes, ui]);
 
   useEffect(() => {
