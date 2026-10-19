@@ -61,3 +61,11 @@ export interface VehiclesApiResponse {
   status: string;
   data: Record<string, VehicleRaw>;
 }
+
+export const ShipStatus = {
+  ALL: 'all',
+  RESEARCHABLE: 'researchable',
+  PREMIUM: 'premium',
+} as const;
+
+export type ShipStatus = (typeof ShipStatus)[keyof typeof ShipStatus];

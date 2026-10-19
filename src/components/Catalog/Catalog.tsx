@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import type { Vehicle } from '../../types/vehicle';
+import type { Vehicle, ShipStatus } from '../../types/vehicle';
 import { useI18n } from '../../context';
 import { Loader } from '../ui/Loader';
 import { ErrorCard } from '../ui/ErrorCard';
@@ -14,8 +14,8 @@ export interface CatalogProps {
   loadMoreRef: RefObject<HTMLDivElement | null>;
   selectedType: string | null;
   onSelectType: (type: string | null) => void;
-  selectedStatus: 'all' | 'researchable' | 'premium';
-  onSelectStatus: (status: 'all' | 'researchable' | 'premium') => void;
+  selectedStatus: ShipStatus;
+  onSelectStatus: (status: ShipStatus) => void;
   selectedTier: number | null;
   onSelectTier: (tier: number | null) => void;
   isLoading?: boolean;
