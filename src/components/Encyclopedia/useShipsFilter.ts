@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Vehicle } from '../../types/vehicle';
+import { type Vehicle, ShipStatus } from '../../types/vehicle';
 import { toRomanTier } from '../../utils/roman';
 
 export interface UseShipsFilterParams {
@@ -7,7 +7,7 @@ export interface UseShipsFilterParams {
   selectedNation: string | null;
   selectedType: string | null;
   selectedTier: number | null;
-  selectedStatus: 'all' | 'researchable' | 'premium';
+  selectedStatus: ShipStatus;
   searchQuery: string;
   selectedLang: string;
 }
@@ -83,12 +83,12 @@ export function useShipsFilter({
       .filter((ship) => !selectedType || ship.type === selectedType)
       .filter((ship) => selectedTier === null || ship.level === selectedTier)
       .filter((ship) => {
-        if (selectedStatus === 'all') return true;
+        if (selectedStatus === ShipStatus.ALL) return true;
         const isPrem =
           ship.tags?.includes('uiPremium') ||
           ship.tags?.includes('special') ||
           ship.tags?.includes('uiSpecial');
-        return selectedStatus === 'premium' ? isPrem : !isPrem;
+        return selectedStatus === ShipStatus.PREMIUM ? isPrem : !isPrem;
       })
       .filter((ship) => !q || matchingShipIds.has(ship.id))
       .sort((a, b) => {

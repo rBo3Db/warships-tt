@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
-import type { Vehicle } from '../../types/vehicle';
+import { type Vehicle, ShipStatus } from '../../types/vehicle';
 import { useI18n, useConfig } from '../../context';
 import { useShipsFilter } from './useShipsFilter';
 import { useVehicles } from './useVehicles';
@@ -28,7 +28,7 @@ export function Encyclopedia() {
   const [selectedNation, setSelectedNation] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<'all' | 'researchable' | 'premium'>('all');
+  const [selectedStatus, setSelectedStatus] = useState<ShipStatus>(ShipStatus.ALL);
   const [viewMode, setViewMode] = useState<'tree' | 'grid'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
 
