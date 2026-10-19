@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { type Vehicle, ShipStatus } from '../../types/vehicle';
 import { toRomanTier } from '../../utils/roman';
+import { isPremiumOrSpecial, getShipTitle } from '../../utils/ship';
 
 export interface UseShipsFilterParams {
   vehicles: Vehicle[];
@@ -84,10 +85,7 @@ export function useShipsFilter({
       .filter((ship) => selectedTier === null || ship.level === selectedTier)
       .filter((ship) => {
         if (selectedStatus === ShipStatus.ALL) return true;
-        const isPrem =
-          ship.tags?.includes('uiPremium') ||
-          ship.tags?.includes('special') ||
-          ship.tags?.includes('uiSpecial');
+        const isPrem = isPremiumOrSpecial(ship);
         return selectedStatus === ShipStatus.PREMIUM ? isPrem : !isPrem;
       })
       .filter((ship) => !q || matchingShipIds.has(ship.id))
@@ -95,8 +93,8 @@ export function useShipsFilter({
         if (a.level !== b.level) {
           return a.level - b.level;
         }
-        const nameA = a.localization?.mark?.[selectedLang] || a.name;
-        const nameB = b.localization?.mark?.[selectedLang] || b.name;
+        const nameA = getShipTitle(a, selectedLang);
+        const nameB = getShipTitle(b, selectedLang);
         return nameA.localeCompare(nameB);
       });
   }, [

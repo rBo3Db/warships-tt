@@ -6,6 +6,8 @@ import { ErrorCard } from '../ui/ErrorCard';
 import { CenteredContainer } from '../ui/CenteredContainer';
 import { buildTechTreeData } from '../../utils/techTree';
 import { toRomanTier } from '../../utils/roman';
+import { getShipTitle, isPremiumShip, isSpecialShip } from '../../utils/ship';
+import { ShipBadges } from '../ui/ShipBadges';
 import styles from './TechTree.module.css';
 
 interface TechTreeProps {
@@ -84,7 +86,7 @@ export function TechTree({
     const handleResize = () => updateLines();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [updateLines, selectedLang]);
+  }, [updateLines, lang]);
 
   // Auto-scroll horizontally to the first matching ship when searching
   useEffect(() => {
@@ -254,10 +256,7 @@ export function TechTree({
                   return (
                     <div key={tier} className={styles.tierCell}>
                       {shipsInCell.map((ship) => {
-                        const shipTitle =
-                          ship.localization?.mark?.[lang] ||
-                          ship.localization?.shortmark?.[lang] ||
-                          ship.name;
+                        const shipTitle = getShipTitle(ship, lang);
 
                         const imgUrl = getMediaUrl(
                           ship.icons?.small || ship.icons?.medium || ship.icons?.default
@@ -320,10 +319,7 @@ export function TechTree({
           <h3 className={styles.sectionHeading}>{ui.premiums}</h3>
           <div className={styles.premiumsGrid}>
             {treeData.premiums.map((ship) => {
-              const shipTitle =
-                ship.localization?.mark?.[lang] ||
-                ship.localization?.shortmark?.[lang] ||
-                ship.name;
+              const shipTitle = getShipTitle(ship, lang);
 
               const typeInfo = vehicleTypes[ship.type];
               const typeIcon = getMediaUrl(typeInfo?.icons?.default);
@@ -331,8 +327,8 @@ export function TechTree({
                 ship.icons?.small || ship.icons?.medium || ship.icons?.default
               );
 
-              const isPremium = ship.tags?.includes('uiPremium');
-              const isSpecial = ship.tags?.includes('special') || ship.tags?.includes('uiSpecial');
+              const isPremium = isPremiumShip(ship);
+              const isSpecial = isSpecialShip(ship);
 
               const isMatch = isSearchActive && Boolean(matchingShipIds?.has(ship.id));
               const isDimmed = isSearchActive && !isMatch;
@@ -350,10 +346,7 @@ export function TechTree({
                       <span>{toRomanTier(ship.level)}</span>
                       {typeIcon && <img src={typeIcon} alt={ship.type} className={styles.premiumTypeIcon} />}
                     </div>
-                    <div>
-                      {isPremium && <span className={styles.badge}>{ui.premium}</span>}
-                      {isSpecial && <span className={styles.badge}>{ui.special}</span>}
-                    </div>
+                    <ShipBadges isPremium={isPremium} isSpecial={isSpecial} />
                   </div>
 
                   <p className={styles.nodeName} title={shipTitle}>

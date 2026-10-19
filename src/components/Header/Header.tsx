@@ -3,6 +3,7 @@ import type { Vehicle } from '../../types/vehicle';
 import { useI18n, useConfig } from '../../context';
 import { getLanguageTitle } from '../../utils/language';
 import { toRomanTier } from '../../utils/roman';
+import { getShipTitle } from '../../utils/ship';
 import { FALLBACK_LANGUAGES } from '../../config/languages';
 import styles from './Header.module.css';
 
@@ -81,7 +82,7 @@ export function Header({
           {otherNationMatches.map((ship) => {
             const nat = getNation(ship.nation);
             const flag = nat ? getFlagUrl(nat.icons.small || nat.icons.default) : null;
-            const shipTitle = ship.localization?.mark?.[lang] || ship.name;
+            const shipTitle = getShipTitle(ship, lang);
             return (
               <button
                 key={ship.id}

@@ -1,0 +1,26 @@
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge {
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  background: #fff;
+  line-height: 1.2;
+}
+
+.premium {
+  border-color: #d4a017;
+  color: #996515;
+  background: #fffdf5;
+}
+
+.special {
+  border-color: #9c27b0;
+  color: #6a1b9a;
+  background: #faf5ff;
+}

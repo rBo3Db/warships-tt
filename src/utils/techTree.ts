@@ -1,4 +1,5 @@
 import type { Vehicle } from '../types/vehicle';
+import { isPremiumOrSpecial } from './ship';
 
 export interface TreeLink {
   fromId: string;
@@ -19,7 +20,7 @@ const CLASS_ORDER = ['Submarine', 'Destroyer', 'Cruiser', 'Battleship', 'AirCarr
 export function isResearchableShip(ship: Vehicle): boolean {
   if (ship.level === 1) return true;
   if (ship.tags?.includes('superShip')) return true;
-  if (ship.tags?.includes('uiPremium') || ship.tags?.includes('special') || ship.tags?.includes('uiSpecial')) {
+  if (isPremiumOrSpecial(ship)) {
     return false;
   }
   return ship.tags?.includes('upgradeable') ?? false;
