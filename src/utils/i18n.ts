@@ -1,5 +1,6 @@
 import { DEFAULT_LANGUAGE } from '../config/languages';
 export * from '../config/languages';
+export { detectBrowserLanguage } from './language';
 
 export interface UiTranslations {
   title: string;

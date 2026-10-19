@@ -8,14 +8,13 @@ export function App() {
     mediaPath,
     nations,
     vehicleTypes,
-    availableLanguages,
     isColdStart,
     bootstrapError,
     retryBootstrap,
   } = useAppBootstrap();
 
   return (
-    <I18nProvider availableLanguages={availableLanguages}>
+    <I18nProvider>
       <ConfigProvider
         mediaPath={mediaPath || ''}
         nations={nations || []}

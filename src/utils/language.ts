@@ -334,3 +334,45 @@ export function getLanguageTitle(targetCode: string, currentLang: string = DEFAU
 
   return targetCode.toUpperCase();
 }
+
+/**
+ * Detects the best matching language code based on browser language or custom input.
+ * Supports exact dialect match ('es_mx'), base language match ('ru'), and falls back to default.
+ *
+ * @param browserLanguage Optional language code (defaults to navigator.language)
+ * @param supportedLanguages Optional dictionary, array, or set of supported language codes
+ * @param fallback Fallback language when no match is found (defaults to DEFAULT_LANGUAGE)
+ */
+export function detectBrowserLanguage(
+  browserLanguage?: string,
+  supportedLanguages?: Record<string, unknown> | readonly string[] | string[] | Set<string>,
+  fallback: string = DEFAULT_LANGUAGE
+): string {
+  const navLang =
+    browserLanguage ?? (typeof navigator !== 'undefined' ? navigator.language : undefined);
+
+  if (!navLang) {
+    return fallback;
+  }
+
+  const raw = navLang.toLowerCase().replace('-', '_');
+
+  const isSupported = (code: string): boolean => {
+    if (!supportedLanguages) return true;
+    if (Array.isArray(supportedLanguages)) return supportedLanguages.includes(code);
+    if (supportedLanguages instanceof Set) return supportedLanguages.has(code);
+    return code in supportedLanguages;
+  };
+
+  if (isSupported(raw)) {
+    return raw;
+  }
+
+  const base = raw.split('_')[0];
+  if (isSupported(base)) {
+    return base;
+  }
+
+  return fallback;
+}
+

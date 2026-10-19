@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import type { Vehicle } from '../../types/vehicle';
 import { useI18n, useConfig } from '../../context';
 import { getLanguageTitle } from '../../utils/language';
 import { toRomanTier } from '../../utils/roman';
+import { FALLBACK_LANGUAGES } from '../../config/languages';
 import styles from './Header.module.css';
 
 export interface HeaderProps {
@@ -19,8 +21,15 @@ export function Header({
   otherNationMatches,
   onJumpToShip,
 }: HeaderProps) {
-  const { lang, setLang, languages, ui } = useI18n();
-  const { getNation, getFlagUrl } = useConfig();
+  const { lang, setLang, ui } = useI18n();
+  const { nations, getNation, getFlagUrl } = useConfig();
+
+  const languages = useMemo(() => {
+    const list = Array.from(
+      new Set(nations.flatMap((n) => Object.keys(n.localization?.mark || {})))
+    );
+    return list.length > 0 ? list : [...FALLBACK_LANGUAGES];
+  }, [nations]);
 
   return (
     <>
