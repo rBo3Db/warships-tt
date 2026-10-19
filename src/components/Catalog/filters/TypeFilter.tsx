@@ -1,4 +1,5 @@
 import { useI18n, useConfig } from '../../../context';
+import { TypeFilterButton } from './TypeFilterButton';
 import styles from '../Catalog.module.css';
 
 export interface TypeFilterProps {
@@ -7,8 +8,8 @@ export interface TypeFilterProps {
 }
 
 export function TypeFilter({ selectedType, onSelectType }: TypeFilterProps) {
-  const { lang, ui } = useI18n();
-  const { sortedVehicleTypes, getMediaUrl } = useConfig();
+  const { ui } = useI18n();
+  const { sortedVehicleTypes } = useConfig();
 
   return (
     <div className={styles.list}>
@@ -19,30 +20,15 @@ export function TypeFilter({ selectedType, onSelectType }: TypeFilterProps) {
       >
         {ui.allTypes}
       </button>
-      {sortedVehicleTypes.map(([typeKey, typeInfo]) => {
-        const isSelected = selectedType === typeKey;
-        const typeTitle = typeInfo.localization?.mark?.[lang] || typeKey;
-        const iconUrl = getMediaUrl(typeInfo.icons?.default);
-
-        return (
-          <button
-            key={typeKey}
-            type="button"
-            className={`${styles.item} ${isSelected ? styles.itemSelected : ''}`}
-            onClick={() => onSelectType(isSelected ? null : typeKey)}
-          >
-            {iconUrl && (
-              <img
-                src={iconUrl}
-                alt={typeTitle}
-                className={styles.typeIcon}
-                loading="lazy"
-              />
-            )}
-            <span>{typeTitle}</span>
-          </button>
-        );
-      })}
+      {sortedVehicleTypes.map(([typeKey, typeInfo]) => (
+        <TypeFilterButton
+          key={typeKey}
+          typeKey={typeKey}
+          typeInfo={typeInfo}
+          isSelected={selectedType === typeKey}
+          onToggle={() => onSelectType(selectedType === typeKey ? null : typeKey)}
+        />
+      ))}
     </div>
   );
 }
