@@ -1,7 +1,8 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import type { Vehicle } from '../../types/vehicle';
 import { useI18n, useConfig } from '../../context';
-import { useShipsFilter } from '../../hooks/useShipsFilter';
+import { useShipsFilter } from './useShipsFilter';
+import { useVehicles } from './useVehicles';
 import { Header } from '../Header';
 import { NationsBar } from '../NationsBar';
 import { Catalog } from '../Catalog';
@@ -10,27 +11,18 @@ import { ScrollToTop } from '../ui/ScrollToTop';
 import { ErrorBanner } from '../ui/ErrorBanner';
 import styles from './Encyclopedia.module.css';
 
-export interface EncyclopediaProps {
-  vehicles: Vehicle[] | null;
-  bannerError?: string | null;
-  onRetryBanner?: () => void;
-  onDismissBanner?: () => void;
-  vehiclesError?: string | null;
-  onRetryVehicles?: () => void;
-}
-
-export function Encyclopedia({
-  vehicles,
-  bannerError = null,
-  onRetryBanner,
-  onDismissBanner,
-  vehiclesError = null,
-  onRetryVehicles,
-}: EncyclopediaProps) {
+export function Encyclopedia() {
   const { lang, ui } = useI18n();
-  const { nations, getNation } = useConfig();
+  const { getNation } = useConfig();
+  const {
+    vehicles,
+    isLoading: isVehiclesLoading,
+    vehiclesError,
+    bannerError,
+    retryVehicles,
+    dismissBanner,
+  } = useVehicles();
 
-  const isVehiclesLoading = vehicles === null;
   const safeVehicles = useMemo(() => vehicles || [], [vehicles]);
 
   const [selectedNation, setSelectedNation] = useState<string | null>(null);
@@ -121,9 +113,9 @@ export function Encyclopedia({
         <ErrorBanner
           message={bannerError}
           retryLabel={ui.retry}
-          onRetry={onRetryBanner}
+          onRetry={retryVehicles}
           dismissLabel={ui.dismiss}
-          onDismiss={onDismissBanner}
+          onDismiss={dismissBanner}
         />
       )}
 
@@ -180,7 +172,7 @@ export function Encyclopedia({
               matchingShipIds={matchingShipIds}
               isLoading={isVehiclesLoading}
               errorMessage={vehiclesError}
-              onRetry={onRetryVehicles}
+              onRetry={retryVehicles}
             />
           )
         ) : (
@@ -198,7 +190,7 @@ export function Encyclopedia({
             onSelectTier={setSelectedTier}
             isLoading={isVehiclesLoading}
             errorMessage={vehiclesError}
-            onRetry={onRetryVehicles}
+            onRetry={retryVehicles}
           />
         )}
       </section>
