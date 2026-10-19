@@ -1,20 +1,20 @@
 import type { FC } from 'react';
-import type { UiTranslations } from '../../utils/i18n';
+import { useI18n } from '../../context';
 import { CenteredContainer } from '../ui/CenteredContainer';
 import { ErrorCard } from '../ui/ErrorCard';
 import { Loader } from '../ui/Loader';
 
 interface ColdStartFallbackProps {
   error: string | null;
-  ui: UiTranslations;
   onRetry: () => void;
 }
 
 export const ColdStartFallback: FC<ColdStartFallbackProps> = ({
   error,
-  ui,
   onRetry,
 }) => {
+  const { ui } = useI18n();
+
   return (
     <CenteredContainer>
       {error ? (

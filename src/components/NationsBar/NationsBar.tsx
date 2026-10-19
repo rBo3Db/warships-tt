@@ -1,25 +1,18 @@
-import type { Nation } from '../../types/nation';
-import type { UiTranslations } from '../../utils/i18n';
-import { buildFlagUrl } from '../../services/nationsService';
+import { useI18n, useConfig } from '../../context';
 import styles from './NationsBar.module.css';
 
-interface NationsBarProps {
-  nations: Nation[];
+export interface NationsBarProps {
   selectedNation: string | null;
   onSelectNation: (nationName: string | null) => void;
-  mediaPath: string;
-  selectedLang: string;
-  ui: UiTranslations;
 }
 
 export function NationsBar({
-  nations,
   selectedNation,
   onSelectNation,
-  mediaPath,
-  selectedLang,
-  ui,
 }: NationsBarProps) {
+  const { lang, ui } = useI18n();
+  const { nations, getFlagUrl } = useConfig();
+
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>{ui.nations}</h2>
@@ -35,8 +28,8 @@ export function NationsBar({
 
         {/* Individual nation buttons */}
         {nations.map((nation) => {
-          const title = nation.localization?.mark?.[selectedLang] || nation.name;
-          const flagUrl = buildFlagUrl(mediaPath, nation.icons.large || nation.icons.default);
+          const title = nation.localization?.mark?.[lang] || nation.name;
+          const flagUrl = getFlagUrl(nation.icons.large || nation.icons.default);
           const isSelected = selectedNation === nation.name;
 
           return (

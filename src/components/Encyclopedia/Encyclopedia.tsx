@@ -1,7 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
-import type { Nation } from '../../types/nation';
-import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
-import { getUiTranslation } from '../../utils/i18n';
+import type { Vehicle } from '../../types/vehicle';
+import { useI18n, useConfig } from '../../context';
 import { useShipsFilter } from '../../hooks/useShipsFilter';
 import { Header } from '../Header';
 import { NationsBar } from '../NationsBar';
@@ -11,10 +10,7 @@ import { ScrollToTop } from '../ui/ScrollToTop';
 import { ErrorBanner } from '../ui/ErrorBanner';
 import styles from './Encyclopedia.module.css';
 
-interface EncyclopediaProps {
-  nations: Nation[] | null;
-  mediaPath: string | null;
-  vehicleTypes: VehicleTypesMap | null;
+export interface EncyclopediaProps {
   vehicles: Vehicle[] | null;
   bannerError?: string | null;
   onRetryBanner?: () => void;
@@ -24,9 +20,6 @@ interface EncyclopediaProps {
 }
 
 export function Encyclopedia({
-  nations,
-  mediaPath,
-  vehicleTypes,
   vehicles,
   bannerError = null,
   onRetryBanner,
@@ -34,29 +27,11 @@ export function Encyclopedia({
   vehiclesError = null,
   onRetryVehicles,
 }: EncyclopediaProps) {
-  const safeNations = useMemo(() => nations || [], [nations]);
-  const safeMediaPath = mediaPath || '';
-  const safeVehicleTypes = useMemo(() => vehicleTypes || {}, [vehicleTypes]);
+  const { lang, ui } = useI18n();
+  const { nations, getNation } = useConfig();
+
   const isVehiclesLoading = vehicles === null;
   const safeVehicles = useMemo(() => vehicles || [], [vehicles]);
-
-  // Available language codes from nations data
-  const languages = useMemo(() => {
-    const list = Array.from(
-      new Set(safeNations.flatMap((n) => Object.keys(n.localization?.mark || {})))
-    );
-    return list.length > 0 ? list : ['en', 'ru'];
-  }, [safeNations]);
-
-  const [selectedLang, setSelectedLang] = useState<string>(() => {
-    if (typeof navigator !== 'undefined') {
-      const raw = navigator.language.toLowerCase().replace('-', '_');
-      if (languages.includes(raw)) return raw;
-      const base = raw.split('_')[0];
-      if (languages.includes(base)) return base;
-    }
-    return languages.includes('en') ? 'en' : languages[0] || 'en';
-  });
 
   const [selectedNation, setSelectedNation] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -69,9 +44,6 @@ export function Encyclopedia({
   const [displayLimit, setDisplayLimit] = useState(CHUNK_SIZE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const shipsSectionRef = useRef<HTMLDivElement>(null);
-
-  // Current localized UI strings
-  const ui = useMemo(() => getUiTranslation(selectedLang), [selectedLang]);
 
   // Hook for filtering ships across all dimensions
   const {
@@ -86,26 +58,19 @@ export function Encyclopedia({
     selectedTier,
     selectedStatus,
     searchQuery,
-    selectedLang,
+    selectedLang: lang,
   });
-
-  // Sorted ship types by sort_order
-  const sortedTypes = useMemo(() => {
-    return Object.entries(safeVehicleTypes).sort(
-      ([, a], [, b]) => a.sort_order - b.sort_order
-    );
-  }, [safeVehicleTypes]);
 
   // Current section title
   const currentNationTitle = useMemo(() => {
     if (!selectedNation) return ui.allNations;
-    const currentNationObj = safeNations.find((n) => n.name === selectedNation);
+    const currentNationObj = getNation(selectedNation);
     return (
-      currentNationObj?.localization?.mark?.[selectedLang] ||
+      currentNationObj?.localization?.mark?.[lang] ||
       currentNationObj?.name ||
       selectedNation
     );
-  }, [selectedNation, safeNations, selectedLang, ui.allNations]);
+  }, [selectedNation, getNation, lang, ui.allNations]);
 
   // Reset display limit when filter, nation, tier, status or search changes
   useEffect(() => {
@@ -167,24 +132,14 @@ export function Encyclopedia({
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onSearchClear={() => setSearchQuery('')}
-        selectedLang={selectedLang}
-        onLangChange={setSelectedLang}
-        languages={languages}
-        ui={ui}
         otherNationMatches={otherNationMatches}
-        nations={safeNations}
-        mediaPath={safeMediaPath}
         onJumpToShip={handleJumpToOtherNationShip}
       />
 
       {/* Nations horizontal list */}
       <NationsBar
-        nations={safeNations}
         selectedNation={selectedNation}
         onSelectNation={handleSelectNation}
-        mediaPath={safeMediaPath}
-        selectedLang={selectedLang}
-        ui={ui}
       />
 
       {/* View Switcher (Catalog / Tree) and Section Title */}
@@ -221,10 +176,6 @@ export function Encyclopedia({
           ) : (
             <TechTree
               nationShips={currentNationShips}
-              selectedLang={selectedLang}
-              mediaPath={safeMediaPath}
-              vehicleTypes={safeVehicleTypes}
-              ui={ui}
               searchQuery={searchQuery}
               matchingShipIds={matchingShipIds}
               isLoading={isVehiclesLoading}
@@ -239,18 +190,12 @@ export function Encyclopedia({
             totalFilteredCount={filteredCatalogShips.length}
             displayLimit={displayLimit}
             loadMoreRef={loadMoreRef}
-            sortedTypes={sortedTypes}
             selectedType={selectedType}
             onSelectType={setSelectedType}
             selectedStatus={selectedStatus}
             onSelectStatus={setSelectedStatus}
             selectedTier={selectedTier}
             onSelectTier={setSelectedTier}
-            selectedLang={selectedLang}
-            mediaPath={safeMediaPath}
-            vehicleTypes={safeVehicleTypes}
-            nations={safeNations}
-            ui={ui}
             isLoading={isVehiclesLoading}
             errorMessage={vehiclesError}
             onRetry={onRetryVehicles}

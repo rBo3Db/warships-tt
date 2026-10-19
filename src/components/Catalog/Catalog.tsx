@@ -1,30 +1,23 @@
 import type { RefObject } from 'react';
-import type { Vehicle, VehicleTypesMap, VehicleTypeInfo } from '../../types/vehicle';
-import type { Nation } from '../../types/nation';
-import type { UiTranslations } from '../../utils/i18n';
+import type { Vehicle } from '../../types/vehicle';
+import { useI18n } from '../../context';
 import { Loader } from '../ui/Loader';
 import { ErrorCard } from '../ui/ErrorCard';
 import { CatalogFilters } from './CatalogFilters';
 import { ShipCard } from './ShipCard';
 import styles from './Catalog.module.css';
 
-interface CatalogProps {
+export interface CatalogProps {
   ships: Vehicle[];
   totalFilteredCount: number;
   displayLimit: number;
   loadMoreRef: RefObject<HTMLDivElement | null>;
-  sortedTypes: [string, VehicleTypeInfo][];
   selectedType: string | null;
   onSelectType: (type: string | null) => void;
   selectedStatus: 'all' | 'researchable' | 'premium';
   onSelectStatus: (status: 'all' | 'researchable' | 'premium') => void;
   selectedTier: number | null;
   onSelectTier: (tier: number | null) => void;
-  selectedLang: string;
-  mediaPath: string;
-  vehicleTypes: VehicleTypesMap;
-  nations: Nation[];
-  ui: UiTranslations;
   isLoading?: boolean;
   errorMessage?: string | null;
   onRetry?: () => void;
@@ -35,35 +28,27 @@ export function Catalog({
   totalFilteredCount,
   displayLimit,
   loadMoreRef,
-  sortedTypes,
   selectedType,
   onSelectType,
   selectedStatus,
   onSelectStatus,
   selectedTier,
   onSelectTier,
-  selectedLang,
-  mediaPath,
-  vehicleTypes,
-  nations,
-  ui,
   isLoading = false,
   errorMessage = null,
   onRetry,
 }: CatalogProps) {
+  const { ui } = useI18n();
+
   return (
     <>
       <CatalogFilters
-        sortedTypes={sortedTypes}
         selectedType={selectedType}
         onSelectType={onSelectType}
         selectedStatus={selectedStatus}
         onSelectStatus={onSelectStatus}
         selectedTier={selectedTier}
         onSelectTier={onSelectTier}
-        selectedLang={selectedLang}
-        mediaPath={mediaPath}
-        ui={ui}
       />
 
       {errorMessage ? (
@@ -82,15 +67,7 @@ export function Catalog({
       ) : (
         <div className={styles.grid}>
           {ships.map((ship) => (
-            <ShipCard
-              key={ship.id}
-              ship={ship}
-              selectedLang={selectedLang}
-              mediaPath={mediaPath}
-              vehicleTypes={vehicleTypes}
-              nations={nations}
-              ui={ui}
-            />
+            <ShipCard key={ship.id} ship={ship} />
           ))}
 
           {/* Infinite scroll sentinel */}

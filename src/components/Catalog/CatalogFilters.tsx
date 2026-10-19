@@ -1,36 +1,29 @@
-import type { VehicleTypeInfo } from '../../types/vehicle';
-import type { UiTranslations } from '../../utils/i18n';
+import { useI18n, useConfig } from '../../context';
 import { toRomanTier } from '../../utils/roman';
-import { buildMediaUrl } from '../../services/vehiclesService';
 import styles from './Catalog.module.css';
 
 export const TIERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
-interface CatalogFiltersProps {
-  sortedTypes: [string, VehicleTypeInfo][];
+export interface CatalogFiltersProps {
   selectedType: string | null;
   onSelectType: (type: string | null) => void;
   selectedStatus: 'all' | 'researchable' | 'premium';
   onSelectStatus: (status: 'all' | 'researchable' | 'premium') => void;
   selectedTier: number | null;
   onSelectTier: (tier: number | null) => void;
-  selectedLang: string;
-  mediaPath: string;
-  ui: UiTranslations;
 }
 
 export function CatalogFilters({
-  sortedTypes,
   selectedType,
   onSelectType,
   selectedStatus,
   onSelectStatus,
   selectedTier,
   onSelectTier,
-  selectedLang,
-  mediaPath,
-  ui,
 }: CatalogFiltersProps) {
+  const { lang, ui } = useI18n();
+  const { sortedVehicleTypes, getMediaUrl } = useConfig();
+
   return (
     <div className={styles.filtersContainer}>
       {/* Class filter */}
@@ -42,10 +35,10 @@ export function CatalogFilters({
         >
           {ui.allTypes}
         </button>
-        {sortedTypes.map(([typeKey, typeInfo]) => {
+        {sortedVehicleTypes.map(([typeKey, typeInfo]) => {
           const isSelected = selectedType === typeKey;
-          const typeTitle = typeInfo.localization?.mark?.[selectedLang] || typeKey;
-          const iconUrl = buildMediaUrl(mediaPath, typeInfo.icons?.default);
+          const typeTitle = typeInfo.localization?.mark?.[lang] || typeKey;
+          const iconUrl = getMediaUrl(typeInfo.icons?.default);
 
           return (
             <button

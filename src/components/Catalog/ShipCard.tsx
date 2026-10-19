@@ -1,43 +1,30 @@
-import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
-import type { Nation } from '../../types/nation';
-import type { UiTranslations } from '../../utils/i18n';
+import type { Vehicle } from '../../types/vehicle';
+import { useI18n, useConfig } from '../../context';
 import { toRomanTier } from '../../utils/roman';
-import { buildMediaUrl } from '../../services/vehiclesService';
-import { buildFlagUrl } from '../../services/nationsService';
 import styles from './Catalog.module.css';
 
-interface ShipCardProps {
+export interface ShipCardProps {
   ship: Vehicle;
-  selectedLang: string;
-  mediaPath: string;
-  vehicleTypes: VehicleTypesMap;
-  nations: Nation[];
-  ui: UiTranslations;
 }
 
-export function ShipCard({
-  ship,
-  selectedLang,
-  mediaPath,
-  vehicleTypes,
-  nations,
-  ui,
-}: ShipCardProps) {
+export function ShipCard({ ship }: ShipCardProps) {
+  const { lang, ui } = useI18n();
+  const { vehicleTypes, getNation, getMediaUrl, getFlagUrl } = useConfig();
+
   const shipTitle =
-    ship.localization?.mark?.[selectedLang] ||
-    ship.localization?.shortmark?.[selectedLang] ||
+    ship.localization?.mark?.[lang] ||
+    ship.localization?.shortmark?.[lang] ||
     ship.name;
 
   const typeInfo = vehicleTypes[ship.type];
-  const typeIconUrl = buildMediaUrl(mediaPath, typeInfo?.icons?.default);
-  const shipImgUrl = buildMediaUrl(
-    mediaPath,
+  const typeIconUrl = getMediaUrl(typeInfo?.icons?.default);
+  const shipImgUrl = getMediaUrl(
     ship.icons?.medium || ship.icons?.large || ship.icons?.small || ship.icons?.default
   );
 
-  const shipNation = nations.find((n) => n.name === ship.nation);
+  const shipNation = getNation(ship.nation);
   const shipFlagUrl = shipNation
-    ? buildFlagUrl(mediaPath, shipNation.icons.small || shipNation.icons.default)
+    ? getFlagUrl(shipNation.icons.small || shipNation.icons.default)
     : null;
 
   const isPremium = ship.tags?.includes('uiPremium');
@@ -52,7 +39,7 @@ export function ShipCard({
             <img
               src={shipFlagUrl}
               alt={ship.nation}
-              title={shipNation?.localization?.mark?.[selectedLang] || ship.nation}
+              title={shipNation?.localization?.mark?.[lang] || ship.nation}
               className={styles.nationFlag}
               loading="lazy"
             />
@@ -62,7 +49,7 @@ export function ShipCard({
               src={typeIconUrl}
               alt={ship.type}
               className={styles.typeIcon}
-              title={typeInfo?.localization?.mark?.[selectedLang] || ship.type}
+              title={typeInfo?.localization?.mark?.[lang] || ship.type}
               loading="lazy"
             />
           )}

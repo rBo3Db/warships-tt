@@ -1,20 +1,15 @@
 import { useMemo, useState, useRef, useLayoutEffect, useEffect, useCallback } from 'react';
-import type { Vehicle, VehicleTypesMap } from '../../types/vehicle';
-import type { UiTranslations } from '../../utils/i18n';
+import type { Vehicle } from '../../types/vehicle';
+import { useI18n, useConfig } from '../../context';
 import { Loader } from '../ui/Loader';
 import { ErrorCard } from '../ui/ErrorCard';
 import { CenteredContainer } from '../ui/CenteredContainer';
 import { buildTechTreeData } from '../../utils/techTree';
 import { toRomanTier } from '../../utils/roman';
-import { buildMediaUrl } from '../../services/vehiclesService';
 import styles from './TechTree.module.css';
 
 interface TechTreeProps {
   nationShips: Vehicle[];
-  selectedLang: string;
-  mediaPath: string;
-  vehicleTypes: VehicleTypesMap;
-  ui: UiTranslations;
   searchQuery?: string;
   matchingShipIds?: Set<string>;
   isLoading?: boolean;
@@ -33,16 +28,14 @@ interface SvgLineCoords {
 
 export function TechTree({
   nationShips,
-  selectedLang,
-  mediaPath,
-  vehicleTypes,
-  ui,
   searchQuery = '',
   matchingShipIds,
   isLoading = false,
   errorMessage,
   onRetry,
 }: TechTreeProps) {
+  const { lang, ui } = useI18n();
+  const { vehicleTypes, getMediaUrl } = useConfig();
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredShipId, setHoveredShipId] = useState<string | null>(null);
   const [svgLines, setSvgLines] = useState<SvgLineCoords[]>([]);
@@ -243,8 +236,8 @@ export function TechTree({
           {/* Rows for each ship class */}
           {treeData.classes.map((cls) => {
             const classInfo = vehicleTypes[cls];
-            const classTitle = classInfo?.localization?.mark?.[selectedLang] || cls;
-            const classIcon = buildMediaUrl(mediaPath, classInfo?.icons?.default);
+            const classTitle = classInfo?.localization?.mark?.[lang] || cls;
+            const classIcon = getMediaUrl(classInfo?.icons?.default);
 
             return (
               <div key={cls} className={styles.classRow}>
@@ -262,12 +255,11 @@ export function TechTree({
                     <div key={tier} className={styles.tierCell}>
                       {shipsInCell.map((ship) => {
                         const shipTitle =
-                          ship.localization?.mark?.[selectedLang] ||
-                          ship.localization?.shortmark?.[selectedLang] ||
+                          ship.localization?.mark?.[lang] ||
+                          ship.localization?.shortmark?.[lang] ||
                           ship.name;
 
-                        const imgUrl = buildMediaUrl(
-                          mediaPath,
+                        const imgUrl = getMediaUrl(
                           ship.icons?.small || ship.icons?.medium || ship.icons?.default
                         );
 
@@ -329,14 +321,13 @@ export function TechTree({
           <div className={styles.premiumsGrid}>
             {treeData.premiums.map((ship) => {
               const shipTitle =
-                ship.localization?.mark?.[selectedLang] ||
-                ship.localization?.shortmark?.[selectedLang] ||
+                ship.localization?.mark?.[lang] ||
+                ship.localization?.shortmark?.[lang] ||
                 ship.name;
 
               const typeInfo = vehicleTypes[ship.type];
-              const typeIcon = buildMediaUrl(mediaPath, typeInfo?.icons?.default);
-              const imgUrl = buildMediaUrl(
-                mediaPath,
+              const typeIcon = getMediaUrl(typeInfo?.icons?.default);
+              const imgUrl = getMediaUrl(
                 ship.icons?.small || ship.icons?.medium || ship.icons?.default
               );
 

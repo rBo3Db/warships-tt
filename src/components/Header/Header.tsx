@@ -1,22 +1,14 @@
 import type { Vehicle } from '../../types/vehicle';
-import type { Nation } from '../../types/nation';
-import type { UiTranslations } from '../../utils/i18n';
+import { useI18n, useConfig } from '../../context';
 import { getLanguageTitle } from '../../utils/language';
 import { toRomanTier } from '../../utils/roman';
-import { buildFlagUrl } from '../../services/nationsService';
 import styles from './Header.module.css';
 
-interface HeaderProps {
+export interface HeaderProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onSearchClear: () => void;
-  selectedLang: string;
-  onLangChange: (lang: string) => void;
-  languages: string[];
-  ui: UiTranslations;
   otherNationMatches: Vehicle[];
-  nations: Nation[];
-  mediaPath: string;
   onJumpToShip: (ship: Vehicle) => void;
 }
 
@@ -24,15 +16,12 @@ export function Header({
   searchQuery,
   onSearchChange,
   onSearchClear,
-  selectedLang,
-  onLangChange,
-  languages,
-  ui,
   otherNationMatches,
-  nations,
-  mediaPath,
   onJumpToShip,
 }: HeaderProps) {
+  const { lang, setLang, languages, ui } = useI18n();
+  const { getNation, getFlagUrl } = useConfig();
+
   return (
     <>
       <header className={styles.topBar}>
@@ -64,12 +53,12 @@ export function Header({
           <label htmlFor="language-select">{ui.language} </label>
           <select
             id="language-select"
-            value={selectedLang}
-            onChange={(e) => onLangChange(e.target.value)}
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
           >
             {languages.map((code) => (
               <option key={code} value={code}>
-                {getLanguageTitle(code, selectedLang)} ({code})
+                {getLanguageTitle(code, lang)} ({code})
               </option>
             ))}
           </select>
@@ -81,9 +70,9 @@ export function Header({
         <div className={styles.otherNationsBanner}>
           <span>{ui.foundInOtherNations}</span>
           {otherNationMatches.map((ship) => {
-            const nat = nations.find((n) => n.name === ship.nation);
-            const flag = nat ? buildFlagUrl(mediaPath, nat.icons.small || nat.icons.default) : null;
-            const shipTitle = ship.localization?.mark?.[selectedLang] || ship.name;
+            const nat = getNation(ship.nation);
+            const flag = nat ? getFlagUrl(nat.icons.small || nat.icons.default) : null;
+            const shipTitle = ship.localization?.mark?.[lang] || ship.name;
             return (
               <button
                 key={ship.id}

@@ -12,6 +12,7 @@ import {
   loadAndSyncVehicles,
 } from '../../services/nationsService';
 import { getUiTranslation } from '../../utils/i18n';
+import { I18nProvider, ConfigProvider } from '../../context';
 import { ColdStartFallback } from './ColdStartFallback';
 import { Encyclopedia } from '../Encyclopedia';
 
@@ -37,6 +38,14 @@ export function App() {
   }, []);
 
   const ui = useMemo(() => getUiTranslation(defaultLang), [defaultLang]);
+
+  // Dynamic language list discovered from nation data
+  const availableLanguages = useMemo(() => {
+    if (!nations) return [];
+    return Array.from(
+      new Set(nations.flatMap((n) => Object.keys(n.localization?.mark || {})))
+    );
+  }, [nations]);
 
   // Main loader and sync coordinator
   const loadAll = useCallback(() => {
@@ -110,33 +119,32 @@ export function App() {
 
   // Cold start fallback: only if literally nothing is in cache yet
   const isCompletelyEmpty = !nations && !mediaPath && !vehicleTypes && !vehicles;
-  if (isCompletelyEmpty) {
-    return (
-      <ColdStartFallback
-        error={globalError}
-        ui={ui}
-        onRetry={loadAll}
-      />
-    );
-  }
 
-  // Progressive rendering with non-blocking error banner & localized ship retry
   return (
-    <Encyclopedia
-      nations={nations}
-      mediaPath={mediaPath}
-      vehicleTypes={vehicleTypes}
-      vehicles={vehicles}
-      bannerError={bannerError}
-      onRetryBanner={loadAll}
-      onDismissBanner={() => setBannerError(null)}
-      vehiclesError={vehiclesError}
-      onRetryVehicles={handleRetryVehicles}
-    />
+    <I18nProvider availableLanguages={availableLanguages}>
+      <ConfigProvider
+        mediaPath={mediaPath || ''}
+        nations={nations || []}
+        vehicleTypes={vehicleTypes || {}}
+      >
+        {isCompletelyEmpty ? (
+          <ColdStartFallback
+            error={globalError}
+            onRetry={loadAll}
+          />
+        ) : (
+          <Encyclopedia
+            vehicles={vehicles}
+            bannerError={bannerError}
+            onRetryBanner={loadAll}
+            onDismissBanner={() => setBannerError(null)}
+            vehiclesError={vehiclesError}
+            onRetryVehicles={handleRetryVehicles}
+          />
+        )}
+      </ConfigProvider>
+    </I18nProvider>
   );
 }
 
 export default App;
-
-
-
