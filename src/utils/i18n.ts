@@ -1,3 +1,6 @@
+import { DEFAULT_LANGUAGE } from '../config/languages';
+export * from '../config/languages';
+
 export interface UiTranslations {
   title: string;
   language: string;
@@ -624,7 +627,7 @@ export const UI_TRANSLATIONS: Record<string, Partial<UiTranslations>> = {
 };
 
 export function getUiTranslation(lang: string): UiTranslations {
-  const base = UI_TRANSLATIONS.en as UiTranslations;
+  const base = UI_TRANSLATIONS[DEFAULT_LANGUAGE] as UiTranslations;
   const current = UI_TRANSLATIONS[lang] || {};
   return { ...base, ...current };
 }
