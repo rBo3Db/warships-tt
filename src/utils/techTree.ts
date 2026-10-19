@@ -171,3 +171,58 @@ export function buildTechTreeData(nationShips: Vehicle[]): TechTreeData {
     premiums,
   };
 }
+
+export interface ActiveLineage {
+  nodeIds: Set<string>;
+  linkKeys: Set<string>;
+}
+
+/**
+ * Traverses ancestors and descendants of a ship node along tech tree links.
+ */
+export function calculateActiveLineage(
+  hoveredShipId: string | null,
+  links: TreeLink[]
+): ActiveLineage {
+  if (!hoveredShipId) {
+    return { nodeIds: new Set<string>(), linkKeys: new Set<string>() };
+  }
+
+  const nodeIds = new Set<string>([hoveredShipId]);
+  const linkKeys = new Set<string>();
+
+  // 1. Ancestors
+  let current = [hoveredShipId];
+  while (current.length > 0) {
+    const nextBatch: string[] = [];
+    for (const id of current) {
+      for (const link of links) {
+        if (link.toId === id) {
+          nodeIds.add(link.fromId);
+          linkKeys.add(`${link.fromId}->${link.toId}`);
+          nextBatch.push(link.fromId);
+        }
+      }
+    }
+    current = nextBatch;
+  }
+
+  // 2. Descendants
+  current = [hoveredShipId];
+  while (current.length > 0) {
+    const nextBatch: string[] = [];
+    for (const id of current) {
+      for (const link of links) {
+        if (link.fromId === id) {
+          nodeIds.add(link.toId);
+          linkKeys.add(`${link.fromId}->${link.toId}`);
+          nextBatch.push(link.toId);
+        }
+      }
+    }
+    current = nextBatch;
+  }
+
+  return { nodeIds, linkKeys };
+}
+

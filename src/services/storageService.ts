@@ -1,4 +1,3 @@
-const LS_KEY = 'wows_vehicles_json';
 const DB_NAME = 'wows_cache_db';
 const STORE_NAME = 'cache_store';
 

@@ -80,3 +80,11 @@ export const ShipSortOption = {
 
 export type ShipSortOption = (typeof ShipSortOption)[keyof typeof ShipSortOption];
 
+export const ViewMode = {
+  GRID: 'grid',
+  TREE: 'tree',
+} as const;
+
+export type ViewMode = (typeof ViewMode)[keyof typeof ViewMode];
+
+

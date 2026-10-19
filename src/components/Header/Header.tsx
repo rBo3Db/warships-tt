@@ -1,10 +1,8 @@
-import { useMemo } from 'react';
 import type { Vehicle } from '../../types/vehicle';
-import { useI18n, useConfig } from '../../context';
-import { getLanguageTitle } from '../../utils/language';
-import { toRomanTier } from '../../utils/roman';
-import { getShipTitle } from '../../utils/ship';
-import { FALLBACK_LANGUAGES } from '../../config/languages';
+import { useI18n } from '../../context';
+import { SearchBar } from './SearchBar';
+import { LanguagePicker } from './LanguagePicker';
+import { OtherNationsBanner } from './OtherNationsBanner';
 import styles from './Header.module.css';
 
 export interface HeaderProps {
@@ -22,83 +20,26 @@ export function Header({
   otherNationMatches,
   onJumpToShip,
 }: HeaderProps) {
-  const { lang, setLang, ui } = useI18n();
-  const { nations, getNation, getFlagUrl } = useConfig();
-
-  const languages = useMemo(() => {
-    const list = Array.from(
-      new Set(nations.flatMap((n) => Object.keys(n.localization?.mark || {})))
-    );
-    return list.length > 0 ? list : [...FALLBACK_LANGUAGES];
-  }, [nations]);
+  const { ui } = useI18n();
 
   return (
     <>
       <header className={styles.topBar}>
         <h1 className={styles.title}>{ui.title}</h1>
 
-        {/* Search Input */}
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder={ui.searchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              className={styles.clearSearchBtn}
-              onClick={onSearchClear}
-              title={ui.searchClear}
-            >
-              ✕
-            </button>
-          )}
-        </div>
+        <SearchBar
+          value={searchQuery}
+          onChange={onSearchChange}
+          onClear={onSearchClear}
+        />
 
-        {/* Language Selector */}
-        <div className={styles.langPicker}>
-          <label htmlFor="language-select">{ui.language} </label>
-          <select
-            id="language-select"
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
-          >
-            {languages.map((code) => (
-              <option key={code} value={code}>
-                {getLanguageTitle(code, lang)} ({code})
-              </option>
-            ))}
-          </select>
-        </div>
+        <LanguagePicker />
       </header>
 
-      {/* Other nations search hints */}
-      {otherNationMatches.length > 0 && (
-        <div className={styles.otherNationsBanner}>
-          <span>{ui.foundInOtherNations}</span>
-          {otherNationMatches.map((ship) => {
-            const nat = getNation(ship.nation);
-            const flag = nat ? getFlagUrl(nat.icons.small || nat.icons.default) : null;
-            const shipTitle = getShipTitle(ship, lang);
-            return (
-              <button
-                key={ship.id}
-                type="button"
-                className={styles.otherNationChip}
-                onClick={() => onJumpToShip(ship)}
-              >
-                {flag && <img src={flag} alt={ship.nation} className={styles.flag} />}
-                <span>
-                  {shipTitle} ({toRomanTier(ship.level)})
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <OtherNationsBanner
+        matches={otherNationMatches}
+        onJumpToShip={onJumpToShip}
+      />
     </>
   );
 }

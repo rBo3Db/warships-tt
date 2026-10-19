@@ -1,12 +1,14 @@
-import { useState, useRef, useMemo, useEffect } from 'react';
-import { type Vehicle, ShipStatus, ShipSortOption } from '../../types/vehicle';
+import { useState, useRef, useMemo } from 'react';
+import { type Vehicle, ShipStatus, ShipSortOption, ViewMode } from '../../types/vehicle';
 import { useI18n, useConfig } from '../../context';
 import { useShipsFilter } from './useShipsFilter';
 import { useVehicles } from './useVehicles';
+import { useInfiniteScroll } from './useInfiniteScroll';
 import { Header } from '../Header';
 import { NationsBar } from '../NationsBar';
-import { Catalog, CatalogFilters } from '../Catalog';
-import { TechTree } from '../TechTree/TechTree';
+import { Catalog, CatalogToolbar } from '../Catalog';
+import { ShipsHeader } from './ShipsHeader';
+import { TechTreeSection } from './TechTreeSection';
 import { ScrollToTop } from '../ui/ScrollToTop';
 import { ErrorBanner } from '../ui/ErrorBanner';
 import styles from './Encyclopedia.module.css';
@@ -30,12 +32,9 @@ export function Encyclopedia() {
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ShipStatus>(ShipStatus.ALL);
   const [selectedSort, setSelectedSort] = useState<ShipSortOption>(ShipSortOption.TIER_ASC);
-  const [viewMode, setViewMode] = useState<'tree' | 'grid'>('grid');
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.GRID);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const CHUNK_SIZE = 36;
-  const [displayLimit, setDisplayLimit] = useState(CHUNK_SIZE);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
   const shipsSectionRef = useRef<HTMLDivElement>(null);
 
   // Hook for filtering ships across all dimensions
@@ -66,37 +65,16 @@ export function Encyclopedia() {
     );
   }, [selectedNation, getNation, lang, ui.allNations]);
 
-  // Reset display limit when filter, nation, tier, status, sort or search changes
-  useEffect(() => {
-    setDisplayLimit(CHUNK_SIZE);
-  }, [selectedNation, selectedType, selectedTier, selectedStatus, selectedSort, searchQuery]);
-
-  // Infinite scroll observer: loads next chunk when scrolling near bottom
-  useEffect(() => {
-    const target = loadMoreRef.current;
-    if (!target) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setDisplayLimit((prev) => {
-            if (prev < filteredCatalogShips.length) {
-              return Math.min(prev + CHUNK_SIZE, filteredCatalogShips.length);
-            }
-            return prev;
-          });
-        }
-      },
-      { rootMargin: '400px' }
-    );
-
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [filteredCatalogShips.length]);
-
-  const visibleCatalogShips = useMemo(() => {
-    return filteredCatalogShips.slice(0, displayLimit);
-  }, [filteredCatalogShips, displayLimit]);
+  // Incremental chunk loading for catalog
+  const {
+    visibleItems: visibleCatalogShips,
+    displayLimit,
+    loadMoreRef,
+  } = useInfiniteScroll({
+    items: filteredCatalogShips,
+    chunkSize: 36,
+    resetDeps: [selectedNation, selectedType, selectedTier, selectedStatus, selectedSort, searchQuery],
+  });
 
   const handleSelectNation = (nationName: string | null) => {
     setSelectedNation((prev) => (prev === nationName ? null : nationName));
@@ -138,49 +116,26 @@ export function Encyclopedia() {
 
       {/* View Switcher (Catalog / Tree) and Section Title */}
       <section ref={shipsSectionRef} className={styles.section}>
-        <div className={styles.shipsHeader}>
-          <h2 className={styles.sectionTitle}>{currentNationTitle}</h2>
-          <div className={styles.viewSwitcher}>
-            <button
-              type="button"
-              className={`${styles.item} ${viewMode === 'grid' ? styles.itemSelected : ''}`}
-              onClick={() => setViewMode('grid')}
-            >
-              {ui.viewGrid}
-            </button>
-            <button
-              type="button"
-              className={`${styles.item} ${viewMode === 'tree' ? styles.itemSelected : ''}`}
-              onClick={() => setViewMode('tree')}
-            >
-              {ui.viewTree}
-            </button>
-            <span className={styles.count}>
-              ({searchQuery ? matchingShipIds.size : filteredCatalogShips.length})
-            </span>
-          </div>
-        </div>
+        <ShipsHeader
+          title={currentNationTitle}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          count={searchQuery ? matchingShipIds.size : filteredCatalogShips.length}
+        />
 
-        {viewMode === 'tree' ? (
-          /* Tree View */
-          !selectedNation ? (
-            <div className={styles.empty}>{ui.selectNationForTree}</div>
-          ) : currentNationShips.length === 0 && !isVehiclesLoading && !vehiclesError ? (
-            <div className={styles.empty}>{ui.noShips}</div>
-          ) : (
-            <TechTree
-              nationShips={currentNationShips}
-              searchQuery={searchQuery}
-              matchingShipIds={matchingShipIds}
-              isLoading={isVehiclesLoading}
-              errorMessage={vehiclesError}
-              onRetry={retryVehicles}
-            />
-          )
+        {viewMode === ViewMode.TREE ? (
+          <TechTreeSection
+            selectedNation={selectedNation}
+            nationShips={currentNationShips}
+            searchQuery={searchQuery}
+            matchingShipIds={matchingShipIds}
+            isLoading={isVehiclesLoading}
+            errorMessage={vehiclesError}
+            onRetry={retryVehicles}
+          />
         ) : (
-          /* Catalog View */
           <>
-            <CatalogFilters
+            <CatalogToolbar
               selectedType={selectedType}
               onSelectType={setSelectedType}
               selectedStatus={selectedStatus}
