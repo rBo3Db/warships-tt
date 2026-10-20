@@ -37,10 +37,6 @@ export function NationsBar({
       )}
 
       <div className={styles.innerContent}>
-        <div className={styles.header}>
-          <h2 className={styles.sectionTitle}>{ui.nations}</h2>
-        </div>
-
         <div className={styles.list}>
           {/* All Nations button */}
           <button

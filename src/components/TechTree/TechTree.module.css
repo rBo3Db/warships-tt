@@ -9,7 +9,7 @@
   overflow-x: auto;
   border: 1px solid #30363d;
   border-radius: 6px;
-  background: #11161d;
+  background: transparent;
   padding: 16px;
   min-height: 400px;
 }
@@ -86,7 +86,7 @@
   padding: 6px;
   border: 1px solid #30363d;
   border-radius: 4px;
-  background: #161b22;
+  background: transparent;
   color: #e6edf3;
   display: flex;
   flex-direction: column;
@@ -97,18 +97,18 @@
 
 .nodeCard:hover {
   border-color: #58a6ff;
-  background: #1c2d42;
+  background: rgba(56, 139, 253, 0.1);
 }
 
 .nodeCardActive {
   border-color: #58a6ff;
-  background: #1f354d;
+  background: rgba(56, 139, 253, 0.18);
   box-shadow: 0 0 0 1px #58a6ff;
 }
 
 .nodeCardMatch {
   border-color: #58a6ff !important;
-  background: #1f354d !important;
+  background: rgba(56, 139, 253, 0.2) !important;
   box-shadow: 0 0 0 2px #58a6ff;
   opacity: 1 !important;
 }
@@ -143,7 +143,7 @@
   width: 100%;
   height: 38px;
   object-fit: contain;
-  background: #0C1117;
+  background: transparent;
   border-radius: 2px;
 }
 
@@ -170,7 +170,7 @@
 
 .premiumCard {
   border: 1px solid #a67c1e;
-  background: #19160e;
+  background: transparent;
   color: #e6edf3;
   border-radius: 4px;
   padding: 6px;
