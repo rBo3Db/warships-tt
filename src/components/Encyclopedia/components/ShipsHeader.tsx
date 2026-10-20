@@ -34,7 +34,7 @@ export function ShipsHeader({
         >
           {ui.viewTree}
         </button>
-        <span className={styles.count}>({count})</span>
+        <span className={styles.count}>{count}</span>
       </div>
     </div>
   );

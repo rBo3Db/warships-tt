@@ -84,9 +84,9 @@
   position: relative;
   width: 124px;
   padding: 6px;
-  border: 1px solid #1D2228;
+  border: 1px solid #293339;
   border-radius: 4px;
-  background: #0C1117;
+  background: #182022;
   color: #7d8590;
   display: flex;
   flex-direction: column;
@@ -164,10 +164,10 @@
   width: 100%;
   height: 38px;
   object-fit: contain;
-  background: #0C1117;
+  background: #182022;
   border-radius: 2px;
-  opacity: 0.5;
-  filter: brightness(0.7) contrast(0.95);
+  opacity: 0.6;
+  filter: brightness(0.8) contrast(0.95);
   transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
@@ -193,8 +193,8 @@
 }
 
 .premiumCard {
-  border: 1px solid #1D2228;
-  background: #0C1117;
+  border: 1px solid #293339;
+  background: #182022;
   color: #7d8590;
   border-radius: 4px;
   padding: 6px;
@@ -228,8 +228,8 @@
   font-size: 0.65rem;
   padding: 1px 3px;
   border-radius: 2px;
-  border: 1px solid #1D2228;
-  background: #0C1117;
+  border: 1px solid #293339;
+  background: #182022;
   color: #8b949e;
 }
 

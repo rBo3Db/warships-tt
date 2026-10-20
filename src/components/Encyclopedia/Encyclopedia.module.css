@@ -31,7 +31,7 @@
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 16px 20px;
+  padding: 0 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -51,6 +51,7 @@
   flex-shrink: 0;
   position: sticky;
   top: 16px;
+  padding-top: 4px;
 }
 
 .contentSection {
@@ -86,15 +87,16 @@
 
 .shipsHeader {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .viewSwitcher {
   display: flex;
-  gap: 6px;
+  gap: 0;
   align-items: center;
   background: transparent;
   padding: 0;
@@ -104,36 +106,63 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #c9d1d9;
+  padding: 6px 16px;
+  border: 1px solid #293339;
+  border-bottom: 2px solid #293339;
+  background: #182022;
+  color: #293339;
   border-radius: 0;
   cursor: pointer;
   font-size: 0.85rem;
+  font-weight: 600;
+  box-sizing: border-box;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
+.item + .item {
+  margin-left: -1px;
+}
+
 .item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: #1c2629;
+  border-color: #35424a;
+  border-bottom-color: #35424a;
+  color: #485761;
 }
 
 .itemSelected {
-  background: #A6A1A2;
-  color: #0C1117;
+  position: relative;
+  z-index: 1;
+  background: #142829;
+  color: #8FA4A4;
   font-weight: 700;
-  border-color: transparent;
+  border-top: 1px solid #073E34;
+  border-left: 1px solid #073E34;
+  border-right: 1px solid #073E34;
+  border-bottom: 2px solid #0D7764;
 }
 
 .itemSelected:hover {
-  background: #b5b0b1;
-  color: #0C1117;
+  background: #173031;
+  color: #a4bebe;
 }
 
 .count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  margin-left: 10px;
+  background: #142829;
+  border-top: 1px solid #073E34;
+  border-left: 1px solid #073E34;
+  border-right: 1px solid #073E34;
+  border-bottom: 2px solid #0D7764;
+  color: #8FA4A4;
   font-size: 0.85rem;
-  color: #8b949e;
+  font-weight: 700;
+  box-sizing: border-box;
+  box-shadow: 0 0 8px rgba(13, 119, 100, 0.25);
 }
 
 .empty {
