@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Vehicle } from '../../types/vehicle';
-import { getCachedVehiclesSync, loadAndSyncVehicles } from '../../services/nationsService';
+import { getCachedVehiclesSync, loadAndSyncVehicles } from '../../services/vehiclesService';
 import { useI18n } from '../../context';
 
 export interface VehiclesState {

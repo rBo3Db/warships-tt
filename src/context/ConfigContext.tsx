@@ -1,8 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { Nation } from '../types/nation';
 import type { VehicleTypesMap, VehicleTypeInfo } from '../types/vehicle';
-import { buildMediaUrl } from '../services/vehiclesService';
-import { buildFlagUrl } from '../services/nationsService';
+import { buildMediaUrl, buildFlagUrl } from '../utils/media';
 
 export interface ConfigContextValue {
   mediaPath: string;

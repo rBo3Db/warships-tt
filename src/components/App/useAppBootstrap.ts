@@ -6,9 +6,11 @@ import {
   loadAndSyncNations,
   getCachedMediaPathSync,
   loadAndSyncMediaPath,
+} from '../../services/nationsService';
+import {
   getCachedVehicleTypesSync,
   loadAndSyncVehicleTypes,
-} from '../../services/nationsService';
+} from '../../services/vehiclesService';
 import { getUiTranslation, detectBrowserLanguage } from '../../i18n';
 
 export interface AppBootstrapState {
