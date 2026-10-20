@@ -5,11 +5,11 @@ import { Loader } from '../ui/Loader';
 import { ErrorCard } from '../ui/ErrorCard';
 import { CenteredContainer } from '../ui/CenteredContainer';
 import { buildTechTreeData, calculateActiveLineage } from '../../utils/techTree';
-import { useTechTreeLines } from './useTechTreeLines';
-import { useScrollToMatch } from './useScrollToMatch';
-import { TechTreeSvgLayer } from './TechTreeSvgLayer';
-import { TechTreeGrid } from './TechTreeGrid';
-import { TechTreePremiums } from './TechTreePremiums';
+import { useTechTreeLines } from './hooks/useTechTreeLines';
+import { useScrollToMatch } from './hooks/useScrollToMatch';
+import { TechTreeSvgLayer } from './components/TechTreeSvgLayer';
+import { TechTreeGrid } from './components/TechTreeGrid';
+import { TechTreePremiums } from './components/TechTreePremiums';
 import styles from './TechTree.module.css';
 
 export interface TechTreeProps {

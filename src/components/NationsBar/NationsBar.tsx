@@ -1,5 +1,5 @@
 import { useI18n, useConfig } from '../../context';
-import { NationButton } from './NationButton';
+import { NationButton } from './components/NationButton';
 import styles from './NationsBar.module.css';
 
 export interface NationsBarProps {

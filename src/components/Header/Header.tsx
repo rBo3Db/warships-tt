@@ -1,8 +1,8 @@
 import type { Vehicle } from '../../types/vehicle';
 import { useI18n } from '../../context';
-import { SearchBar } from './SearchBar';
-import { LanguagePicker } from './LanguagePicker';
-import { OtherNationsBanner } from './OtherNationsBanner';
+import { SearchBar } from './components/SearchBar';
+import { LanguagePicker } from './components/LanguagePicker';
+import { OtherNationsBanner } from './components/OtherNationsBanner';
 import styles from './Header.module.css';
 
 export interface HeaderProps {

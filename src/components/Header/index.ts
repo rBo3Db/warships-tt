@@ -1,5 +1,5 @@
 export { Header, type HeaderProps } from './Header';
-export { SearchBar, type SearchBarProps } from './SearchBar';
-export { LanguagePicker } from './LanguagePicker';
-export { OtherNationsBanner, type OtherNationsBannerProps } from './OtherNationsBanner';
-export { OtherNationChip, type OtherNationChipProps } from './OtherNationChip';
+export { SearchBar, type SearchBarProps } from './components/SearchBar';
+export { LanguagePicker } from './components/LanguagePicker';
+export { OtherNationsBanner, type OtherNationsBannerProps } from './components/OtherNationsBanner';
+export { OtherNationChip, type OtherNationChipProps } from './components/OtherNationChip';

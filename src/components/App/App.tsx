@@ -1,6 +1,6 @@
 import { I18nProvider, ConfigProvider } from '../../context';
-import { useAppBootstrap } from './useAppBootstrap';
-import { ColdStartFallback } from './ColdStartFallback';
+import { useAppBootstrap } from './hooks/useAppBootstrap';
+import { ColdStartFallback } from './components/ColdStartFallback';
 import { Encyclopedia } from '../Encyclopedia';
 
 export function App() {

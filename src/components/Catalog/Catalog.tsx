@@ -3,7 +3,7 @@ import type { Vehicle } from '../../types/vehicle';
 import { useI18n } from '../../context';
 import { Loader } from '../ui/Loader';
 import { ErrorCard } from '../ui/ErrorCard';
-import { ShipCard } from './ShipCard';
+import { ShipCard } from './components/ShipCard';
 import styles from './Catalog.module.css';
 
 export interface CatalogProps {

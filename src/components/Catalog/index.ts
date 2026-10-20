@@ -1,6 +1,6 @@
-export { Catalog } from './Catalog';
-export { CatalogToolbar, type CatalogToolbarProps } from './CatalogToolbar';
-export { CatalogFilters, TIERS, type CatalogFiltersProps } from './CatalogFilters';
-export { SortSelector, type SortSelectorProps } from './SortSelector';
+export { Catalog, type CatalogProps } from './Catalog';
+export { CatalogToolbar, type CatalogToolbarProps } from './components/CatalogToolbar';
+export { CatalogFilters, TIERS, type CatalogFiltersProps } from './components/CatalogFilters';
+export { SortSelector, type SortSelectorProps } from './components/SortSelector';
 export { TypeFilter, StatusFilter, TierFilter } from './filters';
-export { ShipCard } from './ShipCard';
+export { ShipCard, type ShipCardProps } from './components/ShipCard';

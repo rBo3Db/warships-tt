@@ -1,2 +1,2 @@
 export { NationsBar, type NationsBarProps } from './NationsBar';
-export { NationButton, type NationButtonProps } from './NationButton';
+export { NationButton, type NationButtonProps } from './components/NationButton';
