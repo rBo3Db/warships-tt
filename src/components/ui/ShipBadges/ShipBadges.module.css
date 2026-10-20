@@ -8,19 +8,20 @@
   font-size: 0.7rem;
   padding: 1px 4px;
   border-radius: 2px;
-  border: 1px solid #ccc;
-  background: #fff;
+  border: 1px solid #30363d;
+  background: #0C1117;
+  color: #8b949e;
   line-height: 1.2;
 }
 
 .premium {
-  border-color: #d4a017;
-  color: #996515;
-  background: #fffdf5;
+  border-color: #b08830;
+  color: #ffcc66;
+  background: #1f1a10;
 }
 
 .special {
-  border-color: #9c27b0;
-  color: #6a1b9a;
-  background: #faf5ff;
+  border-color: #a855f7;
+  color: #c084fc;
+  background: #1f142b;
 }

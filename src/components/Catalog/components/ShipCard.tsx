@@ -63,7 +63,7 @@ export function ShipCard({ ship }: ShipCardProps) {
         {shipTitle}
       </h3>
 
-      <ShipImage src={shipImgUrl} alt={shipTitle} />
+      <ShipImage src={shipImgUrl} alt={shipTitle} className={styles.shipImage} />
     </div>
   );
 }
