@@ -86,7 +86,7 @@
   padding: 6px;
   border: 1px solid #30363d;
   border-radius: 4px;
-  background: transparent;
+  background: #0C1117;
   color: #e6edf3;
   display: flex;
   flex-direction: column;
@@ -143,7 +143,7 @@
   width: 100%;
   height: 38px;
   object-fit: contain;
-  background: transparent;
+  background: #0C1117;
   border-radius: 2px;
 }
 
@@ -170,7 +170,7 @@
 
 .premiumCard {
   border: 1px solid #a67c1e;
-  background: transparent;
+  background: #0C1117;
   color: #e6edf3;
   border-radius: 4px;
   padding: 6px;

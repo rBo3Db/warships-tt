@@ -71,7 +71,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: transparent;
+  background: #0C1117;
   color: #e6edf3;
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
@@ -107,7 +107,7 @@
   padding: 1px 4px;
   border-radius: 2px;
   border: 1px solid #30363d;
-  background: transparent;
+  background: #0C1117;
   color: #8b949e;
 }
 
@@ -125,7 +125,7 @@
   width: 100%;
   height: 60px;
   object-fit: contain;
-  background: transparent;
+  background: #0C1117;
   border-radius: 2px;
 }
 

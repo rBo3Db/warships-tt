@@ -15,7 +15,7 @@ import styles from './Encyclopedia.module.css';
 
 export function Encyclopedia() {
   const { lang, ui } = useI18n();
-  const { getNation } = useConfig();
+  const { getNation, getFlagUrl } = useConfig();
   const {
     vehicles,
     isLoading: isVehiclesLoading,
@@ -36,6 +36,11 @@ export function Encyclopedia() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const shipsSectionRef = useRef<HTMLDivElement>(null);
+
+  const selectedNationObj = selectedNation ? getNation(selectedNation) : null;
+  const flagUrl = selectedNationObj
+    ? getFlagUrl(selectedNationObj.icons.large || selectedNationObj.icons.default) || null
+    : null;
 
   // Hook for filtering ships across all dimensions
   const {
@@ -88,6 +93,15 @@ export function Encyclopedia() {
 
   return (
     <div className={styles.page}>
+      {/* Ambient large flag background across all empty space */}
+      {flagUrl && (
+        <div
+          className={styles.nationWatermark}
+          style={{ backgroundImage: `url("${flagUrl}")` }}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Header with Search and Language Picker - spans 100% full width */}
       <Header
         searchQuery={searchQuery}

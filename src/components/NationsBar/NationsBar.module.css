@@ -8,45 +8,6 @@
   box-sizing: border-box;
 }
 
-/* Flag laid on the background of the menu */
-.flagBackdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.45;
-  filter: saturate(1.4) contrast(1.1);
-  pointer-events: none;
-  z-index: 0;
-  animation: fadeIn 0.35s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(1.04);
-  }
-  to {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-}
-
-.flagOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(12, 17, 23, 0.45) 0%, rgba(12, 17, 23, 0.85) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
 .innerContent {
   position: relative;
   z-index: 2;

@@ -11,31 +11,11 @@ export function NationsBar({
   selectedNation,
   onSelectNation,
 }: NationsBarProps) {
-  const { ui, lang } = useI18n();
-  const { nations, getNation, getFlagUrl } = useConfig();
-
-  const selectedNationObj = selectedNation ? getNation(selectedNation) : null;
-  const flagUrl = selectedNationObj
-    ? getFlagUrl(selectedNationObj.icons.large || selectedNationObj.icons.default) || null
-    : null;
-  const selectedNationTitle = selectedNationObj
-    ? selectedNationObj.localization?.mark?.[lang] || selectedNationObj.name
-    : null;
+  const { ui } = useI18n();
+  const { nations } = useConfig();
 
   return (
     <nav className={styles.menuContainer}>
-      {/* Background flag of the selected country on the menu */}
-      {flagUrl && (
-        <>
-          <div
-            className={styles.flagBackdrop}
-            style={{ backgroundImage: `url("${flagUrl}")` }}
-            aria-hidden="true"
-          />
-          <div className={styles.flagOverlay} aria-hidden="true" />
-        </>
-      )}
-
       <div className={styles.innerContent}>
         <div className={styles.list}>
           {/* All Nations button */}
