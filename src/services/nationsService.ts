@@ -30,19 +30,29 @@ export function parseMediaPath(rawText: string): string {
   return '';
 }
 
+let activeMediaPathPromise: Promise<string | null> | null = null;
+
 export async function fetchMediaPathRaw(): Promise<string | null> {
-  try {
-    const response = await fetch(API_CONFIG.ENDPOINTS.MEDIA_PATH);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-      return text;
-    }
-    throw new Error('Invalid media path API response');
-  } catch (err) {
-    console.error('Failed to fetch media_path from API:', err);
-    return null;
+  if (activeMediaPathPromise) {
+    return activeMediaPathPromise;
   }
+  activeMediaPathPromise = (async () => {
+    try {
+      const response = await fetch(API_CONFIG.ENDPOINTS.MEDIA_PATH);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+        return text;
+      }
+      throw new Error('Invalid media path API response');
+    } catch (err) {
+      console.error('Failed to fetch media_path from API:', err);
+      return null;
+    } finally {
+      activeMediaPathPromise = null;
+    }
+  })();
+  return activeMediaPathPromise;
 }
 
 /**
@@ -111,19 +121,29 @@ export function parseNations(rawText: string): Nation[] {
   return [];
 }
 
+let activeNationsPromise: Promise<string | null> | null = null;
+
 export async function fetchNationsRaw(): Promise<string | null> {
-  try {
-    const response = await fetch(API_CONFIG.ENDPOINTS.NATIONS);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-      return text;
-    }
-    throw new Error('Invalid nations API response');
-  } catch (err) {
-    console.error('Failed to fetch nations from API:', err);
-    return null;
+  if (activeNationsPromise) {
+    return activeNationsPromise;
   }
+  activeNationsPromise = (async () => {
+    try {
+      const response = await fetch(API_CONFIG.ENDPOINTS.NATIONS);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+        return text;
+      }
+      throw new Error('Invalid nations API response');
+    } catch (err) {
+      console.error('Failed to fetch nations from API:', err);
+      return null;
+    } finally {
+      activeNationsPromise = null;
+    }
+  })();
+  return activeNationsPromise;
 }
 
 /**

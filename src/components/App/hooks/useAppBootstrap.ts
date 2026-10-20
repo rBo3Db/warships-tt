@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { Nation } from '../../../types/nation';
 import type { VehicleTypesMap } from '../../../types/vehicle';
 import {
@@ -34,6 +34,13 @@ export function useAppBootstrap(): AppBootstrapState {
 
   const ui = useMemo(() => getUiTranslation(defaultLang), [defaultLang]);
 
+  const nationsRef = useRef(nations);
+  nationsRef.current = nations;
+  const mediaPathRef = useRef(mediaPath);
+  mediaPathRef.current = mediaPath;
+  const vehicleTypesRef = useRef(vehicleTypes);
+  vehicleTypesRef.current = vehicleTypes;
+
   const loadBootstrapData = useCallback(() => {
     setBootstrapError(null);
 
@@ -43,14 +50,14 @@ export function useAppBootstrap(): AppBootstrapState {
       }
     };
 
-    const hasNations = nations !== null;
-    const hasMediaPath = mediaPath !== null;
-    const hasVehicleTypes = vehicleTypes !== null;
+    const hasNations = nationsRef.current !== null;
+    const hasMediaPath = mediaPathRef.current !== null;
+    const hasVehicleTypes = vehicleTypesRef.current !== null;
 
     loadAndSyncNations(setNations, hasNations, () => handleSyncError(hasNations));
     loadAndSyncMediaPath(setMediaPath, hasMediaPath, () => handleSyncError(hasMediaPath));
     loadAndSyncVehicleTypes(setVehicleTypes, hasVehicleTypes, () => handleSyncError(hasVehicleTypes));
-  }, [nations, mediaPath, vehicleTypes, ui]);
+  }, [ui]);
 
   useEffect(() => {
     loadBootstrapData();

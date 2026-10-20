@@ -33,32 +33,42 @@ export function parseVehicleTypes(rawText: string): VehicleTypesMap {
   return {};
 }
 
+let activeVehicleTypesPromise: Promise<string | null> | null = null;
+
 export async function fetchVehicleTypesRaw(): Promise<string | null> {
-  try {
-    const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLE_TYPES);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-      return text;
-    }
-    throw new Error('Invalid vehicle_types response');
-  } catch (err) {
-    console.warn('Failed to fetch vehicle_types from primary endpoint, trying direct origin:', err);
-    try {
-      const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicle_types_common/`;
-      const directResp = await fetch(directUrl);
-      if (directResp.ok) {
-        const text = await directResp.text();
-        if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-          return text;
-        }
-      }
-    } catch {
-      // ignore
-    }
-    console.error('Failed to fetch vehicle types from API:', err);
-    return null;
+  if (activeVehicleTypesPromise) {
+    return activeVehicleTypesPromise;
   }
+  activeVehicleTypesPromise = (async () => {
+    try {
+      const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLE_TYPES);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+        return text;
+      }
+      throw new Error('Invalid vehicle_types response');
+    } catch (err) {
+      console.warn('Failed to fetch vehicle_types from primary endpoint, trying direct origin:', err);
+      try {
+        const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicle_types_common/`;
+        const directResp = await fetch(directUrl);
+        if (directResp.ok) {
+          const text = await directResp.text();
+          if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+            return text;
+          }
+        }
+      } catch {
+        // ignore
+      }
+      console.error('Failed to fetch vehicle types from API:', err);
+      return null;
+    } finally {
+      activeVehicleTypesPromise = null;
+    }
+  })();
+  return activeVehicleTypesPromise;
 }
 
 /**
@@ -155,32 +165,42 @@ export async function getCachedVehicles(): Promise<Vehicle[] | null> {
 /**
  * Fetches raw vehicles dump from backend API as text string.
  */
+let activeVehiclesPromise: Promise<string | null> | null = null;
+
 export async function fetchVehiclesRaw(): Promise<string | null> {
-  try {
-    const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLES);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-      return text;
-    }
-    throw new Error('Invalid vehicles API response content');
-  } catch (err) {
-    console.warn('Primary vehicles endpoint failed, trying direct origin:', err);
-    try {
-      const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicles/`;
-      const directResp = await fetch(directUrl);
-      if (directResp.ok) {
-        const text = await directResp.text();
-        if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-          return text;
-        }
-      }
-    } catch {
-      // ignore
-    }
-    console.error('Failed to fetch vehicles from network:', err);
-    return null;
+  if (activeVehiclesPromise) {
+    return activeVehiclesPromise;
   }
+  activeVehiclesPromise = (async () => {
+    try {
+      const response = await fetch(API_CONFIG.ENDPOINTS.VEHICLES);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+        return text;
+      }
+      throw new Error('Invalid vehicles API response content');
+    } catch (err) {
+      console.warn('Primary vehicles endpoint failed, trying direct origin:', err);
+      try {
+        const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicles/`;
+        const directResp = await fetch(directUrl);
+        if (directResp.ok) {
+          const text = await directResp.text();
+          if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
+            return text;
+          }
+        }
+      } catch {
+        // ignore
+      }
+      console.error('Failed to fetch vehicles from network:', err);
+      return null;
+    } finally {
+      activeVehiclesPromise = null;
+    }
+  })();
+  return activeVehiclesPromise;
 }
 
 /**
