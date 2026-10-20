@@ -1,61 +1,68 @@
 import type { TechTreeData } from '../../../utils/techTree';
-import { TechTreeNode } from './TechTreeNode';
+import { useI18n, useConfig } from '../../../context';
 import { toRomanTier } from '../../../utils/roman';
+import { TechTreeNode } from './TechTreeNode';
 import styles from '../TechTree.module.css';
 
 export interface TechTreeGridProps {
   treeData: TechTreeData;
   hoveredShipId: string | null;
-  activeLineage?: { nodeIds: Set<string> };
-  activeNodeIds?: Set<string>;
-  isSearchActive: boolean;
-  matchingShipIds?: Set<string>;
   onHoverShip: (shipId: string | null) => void;
+  activeNodeIds: Set<string>;
+  matchingShipIds?: Set<string>;
+  isSearchActive: boolean;
 }
 
 export function TechTreeGrid({
   treeData,
   hoveredShipId,
-  activeLineage,
-  activeNodeIds,
-  isSearchActive,
-  matchingShipIds,
   onHoverShip,
+  activeNodeIds,
+  matchingShipIds,
+  isSearchActive,
 }: TechTreeGridProps) {
-  const nodeIds = activeNodeIds ?? activeLineage?.nodeIds ?? new Set<string>();
+  const { lang } = useI18n();
+  const { vehicleTypes, getMediaUrl } = useConfig();
+
   return (
     <div className={styles.treeGrid}>
-      {/* Header row: Tiers 1..10+ */}
-      <div className={styles.rowHeader}>
-        <div className={styles.classLabel} />
+      {/* Header row: Roman tier numerals */}
+      <div className={styles.tierHeaders}>
+        <div className={styles.tierHeaderCell} />
         {treeData.tiers.map((tier) => (
-          <div key={tier} className={styles.tierHeader}>
+          <div key={tier} className={styles.tierHeaderCell}>
             {toRomanTier(tier)}
           </div>
         ))}
       </div>
 
-      {/* Grid rows per ship class */}
+      {/* Rows for each ship class */}
       {treeData.classes.map((cls) => {
-        // Hide row if empty
-        const hasShips = treeData.tiers.some(
-          (t) => (treeData.grid[cls]?.[t]?.length ?? 0) > 0
-        );
-        if (!hasShips) return null;
+        const classInfo = vehicleTypes[cls];
+        const classTitle = classInfo?.localization?.mark?.[lang] || cls;
+        const classIcon = getMediaUrl(classInfo?.icons?.default);
 
         return (
-          <div key={cls} className={styles.row}>
-            <div className={styles.classLabel}>{cls}</div>
+          <div key={cls} className={styles.classRow}>
+            {/* Class label column */}
+            <div className={styles.classLabel}>
+              {classIcon && <img src={classIcon} alt={classTitle} className={styles.classIcon} />}
+              <span>{classTitle}</span>
+            </div>
+
+            {/* Cells for each tier in this class */}
             {treeData.tiers.map((tier) => {
-              const cellShips = treeData.grid[cls]?.[tier] || [];
+              const shipsInCell = treeData.grid[cls]?.[tier] || [];
 
               return (
-                <div key={tier} className={styles.cell}>
-                  {cellShips.map((ship) => {
+                <div key={tier} className={styles.tierCell}>
+                  {shipsInCell.map((ship) => {
                     const isHovered = hoveredShipId === ship.id;
-                    const isInLineage = nodeIds.has(ship.id);
+                    const isInLineage = activeNodeIds.has(ship.id);
                     const isMatch = isSearchActive && Boolean(matchingShipIds?.has(ship.id));
-                    const isDimmed = isSearchActive && !isMatch;
+                    const isDimmed =
+                      (hoveredShipId !== null && !isInLineage) ||
+                      (isSearchActive && !isMatch && !isInLineage);
 
                     return (
                       <TechTreeNode
