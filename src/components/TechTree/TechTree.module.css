@@ -156,6 +156,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin: 0;
+  text-align: right;
   color: #7d8590;
   transition: color 0.15s ease;
 }

@@ -57,10 +57,6 @@ export function TechTreePremiums({
                 <ShipBadges isPremium={isPremium} isSpecial={isSpecial} />
               </div>
 
-              <p className={styles.nodeName} title={shipTitle}>
-                {shipTitle}
-              </p>
-
               {imgUrl && (
                 <img
                   src={imgUrl}
@@ -69,6 +65,10 @@ export function TechTreePremiums({
                   loading="lazy"
                 />
               )}
+
+              <p className={styles.nodeName} title={shipTitle}>
+                {shipTitle}
+              </p>
             </div>
           );
         })}

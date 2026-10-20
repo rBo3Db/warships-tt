@@ -46,10 +46,6 @@ export function TechTreeNode({
         )}
       </div>
 
-      <p className={styles.nodeName} title={shipTitle}>
-        {shipTitle}
-      </p>
-
       {imgUrl && (
         <img
           src={imgUrl}
@@ -58,6 +54,10 @@ export function TechTreeNode({
           loading="lazy"
         />
       )}
+
+      <p className={styles.nodeName} title={shipTitle}>
+        {shipTitle}
+      </p>
     </div>
   );
 }

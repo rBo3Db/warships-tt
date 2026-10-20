@@ -59,11 +59,11 @@ export function ShipCard({ ship }: ShipCardProps) {
         <ShipBadges isPremium={isPremium} isSpecial={isSpecial} />
       </div>
 
+      <ShipImage src={shipImgUrl} alt={shipTitle} className={styles.shipImage} />
+
       <h3 className={styles.shipName} title={shipTitle}>
         {shipTitle}
       </h3>
-
-      <ShipImage src={shipImgUrl} alt={shipTitle} className={styles.shipImage} />
     </div>
   );
 }
