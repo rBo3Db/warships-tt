@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, type RefObject } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, type RefCallback } from 'react';
 
 export interface UseInfiniteScrollOptions<T> {
   items: T[];
@@ -10,12 +10,12 @@ export interface UseInfiniteScrollOptions<T> {
 export interface UseInfiniteScrollResult<T> {
   visibleItems: T[];
   displayLimit: number;
-  loadMoreRef: RefObject<HTMLDivElement | null>;
+  loadMoreRef: RefCallback<HTMLDivElement>;
   hasMore: boolean;
 }
 
 /**
- * Manages incremental chunk loading for long lists using IntersectionObserver.
+ * Manages incremental chunk loading for long lists using IntersectionObserver with a callback ref.
  */
 export function useInfiniteScroll<T>({
   items,
@@ -24,36 +24,56 @@ export function useInfiniteScroll<T>({
   rootMargin = '400px',
 }: UseInfiniteScrollOptions<T>): UseInfiniteScrollResult<T> {
   const [displayLimit, setDisplayLimit] = useState(chunkSize);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const itemsLengthRef = useRef(items.length);
+  itemsLengthRef.current = items.length;
 
-  // Reset display limit when dependencies change (e.g. filters or search query)
+  // Reset display limit when dependencies change (e.g. filters, search query, or viewMode)
   useEffect(() => {
     setDisplayLimit(chunkSize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chunkSize, ...resetDeps]);
 
-  // Observe scroll target to load the next chunk
+  // Robust callback ref: attaches observer whenever the sentinel DOM element mounts/remounts
+  const loadMoreRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      // Disconnect previous observer
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+
+      if (!node) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            setDisplayLimit((prev) => {
+              if (prev < itemsLengthRef.current) {
+                return Math.min(prev + chunkSize, itemsLengthRef.current);
+              }
+              return prev;
+            });
+          }
+        },
+        { rootMargin }
+      );
+
+      observer.observe(node);
+      observerRef.current = observer;
+    },
+    [chunkSize, rootMargin]
+  );
+
+  // Clean up observer on unmount
   useEffect(() => {
-    const target = loadMoreRef.current;
-    if (!target) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setDisplayLimit((prev) => {
-            if (prev < items.length) {
-              return Math.min(prev + chunkSize, items.length);
-            }
-            return prev;
-          });
-        }
-      },
-      { rootMargin }
-    );
-
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [items.length, chunkSize, rootMargin]);
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+  }, []);
 
   const visibleItems = useMemo(() => {
     return items.slice(0, displayLimit);

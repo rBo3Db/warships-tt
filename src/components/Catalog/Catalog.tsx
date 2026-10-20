@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import type { RefObject, RefCallback } from 'react';
 import type { Vehicle } from '../../types/vehicle';
 import { useI18n } from '../../context';
 import { Loader } from '../ui/Loader';
@@ -10,7 +10,7 @@ export interface CatalogProps {
   ships: Vehicle[];
   totalFilteredCount: number;
   displayLimit: number;
-  loadMoreRef: RefObject<HTMLDivElement | null>;
+  loadMoreRef: RefCallback<HTMLDivElement> | RefObject<HTMLDivElement | null>;
   isLoading?: boolean;
   errorMessage?: string | null;
   onRetry?: () => void;

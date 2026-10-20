@@ -68,7 +68,7 @@ export function Encyclopedia() {
   } = useInfiniteScroll({
     items: filteredCatalogShips,
     chunkSize: 36,
-    resetDeps: [selectedNation, selectedType, selectedTier, selectedStatus, selectedSort, searchQuery],
+    resetDeps: [selectedNation, selectedType, selectedTier, selectedStatus, selectedSort, searchQuery, viewMode],
   });
 
   const handleSelectNation = (nationName: string | null) => {
