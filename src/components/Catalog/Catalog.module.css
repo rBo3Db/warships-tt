@@ -72,13 +72,33 @@
   flex-direction: column;
   gap: 6px;
   background: #0C1117;
-  color: #e6edf3;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  color: #7d8590;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .card:hover {
   border-color: #ffffff;
+  color: #ffffff;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.card:hover .shipName {
+  color: #ffffff;
+}
+
+.card:hover .tierType {
+  color: #c9d1d9;
+}
+
+.card:hover .shipImage {
+  opacity: 1;
+  filter: brightness(1.1) contrast(1.05);
+}
+
+.card:hover .nationFlag,
+.card:hover .typeIcon {
+  opacity: 1;
+  filter: brightness(1);
 }
 
 .cardHeader {
@@ -93,6 +113,8 @@
   align-items: center;
   gap: 4px;
   font-weight: bold;
+  color: #5d6570;
+  transition: color 0.15s ease;
 }
 
 .nationFlag {
@@ -100,6 +122,15 @@
   height: 12px;
   object-fit: cover;
   border-radius: 2px;
+  opacity: 0.55;
+  filter: brightness(0.7);
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.typeIcon {
+  opacity: 0.55;
+  filter: brightness(0.7);
+  transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
 .badge {
@@ -118,7 +149,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #e6edf3;
+  color: #7d8590;
+  transition: color 0.15s ease;
 }
 
 .shipImage {
@@ -127,6 +159,9 @@
   object-fit: contain;
   background: #0C1117;
   border-radius: 2px;
+  opacity: 0.5;
+  filter: brightness(0.7) contrast(0.95);
+  transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
 .empty {

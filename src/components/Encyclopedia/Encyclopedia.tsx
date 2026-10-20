@@ -59,16 +59,6 @@ export function Encyclopedia() {
     selectedLang: lang,
   });
 
-  // Current section title
-  const currentNationTitle = useMemo(() => {
-    if (!selectedNation) return ui.allNations;
-    const currentNationObj = getNation(selectedNation);
-    return (
-      currentNationObj?.localization?.mark?.[lang] ||
-      currentNationObj?.name ||
-      selectedNation
-    );
-  }, [selectedNation, getNation, lang, ui.allNations]);
 
   // Incremental chunk loading for catalog
   const {
@@ -135,7 +125,6 @@ export function Encyclopedia() {
           {/* View Switcher (Catalog / Tree) and Section Title */}
           <section ref={shipsSectionRef} className={styles.contentSection}>
             <ShipsHeader
-              title={currentNationTitle}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
               count={searchQuery ? matchingShipIds.size : filteredCatalogShips.length}

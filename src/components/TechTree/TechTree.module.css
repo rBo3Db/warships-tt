@@ -87,31 +87,53 @@
   border: 1px solid #1D2228;
   border-radius: 4px;
   background: #0C1117;
-  color: #e6edf3;
+  color: #7d8590;
   display: flex;
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .nodeCard:hover {
   border-color: #ffffff;
+  color: #ffffff;
+}
+
+.nodeCard:hover .nodeName,
+.nodeCardActive .nodeName,
+.nodeCardMatch .nodeName {
+  color: #ffffff;
+}
+
+.nodeCard:hover .nodeTier,
+.nodeCardActive .nodeTier,
+.nodeCardMatch .nodeTier {
+  color: #c9d1d9;
+}
+
+.nodeCard:hover .nodeThumb,
+.nodeCardActive .nodeThumb,
+.nodeCardMatch .nodeThumb {
+  opacity: 1;
+  filter: brightness(1.1) contrast(1.05);
 }
 
 .nodeCardActive {
   border-color: #ffffff;
+  color: #ffffff;
   box-shadow: 0 0 0 1px #ffffff, 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .nodeCardMatch {
   border-color: #ffffff !important;
+  color: #ffffff !important;
   box-shadow: 0 0 0 2px #ffffff, 0 0 10px rgba(255, 255, 255, 0.3);
   opacity: 1 !important;
 }
 
 .nodeCardDimmed {
-  opacity: 0.25;
+  opacity: 0.2;
 }
 
 .nodeHeader {
@@ -123,7 +145,8 @@
 }
 
 .nodeTier {
-  color: #8b949e;
+  color: #5d6570;
+  transition: color 0.15s ease;
 }
 
 .nodeName {
@@ -133,7 +156,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin: 0;
-  color: #e6edf3;
+  color: #7d8590;
+  transition: color 0.15s ease;
 }
 
 .nodeThumb {
@@ -142,6 +166,9 @@
   object-fit: contain;
   background: #0C1117;
   border-radius: 2px;
+  opacity: 0.5;
+  filter: brightness(0.7) contrast(0.95);
+  transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
 .premiumsContainer {
@@ -168,18 +195,33 @@
 .premiumCard {
   border: 1px solid #1D2228;
   background: #0C1117;
-  color: #e6edf3;
+  color: #7d8590;
   border-radius: 4px;
   padding: 6px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .premiumCard:hover {
   border-color: #ffffff;
+  color: #ffffff;
+}
+
+.premiumCard:hover .nodeName {
+  color: #ffffff;
+}
+
+.premiumCard:hover .nodeThumb {
+  opacity: 1;
+  filter: brightness(1.1) contrast(1.05);
+}
+
+.premiumCard:hover .premiumTypeIcon {
+  opacity: 1;
+  filter: brightness(1);
 }
 
 .badge {
@@ -195,10 +237,19 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  color: #5d6570;
+  transition: color 0.15s ease;
+}
+
+.premiumCard:hover .premiumTierWrapper {
+  color: #c9d1d9;
 }
 
 .premiumTypeIcon {
   width: 14px;
   height: 14px;
+  opacity: 0.55;
+  filter: brightness(0.7);
+  transition: opacity 0.15s ease, filter 0.15s ease;
 }
 

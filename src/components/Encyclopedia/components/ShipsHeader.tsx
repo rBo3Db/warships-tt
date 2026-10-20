@@ -5,14 +5,12 @@ import styles from '../Encyclopedia.module.css';
 export { ViewMode };
 
 export interface ShipsHeaderProps {
-  title: string;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   count: number;
 }
 
 export function ShipsHeader({
-  title,
   viewMode,
   onViewModeChange,
   count,
@@ -21,7 +19,6 @@ export function ShipsHeader({
 
   return (
     <div className={styles.shipsHeader}>
-      <h2 className={styles.sectionTitle}>{title}</h2>
       <div className={styles.viewSwitcher}>
         <button
           type="button"
