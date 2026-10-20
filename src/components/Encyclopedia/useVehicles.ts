@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Vehicle } from '../../types/vehicle';
 import { getCachedVehiclesSync, loadAndSyncVehicles } from '../../services/nationsService';
 import { useI18n } from '../../context';
@@ -20,42 +20,71 @@ export function useVehicles(): VehiclesState {
   const [vehiclesError, setVehiclesError] = useState<string | null>(null);
   const [bannerError, setBannerError] = useState<string | null>(null);
 
+  const vehiclesRef = useRef<Vehicle[] | null>(vehicles);
+  vehiclesRef.current = vehicles;
+
+  const handleSyncError = useCallback(() => {
+    const hasData =
+      (vehiclesRef.current !== null && vehiclesRef.current.length > 0) ||
+      getCachedVehiclesSync() !== null;
+
+    if (hasData) {
+      // Cached data is available: do NOT wipe the list, only show warning banner
+      setVehiclesError(null);
+      setBannerError(ui.syncFailedBanner);
+    } else {
+      // Nothing to display at all: show full error card
+      setVehicles(null);
+      setVehiclesError(ui.shipsLoadError);
+      setBannerError(null);
+    }
+  }, [ui]);
+
   const syncVehiclesData = useCallback(() => {
     setVehiclesError(null);
 
+    const hasCached = vehiclesRef.current !== null && vehiclesRef.current.length > 0;
+
     loadAndSyncVehicles(
       (freshVehicles) => {
+        vehiclesRef.current = freshVehicles;
         setVehicles(freshVehicles);
         setVehiclesError(null);
+        setBannerError(null);
       },
-      vehicles !== null,
+      hasCached,
       () => {
-        if (!vehicles) {
-          setVehiclesError(ui.shipsLoadError);
-        } else {
-          setBannerError(ui.syncFailedBanner);
-        }
+        handleSyncError();
       }
     );
-  }, [vehicles, ui]);
+  }, [handleSyncError]);
 
   // Load and sync on mount
   useEffect(() => {
     syncVehiclesData();
-  }, []);
+  }, [syncVehiclesData]);
 
   // Manual retry handler
   const retryVehicles = useCallback(() => {
-    setVehiclesError(null);
+    const hasCached = vehiclesRef.current !== null && vehiclesRef.current.length > 0;
+    if (!hasCached) {
+      setVehiclesError(null);
+    }
+    setBannerError(null);
+
     loadAndSyncVehicles(
       (freshVehicles) => {
+        vehiclesRef.current = freshVehicles;
         setVehicles(freshVehicles);
         setVehiclesError(null);
+        setBannerError(null);
       },
-      false,
-      () => setVehiclesError(ui.shipsLoadError)
+      hasCached,
+      () => {
+        handleSyncError();
+      }
     );
-  }, [ui]);
+  }, [handleSyncError]);
 
   const dismissBanner = useCallback(() => {
     setBannerError(null);
@@ -63,7 +92,7 @@ export function useVehicles(): VehiclesState {
 
   return {
     vehicles,
-    isLoading: vehicles === null,
+    isLoading: vehicles === null && !vehiclesError,
     vehiclesError,
     bannerError,
     retryVehicles,
