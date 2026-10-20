@@ -87,19 +87,8 @@ export function Encyclopedia() {
   };
 
   return (
-    <div className={styles.container}>
-      {/* Warning banner when background sync failed but cached data is displayed */}
-      {bannerError && (
-        <ErrorBanner
-          message={bannerError}
-          retryLabel={ui.retry}
-          onRetry={retryVehicles}
-          dismissLabel={ui.dismiss}
-          onDismiss={dismissBanner}
-        />
-      )}
-
-      {/* Header with Search and Language Picker */}
+    <div className={styles.page}>
+      {/* Header with Search and Language Picker - spans 100% full width */}
       <Header
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -108,11 +97,23 @@ export function Encyclopedia() {
         onJumpToShip={handleJumpToOtherNationShip}
       />
 
-      {/* Nations horizontal list */}
-      <NationsBar
-        selectedNation={selectedNation}
-        onSelectNation={handleSelectNation}
-      />
+      <div className={styles.container}>
+        {/* Warning banner when background sync failed but cached data is displayed */}
+        {bannerError && (
+          <ErrorBanner
+            message={bannerError}
+            retryLabel={ui.retry}
+            onRetry={retryVehicles}
+            dismissLabel={ui.dismiss}
+            onDismiss={dismissBanner}
+          />
+        )}
+
+        {/* Nations horizontal list */}
+        <NationsBar
+          selectedNation={selectedNation}
+          onSelectNation={handleSelectNation}
+        />
 
       {/* View Switcher (Catalog / Tree) and Section Title */}
       <section ref={shipsSectionRef} className={styles.section}>
@@ -160,6 +161,7 @@ export function Encyclopedia() {
 
       {/* Floating Scroll to Top Button */}
       <ScrollToTop label={ui.scrollToTop} threshold={400} />
+      </div>
     </div>
   );
 }

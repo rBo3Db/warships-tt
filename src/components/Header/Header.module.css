@@ -1,88 +1,149 @@
 .topBar {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 12px;
+  flex-wrap: nowrap;
+  gap: 16px;
+  padding: 0 24px;
+  background: 
+    linear-gradient(180deg, rgba(10, 28, 30, 0) 15%, #0A1C1E 100%),
+    linear-gradient(90deg, #18292C 0%, #2D4044 50%, #18292C 100%);
+  border-bottom: 1px solid #122326;
+  border-image: linear-gradient(90deg, #0A1B1E 0%, #122326 50%, #0A1B1E 100%) 0 0 1 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  color: #e6edf3;
+  border-radius: 0;
 }
 
 .title {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #FFCC66;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  font-family: var(--wows-font-main, sans-serif);
 }
 
-.searchBar {
+.searchWrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  position: relative;
   flex: 1;
   min-width: 200px;
-  max-width: 420px;
+  max-width: 380px;
 }
 
 .searchInput {
   width: 100%;
-  padding: 5px 26px 5px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  height: 32px;
+  padding: 0 28px 0 10px;
+  background: rgba(10, 28, 30, 0.85);
+  border: 1px solid #2D4044;
+  border-radius: 2px;
+  color: #e6edf3;
+  font-family: var(--wows-font-main);
+  font-size: 0.88rem;
+  letter-spacing: 0.03em;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.clearSearchBtn {
+.searchInput::placeholder {
+  color: #6d868c;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #00c0db;
+  background: rgba(10, 28, 30, 0.98);
+}
+
+.searchClear {
   position: absolute;
-  right: 6px;
+  right: 8px;
   background: none;
   border: none;
+  color: #7b949a;
   cursor: pointer;
-  color: #888;
-  font-size: 13px;
-  padding: 0 2px;
+  font-size: 12px;
+  padding: 0;
+}
+
+.searchClear:hover {
+  color: #ffffff;
 }
 
 .langPicker {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #8fa6ad;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.langPicker select {
+  height: 32px;
+  padding: 0 8px;
+  background: rgba(10, 28, 30, 0.85);
+  border: 1px solid #2D4044;
+  border-radius: 2px;
+  color: #e6edf3;
+  font-family: var(--wows-font-main);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.langPicker select:focus {
+  outline: none;
+  border-color: #00c0db;
 }
 
 .otherNationsBanner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: #fdf8e6;
-  border: 1px solid #e8d89e;
-  border-radius: 4px;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(15, 33, 36, 0.9);
+  border: 1px solid #2D4044;
+  border-radius: 3px;
   font-size: 0.85rem;
-  color: #664d03;
+  color: #a0b6bd;
+  margin-top: 10px;
 }
 
 .otherNationChip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  background: #fff;
-  border: 1px solid #d4c28c;
-  border-radius: 3px;
+  gap: 6px;
+  padding: 3px 8px;
+  background: rgba(10, 28, 30, 0.85);
+  border: 1px solid #2D4044;
+  border-radius: 2px;
   cursor: pointer;
-  font-size: 0.8rem;
-  color: #333;
+  font-size: 0.82rem;
+  color: #e6edf3;
+  transition: all 0.15s ease;
 }
 
 .otherNationChip:hover {
-  background: #fdfdfd;
-  border-color: #0066cc;
+  background: #18292C;
+  border-color: #00c0db;
+  color: #ffffff;
 }
 
 .flag {
   width: 16px;
-  height: 10px;
+  height: 11px;
   object-fit: cover;
   border-radius: 1px;
 }
