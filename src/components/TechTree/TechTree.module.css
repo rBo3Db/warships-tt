@@ -97,18 +97,15 @@
 
 .nodeCard:hover {
   border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .nodeCardActive {
   border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 0 1px #ffffff, 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .nodeCardMatch {
   border-color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 0 0 2px #ffffff, 0 0 10px rgba(255, 255, 255, 0.3);
   opacity: 1 !important;
 }
@@ -183,7 +180,6 @@
 
 .premiumCard:hover {
   border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .badge {
