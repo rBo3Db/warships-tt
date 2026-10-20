@@ -6,14 +6,48 @@
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 16px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   font-family: inherit;
+  box-sizing: border-box;
+}
+
+.mainLayout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.sidebarWrapper {
+  width: 220px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 16px;
+}
+
+.contentSection {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .mainLayout {
+    flex-direction: column;
+  }
+
+  .sidebarWrapper {
+    width: 100%;
+    position: static;
+  }
 }
 
 .section {
@@ -24,8 +58,8 @@
 
 .sectionTitle {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .shipsHeader {
@@ -40,9 +74,10 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  background: #9FA0A2;
+  background: #181D23;
   padding: 4px 6px;
   border-radius: 6px;
+  border: 1px solid #30363d;
 }
 
 .item {

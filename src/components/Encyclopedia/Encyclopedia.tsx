@@ -109,58 +109,62 @@ export function Encyclopedia() {
           />
         )}
 
-        {/* Nations horizontal list */}
-        <NationsBar
-          selectedNation={selectedNation}
-          onSelectNation={handleSelectNation}
-        />
-
-      {/* View Switcher (Catalog / Tree) and Section Title */}
-      <section ref={shipsSectionRef} className={styles.section}>
-        <ShipsHeader
-          title={currentNationTitle}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          count={searchQuery ? matchingShipIds.size : filteredCatalogShips.length}
-        />
-
-        {viewMode === ViewMode.TREE ? (
-          <TechTreeSection
-            selectedNation={selectedNation}
-            nationShips={currentNationShips}
-            searchQuery={searchQuery}
-            matchingShipIds={matchingShipIds}
-            isLoading={isVehiclesLoading}
-            errorMessage={vehiclesError}
-            onRetry={retryVehicles}
-          />
-        ) : (
-          <>
-            <CatalogToolbar
-              selectedType={selectedType}
-              onSelectType={setSelectedType}
-              selectedStatus={selectedStatus}
-              onSelectStatus={setSelectedStatus}
-              selectedTier={selectedTier}
-              onSelectTier={setSelectedTier}
-              selectedSort={selectedSort}
-              onSelectSort={setSelectedSort}
+        <div className={styles.mainLayout}>
+          {/* Nations sidebar on the left */}
+          <aside className={styles.sidebarWrapper}>
+            <NationsBar
+              selectedNation={selectedNation}
+              onSelectNation={handleSelectNation}
             />
-            <Catalog
-              ships={visibleCatalogShips}
-              totalFilteredCount={filteredCatalogShips.length}
-              displayLimit={displayLimit}
-              loadMoreRef={loadMoreRef}
-              isLoading={isVehiclesLoading}
-              errorMessage={vehiclesError}
-              onRetry={retryVehicles}
-            />
-          </>
-        )}
-      </section>
+          </aside>
 
-      {/* Floating Scroll to Top Button */}
-      <ScrollToTop label={ui.scrollToTop} threshold={400} />
+          {/* View Switcher (Catalog / Tree) and Section Title */}
+          <section ref={shipsSectionRef} className={styles.contentSection}>
+            <ShipsHeader
+              title={currentNationTitle}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              count={searchQuery ? matchingShipIds.size : filteredCatalogShips.length}
+            />
+
+            {viewMode === ViewMode.TREE ? (
+              <TechTreeSection
+                selectedNation={selectedNation}
+                nationShips={currentNationShips}
+                searchQuery={searchQuery}
+                matchingShipIds={matchingShipIds}
+                isLoading={isVehiclesLoading}
+                errorMessage={vehiclesError}
+                onRetry={retryVehicles}
+              />
+            ) : (
+              <>
+                <CatalogToolbar
+                  selectedType={selectedType}
+                  onSelectType={setSelectedType}
+                  selectedStatus={selectedStatus}
+                  onSelectStatus={setSelectedStatus}
+                  selectedTier={selectedTier}
+                  onSelectTier={setSelectedTier}
+                  selectedSort={selectedSort}
+                  onSelectSort={setSelectedSort}
+                />
+                <Catalog
+                  ships={visibleCatalogShips}
+                  totalFilteredCount={filteredCatalogShips.length}
+                  displayLimit={displayLimit}
+                  loadMoreRef={loadMoreRef}
+                  isLoading={isVehiclesLoading}
+                  errorMessage={vehiclesError}
+                  onRetry={retryVehicles}
+                />
+              </>
+            )}
+          </section>
+        </div>
+
+        {/* Floating Scroll to Top Button */}
+        <ScrollToTop label={ui.scrollToTop} threshold={400} />
       </div>
     </div>
   );

@@ -12,32 +12,51 @@ export function NationsBar({
   onSelectNation,
 }: NationsBarProps) {
   const { ui } = useI18n();
-  const { nations } = useConfig();
+  const { nations, getNation, getFlagUrl } = useConfig();
+
+  const selectedNationObj = selectedNation ? getNation(selectedNation) : null;
+  const flagUrl = selectedNationObj
+    ? getFlagUrl(selectedNationObj.icons.large || selectedNationObj.icons.default) || null
+    : null;
 
   return (
-    <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>{ui.nations}</h2>
-      <div className={styles.list}>
-        {/* All Nations button */}
-        <button
-          type="button"
-          className={`${styles.item} ${selectedNation === null ? styles.itemSelected : ''}`}
-          onClick={() => onSelectNation(null)}
-        >
-          <span>{ui.allNations}</span>
-        </button>
-
-        {/* Individual nation buttons */}
-        {nations.map((nation) => (
-          <NationButton
-            key={nation.id}
-            nation={nation}
-            isSelected={selectedNation === nation.name}
-            onSelect={onSelectNation}
+    <nav className={styles.menuContainer}>
+      {flagUrl && (
+        <>
+          <div
+            className={styles.flagBackdrop}
+            style={{ backgroundImage: `url("${flagUrl}")` }}
+            aria-hidden="true"
           />
-        ))}
+          <div className={styles.flagOverlay} aria-hidden="true" />
+        </>
+      )}
+      <div className={styles.innerContent}>
+        <div className={styles.header}>
+          <h2 className={styles.sectionTitle}>{ui.nations}</h2>
+        </div>
+        <div className={styles.list}>
+          {/* All Nations button */}
+          <button
+            type="button"
+            className={`${styles.item} ${selectedNation === null ? styles.itemSelected : ''}`}
+            onClick={() => onSelectNation(null)}
+          >
+            <span>{ui.allNations}</span>
+          </button>
+
+          {/* Individual nation buttons */}
+          {nations.map((nation) => (
+            <NationButton
+              key={nation.id}
+              nation={nation}
+              isSelected={selectedNation === nation.name}
+              onSelect={onSelectNation}
+            />
+          ))}
+        </div>
       </div>
-    </section>
+    </nav>
   );
 }
 

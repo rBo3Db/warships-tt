@@ -2,9 +2,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #9FA0A2;
+  background: #181D23;
   padding: 12px 16px;
   border-radius: 6px;
+  border: 1px solid #30363d;
 }
 
 .list {
@@ -16,7 +17,7 @@
 
 .sortLabel {
   font-size: 0.85rem;
-  color: #0C1117;
+  color: #9FA0A2;
   font-weight: 600;
   margin-right: 4px;
 }
