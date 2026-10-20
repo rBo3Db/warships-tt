@@ -1,4 +1,3 @@
-import { useI18n } from '../../../context';
 import { toRomanTier } from '../../../utils/roman';
 import styles from '../Catalog.module.css';
 
@@ -10,17 +9,8 @@ export interface TierFilterProps {
 }
 
 export function TierFilter({ selectedTier, onSelectTier }: TierFilterProps) {
-  const { ui } = useI18n();
-
   return (
     <div className={styles.list}>
-      <button
-        type="button"
-        className={`${styles.item} ${selectedTier === null ? styles.itemSelected : ''}`}
-        onClick={() => onSelectTier(null)}
-      >
-        {ui.allTiers}
-      </button>
       {TIERS.map((tier) => {
         const isSelected = selectedTier === tier;
         return (

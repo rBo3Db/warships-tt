@@ -14,13 +14,6 @@ export function StatusFilter({ selectedStatus, onSelectStatus }: StatusFilterPro
     <div className={styles.list}>
       <button
         type="button"
-        className={`${styles.item} ${selectedStatus === ShipStatus.ALL ? styles.itemSelected : ''}`}
-        onClick={() => onSelectStatus(ShipStatus.ALL)}
-      >
-        {ui.allStatuses}
-      </button>
-      <button
-        type="button"
         className={`${styles.item} ${selectedStatus === ShipStatus.RESEARCHABLE ? styles.itemSelected : ''}`}
         onClick={() =>
           onSelectStatus(
