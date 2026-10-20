@@ -1,6 +1,6 @@
 .topBar {
   width: 100%;
-  height: 60px;
+  height: 48px;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -20,10 +20,9 @@
 
 .title {
   margin: 0;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: #FFCC66;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
   font-family: var(--wows-font-main, sans-serif);
@@ -40,41 +39,48 @@
 
 .searchInput {
   width: 100%;
-  height: 32px;
-  padding: 0 28px 0 10px;
-  background: rgba(10, 28, 30, 0.85);
-  border: 1px solid #2D4044;
+  height: 30px;
+  padding: 0 30px 0 12px;
+  background: #B43C00;
+  border: 1px solid #e06020;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.35);
   border-radius: 2px;
-  color: #e6edf3;
+  color: #F2E9E4;
   font-family: var(--wows-font-main);
-  font-size: 0.88rem;
-  letter-spacing: 0.03em;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: all 0.15s ease;
 }
 
 .searchInput::placeholder {
-  color: #6d868c;
+  color: rgba(242, 233, 228, 0.75);
+  font-weight: 700;
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: #00c0db;
-  background: rgba(10, 28, 30, 0.98);
+  background: #c24402;
+  border-color: #ff7833;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .searchClear {
   position: absolute;
-  right: 8px;
+  right: 10px;
   background: none;
   border: none;
-  color: #7b949a;
+  color: #F2E9E4;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 700;
   padding: 0;
+  opacity: 0.85;
 }
 
 .searchClear:hover {
   color: #ffffff;
+  opacity: 1;
 }
 
 .langPicker {
@@ -83,13 +89,12 @@
   gap: 8px;
   font-size: 0.85rem;
   color: #8fa6ad;
-  text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.04em;
 }
 
 .langPicker select {
-  height: 32px;
+  height: 30px;
   padding: 0 8px;
   background: rgba(10, 28, 30, 0.85);
   border: 1px solid #2D4044;
@@ -99,12 +104,11 @@
   font-size: 0.82rem;
   letter-spacing: 0.03em;
   cursor: pointer;
-  text-transform: uppercase;
 }
 
 .langPicker select:focus {
   outline: none;
-  border-color: #00c0db;
+  border-color: #3b555b;
 }
 
 .otherNationsBanner {
@@ -137,7 +141,7 @@
 
 .otherNationChip:hover {
   background: #18292C;
-  border-color: #00c0db;
+  border-color: #3b555b;
   color: #ffffff;
 }
 

@@ -26,7 +26,7 @@ export const ru: UiTranslations = {
   premiums: 'Премиум и особые корабли',
   viewTree: 'Дерево развития',
   viewGrid: 'Каталог',
-  searchPlaceholder: 'Поиск корабля по названию, уровню или классу...',
+  searchPlaceholder: 'Поиск',
   searchClear: 'Очистить',
   foundInOtherNations: 'Найдено в других нациях:',
   scrollToTop: 'Наверх',
