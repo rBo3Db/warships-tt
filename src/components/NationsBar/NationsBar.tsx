@@ -11,16 +11,20 @@ export function NationsBar({
   selectedNation,
   onSelectNation,
 }: NationsBarProps) {
-  const { ui } = useI18n();
+  const { ui, lang } = useI18n();
   const { nations, getNation, getFlagUrl } = useConfig();
 
   const selectedNationObj = selectedNation ? getNation(selectedNation) : null;
   const flagUrl = selectedNationObj
     ? getFlagUrl(selectedNationObj.icons.large || selectedNationObj.icons.default) || null
     : null;
+  const selectedNationTitle = selectedNationObj
+    ? selectedNationObj.localization?.mark?.[lang] || selectedNationObj.name
+    : null;
 
   return (
     <nav className={styles.menuContainer}>
+      {/* Background flag of the selected country on the menu */}
       {flagUrl && (
         <>
           <div
@@ -31,10 +35,12 @@ export function NationsBar({
           <div className={styles.flagOverlay} aria-hidden="true" />
         </>
       )}
+
       <div className={styles.innerContent}>
         <div className={styles.header}>
           <h2 className={styles.sectionTitle}>{ui.nations}</h2>
         </div>
+
         <div className={styles.list}>
           {/* All Nations button */}
           <button

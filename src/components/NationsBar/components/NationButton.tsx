@@ -21,13 +21,15 @@ export function NationButton({ nation, isSelected, onSelect }: NationButtonProps
       className={`${styles.item} ${isSelected ? styles.itemSelected : ''}`}
       onClick={() => onSelect(nation.name)}
     >
-      <img
-        src={flagUrl}
-        alt={title}
-        className={styles.flag}
-        loading="lazy"
-      />
-      <span>{title}</span>
+      {flagUrl && (
+        <img
+          src={flagUrl}
+          alt={title}
+          className={styles.flag}
+          loading="lazy"
+        />
+      )}
+      <span className={styles.itemTitle}>{title}</span>
     </button>
   );
 }

@@ -3,14 +3,14 @@
   background: #181D23;
   border: 1px solid #30363d;
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   width: 100%;
   box-sizing: border-box;
 }
 
+/* Flag laid on the background of the menu */
 .flagBackdrop {
   position: absolute;
   top: 0;
@@ -20,7 +20,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.45;
+  opacity: 0.4;
   filter: saturate(1.4) contrast(1.1);
   pointer-events: none;
   z-index: 0;
@@ -33,7 +33,7 @@
     transform: scale(1.04);
   }
   to {
-    opacity: 0.45;
+    opacity: 0.4;
     transform: scale(1);
   }
 }
@@ -44,7 +44,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(24, 29, 35, 0.72) 0%, rgba(24, 29, 35, 0.92) 100%);
+  background: linear-gradient(180deg, rgba(24, 29, 35, 0.65) 0%, rgba(24, 29, 35, 0.88) 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -54,30 +54,31 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sectionTitle {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #e6edf3;
+  color: #8b949e;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 @media (max-width: 900px) {
@@ -95,14 +96,14 @@
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #30363d;
-  background: rgba(12, 17, 23, 0.85);
+  background: #0C1117;
   color: #9FA0A2;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 500;
   text-align: left;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 @media (max-width: 900px) {
@@ -120,7 +121,7 @@
 
 .itemSelected {
   border-color: #388bfd;
-  background: rgba(28, 45, 66, 0.95);
+  background: #1c2d42;
   color: #58a6ff;
   font-weight: 600;
   box-shadow: inset 3px 0 0 #388bfd;
@@ -132,4 +133,10 @@
   object-fit: cover;
   border-radius: 2px;
   flex-shrink: 0;
+}
+
+.itemTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

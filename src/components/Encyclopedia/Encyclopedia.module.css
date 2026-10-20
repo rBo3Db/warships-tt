@@ -3,6 +3,8 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #0C1117;
+  color: #e6edf3;
 }
 
 .container {
@@ -60,6 +62,7 @@
   margin: 0;
   font-size: 1.1rem;
   font-weight: 700;
+  color: #e6edf3;
 }
 
 .shipsHeader {
@@ -109,7 +112,7 @@
 
 .count {
   font-size: 0.85rem;
-  color: #666;
+  color: #8b949e;
 }
 
 .empty {
