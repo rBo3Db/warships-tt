@@ -65,7 +65,7 @@
 }
 
 .card {
-  border: 1px solid #30363d;
+  border: 1px solid #1D2228;
   border-radius: 4px;
   padding: 8px;
   display: flex;
@@ -73,12 +73,13 @@
   gap: 6px;
   background: #0C1117;
   color: #e6edf3;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .card:hover {
-  border-color: #58a6ff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .cardHeader {
@@ -106,7 +107,7 @@
   font-size: 0.7rem;
   padding: 1px 4px;
   border-radius: 2px;
-  border: 1px solid #30363d;
+  border: 1px solid #1D2228;
   background: #0C1117;
   color: #8b949e;
 }

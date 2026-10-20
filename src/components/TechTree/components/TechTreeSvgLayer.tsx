@@ -39,7 +39,7 @@ export function TechTreeSvgLayer({
           markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M 0 1 L 9 5 L 0 9 z" fill="#0066cc" />
+          <path d="M 0 1 L 9 5 L 0 9 z" fill="#ffffff" />
         </marker>
       </defs>
 
@@ -62,7 +62,7 @@ export function TechTreeSvgLayer({
             key={key}
             d={pathD}
             fill="none"
-            stroke={isActive || isLineSearchMatch ? '#0066cc' : isDimmed ? '#eee' : '#888'}
+            stroke={isActive || isLineSearchMatch ? '#ffffff' : isDimmed ? '#21262d' : '#888'}
             strokeWidth={isActive || isLineSearchMatch ? 2.5 : 1.5}
             markerEnd={
               isActive || isLineSearchMatch ? 'url(#arrowActive)' : isDimmed ? 'none' : 'url(#arrow)'
