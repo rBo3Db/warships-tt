@@ -9,7 +9,7 @@ import {
   getCachedVehicleTypesSync,
   loadAndSyncVehicleTypes,
 } from '../../services/nationsService';
-import { getUiTranslation, detectBrowserLanguage } from '../../utils/i18n';
+import { getUiTranslation, detectBrowserLanguage } from '../../i18n';
 
 export interface AppBootstrapState {
   mediaPath: string | null;

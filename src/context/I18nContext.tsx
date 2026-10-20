@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
-import { getUiTranslation, UI_TRANSLATIONS, detectBrowserLanguage, type UiTranslations } from '../utils/i18n';
+import { getUiTranslation, UI_TRANSLATIONS, detectBrowserLanguage, type UiTranslations } from '../i18n';
 
 export interface I18nContextValue {
   lang: string;

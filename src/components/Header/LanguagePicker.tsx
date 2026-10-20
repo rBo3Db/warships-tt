@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useI18n, useConfig } from '../../context';
-import { getLanguageTitle } from '../../utils/language';
+import { getLanguageTitle } from '../../i18n';
 import { FALLBACK_LANGUAGES } from '../../config/languages';
 import styles from './Header.module.css';
 
