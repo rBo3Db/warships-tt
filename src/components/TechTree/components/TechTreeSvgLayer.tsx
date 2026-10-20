@@ -9,6 +9,22 @@ export interface TechTreeSvgLayerProps {
   hasHoveredShip: boolean;
 }
 
+function getSteppedPath(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): string {
+  // Straight horizontal line if in the same row
+  if (Math.abs(y1 - y2) < 3) {
+    return `M ${x1} ${y1} L ${x2} ${y2}`;
+  }
+
+  // Pure 90-degree straight orthogonal lines
+  const midX = (x1 + x2) / 2;
+  return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+}
+
 export function TechTreeSvgLayer({
   lines,
   activeLinkKeys,
@@ -19,27 +35,30 @@ export function TechTreeSvgLayer({
   return (
     <svg className={styles.svgLayer}>
       <defs>
+        {/* Inactive line arrow */}
         <marker
           id="arrow"
           viewBox="0 0 10 10"
-          refX="8"
+          refX="7"
           refY="5"
           markerWidth="5"
           markerHeight="5"
           orient="auto-start-reverse"
         >
-          <path d="M 0 1 L 9 5 L 0 9 z" fill="#888" />
+          <path d="M 1 2 L 7 5 L 1 8 Z" fill="#35424a" />
         </marker>
+
+        {/* Active / highlighted line arrow */}
         <marker
           id="arrowActive"
           viewBox="0 0 10 10"
-          refX="8"
+          refX="7"
           refY="5"
           markerWidth="6"
           markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M 0 1 L 9 5 L 0 9 z" fill="#ffffff" />
+          <path d="M 1 2 L 7 5 L 1 8 Z" fill="#ffffff" />
         </marker>
       </defs>
 
@@ -54,19 +73,25 @@ export function TechTreeSvgLayer({
           (hasHoveredShip && !isActive) ||
           (isSearchActive && !isLineSearchMatch && !isActive);
 
-        const dx = Math.max(30, (line.x2 - line.x1) * 0.45);
-        const pathD = `M ${line.x1} ${line.y1} C ${line.x1 + dx} ${line.y1}, ${line.x2 - dx} ${line.y2}, ${line.x2} ${line.y2}`;
+        const pathD = getSteppedPath(line.x1, line.y1, line.x2, line.y2);
+
+        const strokeColor = isActive || isLineSearchMatch ? '#ffffff' : isDimmed ? '#1d242b' : '#35424a';
+        const strokeWidth = isActive || isLineSearchMatch ? 2 : 1.5;
 
         return (
           <path
             key={key}
             d={pathD}
             fill="none"
-            stroke={isActive || isLineSearchMatch ? '#ffffff' : isDimmed ? '#21262d' : '#888'}
-            strokeWidth={isActive || isLineSearchMatch ? 2.5 : 1.5}
+            stroke={strokeColor}
+            strokeWidth={strokeWidth}
             markerEnd={
               isActive || isLineSearchMatch ? 'url(#arrowActive)' : isDimmed ? 'none' : 'url(#arrow)'
             }
+            style={{
+              filter: isActive || isLineSearchMatch ? 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.4))' : 'none',
+              transition: 'stroke 0.15s ease, stroke-width 0.15s ease',
+            }}
           />
         );
       })}
