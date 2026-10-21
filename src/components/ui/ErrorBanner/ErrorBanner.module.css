@@ -2,73 +2,82 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  background-color: #fff8e6;
-  border: 1px solid #ffd591;
-  border-radius: 6px;
-  padding: 8px 14px;
-  margin-bottom: 12px;
-  color: #873800;
+  gap: var(--spacing-md, 16px);
+  background-color: var(--color-bg-card, #182022);
+  border: var(--border-subtle);
+  border-left: 3px solid var(--color-border-active-bottom, #0D7764);
+  border-radius: var(--radius-md, 4px);
+  padding: 10px 14px;
+  margin-bottom: var(--spacing-md, 16px);
+  color: var(--color-text-primary, #e6edf3);
   font-size: 0.85rem;
+  box-shadow: var(--shadow-card, 0 4px 16px rgba(0, 0, 0, 0.4));
   animation: fadeIn 0.2s ease-in-out;
 }
 
 .content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm, 8px);
   flex: 1;
 }
 
 .icon {
   font-size: 1rem;
   flex-shrink: 0;
+  color: var(--color-text-gold, #FFCC66);
 }
 
 .message {
   line-height: 1.4;
+  color: var(--color-text-primary, #e6edf3);
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm, 8px);
   flex-shrink: 0;
 }
 
 .retryBtn {
-  background-color: #fa8c16;
-  color: #fff;
-  border: none;
+  background: var(--color-bg-active, #142829);
+  color: var(--color-text-accent, #8FA4A4);
+  border-top: 1px solid var(--color-border-active-top, #073E34);
+  border-left: 1px solid var(--color-border-active-top, #073E34);
+  border-right: 1px solid var(--color-border-active-top, #073E34);
+  border-bottom: 2px solid var(--color-border-active-bottom, #0D7764);
   border-radius: 0;
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--transition-fast, 0.15s ease), color var(--transition-fast, 0.15s ease);
 }
 
 .retryBtn:hover {
-  background-color: #d46b08;
+  background: var(--color-bg-active-hover, #173031);
+  color: var(--color-border-highlight, #ffffff);
 }
 
 .dismissBtn {
   background: transparent;
   border: none;
-  color: #ad4e00;
+  color: var(--color-text-accent, #8FA4A4);
   font-size: 1rem;
   line-height: 1;
-  padding: 4px;
+  padding: 4px 8px;
   cursor: pointer;
   border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--transition-fast, 0.15s ease), color var(--transition-fast, 0.15s ease);
 }
 
 .dismissBtn:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-border-highlight, #ffffff);
 }
 
 @keyframes fadeIn {
@@ -81,3 +90,4 @@
     transform: translateY(0);
   }
 }
+

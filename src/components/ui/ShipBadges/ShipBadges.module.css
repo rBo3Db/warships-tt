@@ -1,27 +1,28 @@
 .badges {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-xs, 4px);
 }
 
 .badge {
   font-size: 0.7rem;
   padding: 1px 4px;
-  border-radius: 2px;
-  border: 1px solid #293339;
-  background: #182022;
-  color: #8b949e;
+  border-radius: var(--radius-sm, 2px);
+  border: var(--border-subtle);
+  background: var(--color-bg-card, #182022);
+  color: var(--color-text-muted, #8b949e);
   line-height: 1.2;
 }
 
 .premium {
-  border-color: #0D7764;
-  color: #8FA4A4;
-  background: #142829;
+  border-color: var(--color-border-active-bottom, #0D7764);
+  color: var(--color-text-accent, #8FA4A4);
+  background: var(--color-bg-active, #142829);
 }
 
 .special {
-  border-color: #A6A1A2;
-  color: #A6A1A2;
-  background: #182022;
+  border-color: var(--color-text-special, #A6A1A2);
+  color: var(--color-text-special, #A6A1A2);
+  background: var(--color-bg-card, #182022);
 }
+
