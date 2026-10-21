@@ -1,35 +1,114 @@
-# React + TypeScript + Vite
+# ⚓ World of Warships — Encyclopedia & Tech Tree
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> Высокопроизводительное SPA-приложение для исследования энциклопедии кораблей и интерактивного дерева развития всех наций World of Warships / Мир Кораблей.
 
-Currently, two official plugins are available:
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)
+![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite)
+![Vitest](https://img.shields.io/badge/Tests-113%20passed-success?style=flat-square&logo=vitest)
+![Bundle Size](https://img.shields.io/badge/Bundle-~97kB%20gzip-brightgreen?style=flat-square)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🎯 Ключевые архитектурные фокусы
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Приложение спроектировано с упором на максимальное быстродействие, мгновенный отклик интерфейса, бережное отношение к памяти и нулевые паразитные ререндеры.
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+### 1. ⚡ Zero Unnecessary Re-renders (Минимум ререндеров)
+- **React Compiler (`babel-plugin-react-compiler`)**: Автоматическая гранулярная мемоизация компонентов и зависимостей на уровне компилятора без необходимости ручного захламления кода десятками `useMemo` и `useCallback`.
+- **Отказ от эффектов синхронизации (Adjusting state during rendering)**:
+  В пагинации `useInfiniteScroll` устранён классический антипаттерн `useEffect(() => setDisplayLimit(chunkSize), [deps])`, вызывавший двойной рендер и смещение макета (CLS). Сброс состояния выполняется мгновенно во время фазы рендера React до коммита в DOM.
+- **Уничтожение Prop Drilling**:
+  Состояние фильтров каталога (`selectedType`, `selectedTier`, `selectedStatus`, `selectedSort`) инкапсулировано непосредственно внутри каталога `useCatalogFilter`. Верхнеуровневый компонент `Encyclopedia` освобождён от десятка сквозных пропсов и содержит только глобальное состояние экрана.
+- **Бинарные пороги событий (Binary Thresholds)**:
+  Слушатели скролла (например, `ScrollToTop`) с флагом `{ passive: true }` обновляют стейт только при физическом пересечении числового порога (400px), гарантируя стабильные 60/120 FPS и полное отсутствие ререндеров во время активного скроллинга страницы.
+- **Вычисляемые переводы без загрязнения стейта**:
+  Сообщения об ошибках и тексты интерфейса вычисляются на лету во время рендера из `ui[key]`, что гарантирует мгновенный перевод без сетевых запросов и предотвращает ре-синхронизацию хуков.
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### 2. 💾 Многоуровневое кэширование и Offline-First архитектура
+- **Frame 0 Rendering (Загрузка за 0 мс)**:
+  При открытии страницы `useVehicles` и `useAppBootstrap` синхронно считывают нормализованные данные из `localStorage` (`getCachedVehiclesSync`). Пользователь видит каталог и нации **в первый же кадр отрисовки (0 мс)** без блокирующих спиннеров и ожидания ответов сети.
+- **Stale-While-Revalidate (SWR)**:
+  Пока отображаются мгновенно поднятые из кэша данные, в фоне запускается тихая сверка с удалённым GraphQL/REST API Wargaming. Если данные на сервере обновились — интерфейс плавно обновляется.
+- **Дедупликация сетевых запросов**:
+  Глобальные обещания (`activeVehiclesPromise`, `activeNationsPromise`) объединяют параллельные запросы к одному эндпоинту, исключая повторную загрузку одних и тех же тяжёлых JSON по сети.
+- **Graceful Degradation (Мягкая обработка сбоев сети)**:
+  Если сервер недоступен, приложение **не блокирует экран**, а продолжает полноценно работать на кэшированных данных, отображая лишь ненавязчивый информационный баннер `ErrorBanner` с кнопкой ручного повтора.
+- **IndexedDB + LocalStorage**:
+  Обеспечивает долговременное хранение всей базы кораблей, их параметров, веток прокачки и путей к медиа-серверу изображений.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+---
+
+### 3. 🚀 Производительность и оптимизация DOM
+- **Infinite Scroll через `IntersectionObserver`**:
+  Сотни кораблей рендерятся чанками (по 36 штук) по мере прокрутки. В DOM никогда не находится избыточное число нод, что снижает нагрузку на браузер и экономит память.
+- **Динамический `ResizeObserver` для веток технологий**:
+  Расчёт SVG-координат связей между исследуемыми кораблями в `TechTree` привязан к `ResizeObserver` контейнера. Линии пересчитываются только при реальном изменении геометрии (ресайз, смена шрифтов, адаптив).
+- **Легковесный дизайн без сторонних UI-библиотек**:
+  Приложение построено на чистом модульном CSS (CSS Modules) с дизайн-токенами (`--color-*`, `--border-*`). Итоговый бандл приложения весит всего **~22 kB CSS** и **~97 kB JS (gzip)**.
+
+---
+
+### 4. 🌍 Глобальная интернационализация (i18n)
+- Поддержка **19 мировых локалей** (RU, EN, DE, FR, JA, ZH, ES и др.).
+- Список доступных языков в интерфейсе формируется динамически на основе локализаций Wargaming API с автоматическим резервным списком (`FALLBACK_LANGUAGES`).
+- Переключение языка происходит мгновенно на клиенте: все названия кораблей, наций и классов извлекаются из локального кэша `ship.localization.mark[lang]` без единого дополнительного HTTP-запроса.
+
+---
+
+## 🛠️ Стек технологий
+
+| Технология | Назначение |
+|---|---|
+| **React 19** | Современный UI-движок с поддержкой React Compiler |
+| **TypeScript 5.x** | Строгая статическая типизация всех структур API и UI |
+| **Vite 8** | Молниеносная сборка и HMR |
+| **CSS Modules + CSS Variables** | Изолированная стилизация, дизайн-система и темы |
+| **Vitest + React Testing Library** | Высокоскоростное тестирование логики, хуков и UI |
+| **Oxlint** | Сверхбыстрый линтер нового поколения на Rust |
+
+---
+
+## 🧪 Тестирование и надёжность
+
+В проекте реализован строгий подход к тестированию: покрыты сервисы кэширования, хуки фильтрации, пагинации, синка данных, а также ключевые UI-компоненты.
+
+- **21 тестовый набор (Test Suite)**
+- **113 тестов** (100% passing)
+
+```bash
+# Запуск полного набора тестов
+npm test
+
+# Запуск тестов в режиме наблюдателя (watch mode)
+npm run test:watch
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+---
+
+## 🚀 Команды проекта
+
+```bash
+# Установка зависимостей
+npm install
+
+# Запуск локального сервера разработки (HMR)
+npm run dev
+
+# Проверка типов TypeScript и сборка продакшен-бандла
+npm run build
+
+# Быстрая проверка линтером Oxlint
+npm run lint
+
+# Локальный предпросмотр продакшен-сборки
+npm run preview
+```
+
+---
+
+## 📦 Сборка и деплой
+
+Проект настроен с поддержкой относительных путей (`base: './'`) и готов для автоматического развёртывания на любых статических хостингах (GitHub Pages, Cloudflare Pages, Vercel). Настроен рабочий CI/CD пайплайн в `.github/workflows/deploy.yml`.

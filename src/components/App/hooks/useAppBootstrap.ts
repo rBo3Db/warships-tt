@@ -35,15 +35,16 @@ export function useAppBootstrap(): AppBootstrapState {
   const ui = useMemo(() => getUiTranslation(defaultLang), [defaultLang]);
 
   const nationsRef = useRef(nations);
-  nationsRef.current = nations;
   const mediaPathRef = useRef(mediaPath);
-  mediaPathRef.current = mediaPath;
   const vehicleTypesRef = useRef(vehicleTypes);
-  vehicleTypesRef.current = vehicleTypes;
+
+  useEffect(() => {
+    nationsRef.current = nations;
+    mediaPathRef.current = mediaPath;
+    vehicleTypesRef.current = vehicleTypes;
+  }, [nations, mediaPath, vehicleTypes]);
 
   const loadBootstrapData = useCallback(() => {
-    setBootstrapError(null);
-
     const handleSyncError = (hasCachedData: boolean) => {
       if (!hasCachedData) {
         setBootstrapError(ui.serverErrorDesc);
@@ -63,6 +64,11 @@ export function useAppBootstrap(): AppBootstrapState {
     loadBootstrapData();
   }, [loadBootstrapData]);
 
+  const retryBootstrap = useCallback(() => {
+    setBootstrapError(null);
+    loadBootstrapData();
+  }, [loadBootstrapData]);
+
   // Cold start fallback: only if essential metadata is completely missing from cache
   const isColdStart = !nations && !mediaPath && !vehicleTypes;
 
@@ -72,7 +78,7 @@ export function useAppBootstrap(): AppBootstrapState {
     vehicleTypes,
     isColdStart,
     bootstrapError,
-    retryBootstrap: loadBootstrapData,
+    retryBootstrap,
   };
 }
 

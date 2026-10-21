@@ -26,7 +26,9 @@ export function useInfiniteScroll<T>({
   const [displayLimit, setDisplayLimit] = useState(chunkSize);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const itemsLengthRef = useRef(items.length);
-  itemsLengthRef.current = items.length;
+  useEffect(() => {
+    itemsLengthRef.current = items.length;
+  }, [items.length]);
 
   const [prevChunkSize, setPrevChunkSize] = useState(chunkSize);
   const [prevResetDeps, setPrevResetDeps] = useState(resetDeps);

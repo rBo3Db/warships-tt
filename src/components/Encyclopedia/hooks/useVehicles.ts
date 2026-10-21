@@ -21,7 +21,10 @@ export function useVehicles(): VehiclesState {
   const [hasBannerError, setHasBannerError] = useState(false);
 
   const vehiclesRef = useRef<Vehicle[] | null>(vehicles);
-  vehiclesRef.current = vehicles;
+
+  useEffect(() => {
+    vehiclesRef.current = vehicles;
+  }, [vehicles]);
 
   const handleSyncError = useCallback(() => {
     const hasData =
@@ -40,37 +43,32 @@ export function useVehicles(): VehiclesState {
     }
   }, []);
 
-  const syncData = useCallback(
-    (isRetry = false) => {
-      const hasCached = vehiclesRef.current !== null && vehiclesRef.current.length > 0;
-      if (!hasCached || isRetry) {
-        setHasVehiclesError(false);
-      }
-      setHasBannerError(false);
+  const syncData = useCallback(() => {
+    const hasCached = vehiclesRef.current !== null && vehiclesRef.current.length > 0;
 
-      loadAndSyncVehicles(
-        (freshVehicles) => {
-          vehiclesRef.current = freshVehicles;
-          setVehicles(freshVehicles);
-          setHasVehiclesError(false);
-          setHasBannerError(false);
-        },
-        hasCached,
-        () => {
-          handleSyncError();
-        }
-      );
-    },
-    [handleSyncError]
-  );
+    loadAndSyncVehicles(
+      (freshVehicles) => {
+        vehiclesRef.current = freshVehicles;
+        setVehicles(freshVehicles);
+        setHasVehiclesError(false);
+        setHasBannerError(false);
+      },
+      hasCached,
+      () => {
+        handleSyncError();
+      }
+    );
+  }, [handleSyncError]);
 
   // Load and sync strictly on mount
   useEffect(() => {
-    syncData(false);
+    syncData();
   }, [syncData]);
 
   const retryVehicles = useCallback(() => {
-    syncData(true);
+    setHasVehiclesError(false);
+    setHasBannerError(false);
+    syncData();
   }, [syncData]);
 
   const dismissBanner = useCallback(() => {
