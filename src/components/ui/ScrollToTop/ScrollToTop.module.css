@@ -5,23 +5,23 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #181D23;
-  color: #e6edf3;
-  border: 1px solid #30363d;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: var(--color-bg-card, #182022);
+  color: var(--color-text-primary, #e6edf3);
+  border: var(--border-subtle);
+  box-shadow: var(--shadow-card, 0 4px 16px rgba(0, 0, 0, 0.4));
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
   z-index: 999;
-  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  transition: transform var(--transition-fast, 0.15s ease), background-color var(--transition-fast, 0.15s ease), border-color var(--transition-fast, 0.15s ease), color var(--transition-fast, 0.15s ease);
 }
 
 .scrollTopBtn:hover {
-  background: #1c2d42;
-  border-color: #388bfd;
-  color: #58a6ff;
+  background: var(--color-bg-active-hover, #173031);
+  border-color: var(--color-border-active-bottom, #0D7764);
+  color: var(--color-border-highlight, #ffffff);
   transform: translateY(-2px);
 }
 

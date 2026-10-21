@@ -145,7 +145,7 @@
 }
 
 .nodeTier {
-  color: #5d6570;
+  color: var(--color-text-tier, #5d6570);
   transition: color var(--transition-fast, 0.15s ease);
 }
 
@@ -238,12 +238,12 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #5d6570;
-  transition: color 0.15s ease;
+  color: var(--color-text-tier, #5d6570);
+  transition: color var(--transition-fast, 0.15s ease);
 }
 
 .premiumCard:hover .premiumTierWrapper {
-  color: #c9d1d9;
+  color: var(--color-text-secondary, #c9d1d9);
 }
 
 .premiumTypeIcon {

@@ -36,10 +36,10 @@
 .retryBtn {
   background: var(--color-bg-active, #142829);
   color: var(--color-text-accent, #8FA4A4);
-  border-top: 1px solid var(--color-border-active-top, #073E34);
+  border-top: var(--border-active-top);
   border-left: 1px solid var(--color-border-active-top, #073E34);
   border-right: 1px solid var(--color-border-active-top, #073E34);
-  border-bottom: 2px solid var(--color-border-active-bottom, #0D7764);
+  border-bottom: var(--border-active-bottom);
   border-radius: 0;
   padding: 8px 24px;
   font-size: 0.9rem;
