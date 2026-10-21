@@ -1,7 +1,6 @@
 import { DEFAULT_LANGUAGE } from './languages';
 
-const isDev = import.meta.env.DEV;
-const BASE_URL = isDev ? '' : 'https://vortex.worldofwarships.eu';
+const BASE_URL = '';
 
 export const API_CONFIG = {
   BASE_URL,
