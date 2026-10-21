@@ -2,6 +2,8 @@
 
 An interactive single-page application for exploring warship encyclopedia data and tech research trees in World of Warships.
 
+> Developed with AI assistance, under meticulous human guidance and technical direction.
+
 The project is built around client-side performance, instant user feedback, zero redundant renders, and resilient data caching.
 
 ---

@@ -2,6 +2,8 @@
 
 High-performance single-page web application for exploring warship specifications and interactive tech trees across all nations in World of Warships.
 
+> Developed with AI assistance, under meticulous human guidance and technical direction.
+
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)
 ![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite)

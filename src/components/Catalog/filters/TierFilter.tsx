@@ -1,7 +1,6 @@
 import { toRomanTier } from '../../../utils/roman';
+import { TIERS } from './constants';
 import styles from '../Catalog.module.css';
-
-export const TIERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
 export interface TierFilterProps {
   selectedTier: number | null;

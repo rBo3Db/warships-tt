@@ -98,6 +98,8 @@ describe('nationsService', () => {
     });
 
     it('loadAndSyncNations handles network errors via onError callback', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
 
       const updates: any[] = [];
@@ -113,6 +115,8 @@ describe('nationsService', () => {
 
       expect(caughtError).toBeInstanceOf(Error);
       expect(caughtError.message).toContain('Failed to fetch nations');
+      expect(errorSpy).toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalled();
     });
   });
 });
