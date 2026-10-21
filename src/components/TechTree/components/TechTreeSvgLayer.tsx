@@ -1,4 +1,5 @@
 import type { SvgLineCoords } from '../hooks/useTechTreeLines';
+import { getSteppedPath } from '../../../utils/techTree';
 import styles from '../TechTree.module.css';
 
 export interface TechTreeSvgLayerProps {
@@ -7,22 +8,6 @@ export interface TechTreeSvgLayerProps {
   matchingShipIds?: Set<string>;
   isSearchActive: boolean;
   hasHoveredShip: boolean;
-}
-
-function getSteppedPath(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-): string {
-  // Straight horizontal line if in the same row
-  if (Math.abs(y1 - y2) < 3) {
-    return `M ${x1} ${y1} L ${x2} ${y2}`;
-  }
-
-  // Pure 90-degree straight orthogonal lines
-  const midX = (x1 + x2) / 2;
-  return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
 }
 
 export function TechTreeSvgLayer({

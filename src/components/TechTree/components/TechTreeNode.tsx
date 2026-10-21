@@ -1,7 +1,7 @@
 import type { Vehicle } from '../../../types/vehicle';
 import { useI18n, useConfig } from '../../../context';
 import { toRomanTier } from '../../../utils/roman';
-import { getShipTitle } from '../../../utils/ship';
+import { getShipTitle, getShipIconPath } from '../../../utils/ship';
 import styles from '../TechTree.module.css';
 
 export interface TechTreeNodeProps {
@@ -25,7 +25,7 @@ export function TechTreeNode({
   const { getMediaUrl } = useConfig();
 
   const shipTitle = getShipTitle(ship, lang);
-  const imgUrl = getMediaUrl(ship.icons?.small || ship.icons?.medium || ship.icons?.default);
+  const imgUrl = getMediaUrl(getShipIconPath(ship));
 
   return (
     <div

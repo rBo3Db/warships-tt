@@ -4,6 +4,7 @@ import {
   isResearchableShip,
   buildTechTreeData,
   calculateActiveLineage,
+  getSteppedPath,
 } from '../techTree';
 
 const createShip = (overrides: Partial<Vehicle>): Vehicle => ({
@@ -94,4 +95,17 @@ describe('techTree utilities', () => {
       expect(lineage.linkKeys.has('s2->s3')).toBe(true);
     });
   });
+
+  describe('getSteppedPath', () => {
+    it('returns straight horizontal line when points are in same row (y difference < 3)', () => {
+      expect(getSteppedPath(10, 100, 50, 101)).toBe('M 10 100 L 50 101');
+      expect(getSteppedPath(100, 200, 250, 200)).toBe('M 100 200 L 250 200');
+    });
+
+    it('returns 90-degree orthogonal stepped line when points are in different rows', () => {
+      // midX = (100 + 200) / 2 = 150
+      expect(getSteppedPath(100, 50, 200, 150)).toBe('M 100 50 L 150 50 L 150 150 L 200 150');
+    });
+  });
 });
+

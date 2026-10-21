@@ -1,7 +1,7 @@
 import type { Vehicle } from '../../../types/vehicle';
 import { useI18n, useConfig } from '../../../context';
 import { toRomanTier } from '../../../utils/roman';
-import { getShipTitle, isPremiumShip, isSpecialShip } from '../../../utils/ship';
+import { getShipTitle, getShipIconPath, isPremiumShip, isSpecialShip } from '../../../utils/ship';
 import { ShipBadges } from '../../ui/ShipBadges';
 import styles from '../TechTree.module.css';
 
@@ -29,9 +29,7 @@ export function TechTreePremiums({
           const shipTitle = getShipTitle(ship, lang);
           const typeInfo = vehicleTypes[ship.type];
           const typeIcon = getMediaUrl(typeInfo?.icons?.default);
-          const imgUrl = getMediaUrl(
-            ship.icons?.small || ship.icons?.medium || ship.icons?.default
-          );
+          const imgUrl = getMediaUrl(getShipIconPath(ship));
 
           const isPremium = isPremiumShip(ship);
           const isSpecial = isSpecialShip(ship);
