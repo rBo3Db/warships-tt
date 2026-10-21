@@ -106,6 +106,6 @@ describe('TechTreePremiums and TechTreePremiumCard', () => {
     );
 
     expect(screen.getByText('X')).toBeInTheDocument();
-    expect(screen.getByText('★')).toBeInTheDocument();
+    expect(screen.getByText(/special/i)).toBeInTheDocument();
   });
 });
