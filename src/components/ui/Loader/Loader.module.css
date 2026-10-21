@@ -1,63 +1,17 @@
 .loader {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md, 16px);
   padding: 40px 20px;
-  color: var(--color-text-accent, #8FA4A4);
-}
-
-.fullscreen {
-  position: fixed;
-  inset: 0;
-  background: rgba(12, 17, 23, 0.85);
-  backdrop-filter: blur(4px);
-  z-index: 9999;
 }
 
 .spinner {
-  border-style: solid;
-  border-color: var(--color-border-subtle, #293339);
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-border-subtle, #293339);
   border-top-color: var(--color-border-active-bottom, #0D7764);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-}
-
-/* Размеры */
-.sm .spinner {
-  width: 20px;
-  height: 20px;
-  border-width: 2px;
-}
-
-.sm .text {
-  font-size: 0.8rem;
-}
-
-.md .spinner {
-  width: 32px;
-  height: 32px;
-  border-width: 3px;
-}
-
-.md .text {
-  font-size: 0.95rem;
-}
-
-.lg .spinner {
-  width: 48px;
-  height: 48px;
-  border-width: 4px;
-}
-
-.lg .text {
-  font-size: 1.1rem;
-}
-
-.text {
-  margin: 0;
-  font-weight: 500;
 }
 
 @keyframes spin {

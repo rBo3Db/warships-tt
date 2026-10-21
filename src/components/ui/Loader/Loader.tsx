@@ -1,27 +1,23 @@
-import type { FC } from 'react';
 import styles from './Loader.module.css';
 
 export interface LoaderProps {
-  /** Текст под спиннером (по умолчанию "Загрузка...") */
-  text?: string;
-  /** Размер спиннера */
-  size?: 'sm' | 'md' | 'lg';
-  /** Растянуть на весь экран или контейнер по центру */
-  fullScreen?: boolean;
+  className?: string;
+  'aria-label'?: string;
 }
 
-export const Loader: FC<LoaderProps> = ({
-  text,
-  size = 'md',
-  fullScreen = false,
-}) => {
-  const sizeClass = styles[size] || styles.md;
-  const fullScreenClass = fullScreen ? styles.fullscreen : '';
-
+export function Loader({
+  className = '',
+  'aria-label': ariaLabel = 'Loading',
+}: LoaderProps) {
   return (
-    <div className={`${styles.loader} ${sizeClass} ${fullScreenClass}`}>
+    <div
+      className={`${styles.loader} ${className}`.trim()}
+      role="status"
+      aria-label={ariaLabel}
+    >
       <div className={styles.spinner} />
-      {text && <p className={styles.text}>{text}</p>}
     </div>
   );
-};
+}
+
+export default Loader;
