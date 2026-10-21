@@ -49,19 +49,6 @@ export async function fetchVehicleTypesRaw(): Promise<string | null> {
       }
       throw new Error('Invalid vehicle_types response');
     } catch (err) {
-      console.warn('Failed to fetch vehicle_types from primary endpoint, trying direct origin:', err);
-      try {
-        const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicle_types_common/`;
-        const directResp = await fetch(directUrl);
-        if (directResp.ok) {
-          const text = await directResp.text();
-          if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-            return text;
-          }
-        }
-      } catch {
-        // ignore
-      }
       console.error('Failed to fetch vehicle types from API:', err);
       return null;
     } finally {
@@ -181,19 +168,6 @@ export async function fetchVehiclesRaw(): Promise<string | null> {
       }
       throw new Error('Invalid vehicles API response content');
     } catch (err) {
-      console.warn('Primary vehicles endpoint failed, trying direct origin:', err);
-      try {
-        const directUrl = `${API_CONFIG.ORIGIN_URL}/api/encyclopedia/en/vehicles/`;
-        const directResp = await fetch(directUrl);
-        if (directResp.ok) {
-          const text = await directResp.text();
-          if (text.includes('"status": "ok"') || text.includes('"status":"ok"')) {
-            return text;
-          }
-        }
-      } catch {
-        // ignore
-      }
       console.error('Failed to fetch vehicles from network:', err);
       return null;
     } finally {
