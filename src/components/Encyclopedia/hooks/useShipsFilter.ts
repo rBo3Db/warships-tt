@@ -1,23 +1,10 @@
 import { useMemo } from 'react';
-import { type Vehicle, ShipStatus, ShipSortOption } from '../../../types/vehicle';
+import type { Vehicle } from '../../../types/vehicle';
 import { toRomanTier } from '../../../utils/roman';
-import { isPremiumOrSpecial, getShipTitle } from '../../../utils/ship';
-
-const CLASS_SORT_ORDER: Record<string, number> = {
-  Submarine: 1,
-  Destroyer: 2,
-  Cruiser: 3,
-  Battleship: 4,
-  AirCarrier: 5,
-};
 
 export interface UseShipsFilterParams {
   vehicles: Vehicle[];
   selectedNation: string | null;
-  selectedType: string | null;
-  selectedTier: number | null;
-  selectedStatus: ShipStatus;
-  selectedSort?: ShipSortOption;
   searchQuery: string;
   selectedLang: string;
 }
@@ -47,10 +34,6 @@ export function doesShipMatch(ship: Vehicle, q: string, lang: string): boolean {
 export function useShipsFilter({
   vehicles,
   selectedNation,
-  selectedType,
-  selectedTier,
-  selectedStatus,
-  selectedSort = ShipSortOption.TIER_ASC,
   searchQuery,
   selectedLang,
 }: UseShipsFilterParams) {
@@ -87,66 +70,10 @@ export function useShipsFilter({
     return result;
   }, [vehicles, selectedNation, searchQuery, selectedLang, matchingShipIds]);
 
-  // Filter and sort ships for catalog view
-  const filteredCatalogShips = useMemo(() => {
-    const q = searchQuery.trim();
-    return currentNationShips
-      .filter((ship) => !selectedType || ship.type === selectedType)
-      .filter((ship) => selectedTier === null || ship.level === selectedTier)
-      .filter((ship) => {
-        if (selectedStatus === ShipStatus.ALL) return true;
-        const isPrem = isPremiumOrSpecial(ship);
-        return selectedStatus === ShipStatus.PREMIUM ? isPrem : !isPrem;
-      })
-      .filter((ship) => {
-        if (!q) return true;
-        return doesShipMatch(ship, q, selectedLang);
-      })
-      .sort((a, b) => {
-        const nameA = getShipTitle(a, selectedLang);
-        const nameB = getShipTitle(b, selectedLang);
-
-        switch (selectedSort) {
-          case ShipSortOption.TIER_DESC:
-            if (b.level !== a.level) return b.level - a.level;
-            return nameA.localeCompare(nameB);
-
-          case ShipSortOption.NAME_ASC:
-            return nameA.localeCompare(nameB);
-
-          case ShipSortOption.NAME_DESC:
-            return nameB.localeCompare(nameA);
-
-          case ShipSortOption.TYPE: {
-            const orderA = CLASS_SORT_ORDER[a.type] ?? 99;
-            const orderB = CLASS_SORT_ORDER[b.type] ?? 99;
-            if (orderA !== orderB) return orderA - orderB;
-            if (a.level !== b.level) return a.level - b.level;
-            return nameA.localeCompare(nameB);
-          }
-
-          case ShipSortOption.TIER_ASC:
-          default:
-            if (a.level !== b.level) return a.level - b.level;
-            return nameA.localeCompare(nameB);
-        }
-      });
-  }, [
-    currentNationShips,
-    selectedType,
-    selectedTier,
-    selectedStatus,
-    selectedSort,
-    searchQuery,
-    matchingShipIds,
-    selectedLang,
-  ]);
-
   return {
     currentNationShips,
     matchingShipIds,
     otherNationMatches,
-    filteredCatalogShips,
   };
 }
 

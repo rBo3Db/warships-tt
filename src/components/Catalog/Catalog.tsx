@@ -1,16 +1,16 @@
-import type { RefObject, RefCallback } from 'react';
 import type { Vehicle } from '../../types/vehicle';
 import { useI18n } from '../../context';
 import { Loader } from '../ui/Loader';
 import { ErrorCard } from '../ui/ErrorCard';
 import { ShipCard } from './components/ShipCard';
+import { TypeFilter, StatusFilter, TierFilter } from './filters';
+import { SortSelector } from './components/SortSelector';
+import { useCatalogFilter } from './hooks/useCatalogFilter';
 import styles from './Catalog.module.css';
 
 export interface CatalogProps {
   ships: Vehicle[];
-  totalFilteredCount: number;
-  displayLimit: number;
-  loadMoreRef: RefCallback<HTMLDivElement> | RefObject<HTMLDivElement | null>;
+  searchQuery?: string;
   isLoading?: boolean;
   errorMessage?: string | null;
   onRetry?: () => void;
@@ -18,14 +18,31 @@ export interface CatalogProps {
 
 export function Catalog({
   ships,
-  totalFilteredCount,
-  displayLimit,
-  loadMoreRef,
+  searchQuery = '',
   isLoading = false,
   errorMessage = null,
   onRetry,
 }: CatalogProps) {
-  const { ui } = useI18n();
+  const { lang, ui } = useI18n();
+
+  const {
+    visibleShips,
+    totalFilteredCount,
+    loadMoreRef,
+    hasMore,
+    selectedType,
+    setSelectedType,
+    selectedTier,
+    setSelectedTier,
+    selectedStatus,
+    setSelectedStatus,
+    selectedSort,
+    setSelectedSort,
+  } = useCatalogFilter({
+    ships,
+    searchQuery,
+    selectedLang: lang,
+  });
 
   if (errorMessage) {
     return (
@@ -46,25 +63,35 @@ export function Catalog({
     );
   }
 
-  if (totalFilteredCount === 0) {
-    return <div className={styles.empty}>{ui.noShips}</div>;
-  }
-
   return (
-    <div className={styles.grid}>
-      {ships.map((ship) => (
-        <ShipCard key={ship.id} ship={ship} />
-      ))}
+    <>
+      <div className={styles.filtersContainer}>
+        <TypeFilter selectedType={selectedType} onSelectType={setSelectedType} />
+        <StatusFilter selectedStatus={selectedStatus} onSelectStatus={setSelectedStatus} />
+        <TierFilter selectedTier={selectedTier} onSelectTier={setSelectedTier} />
+        <SortSelector selectedSort={selectedSort} onSelectSort={setSelectedSort} />
+      </div>
 
-      {/* Infinite scroll sentinel */}
-      {displayLimit < totalFilteredCount && (
-        <div ref={loadMoreRef} className={styles.sentinel}>
-          <span className={styles.loadingText}>{ui.loading}</span>
+      {totalFilteredCount === 0 ? (
+        <div className={styles.empty}>{ui.noShips}</div>
+      ) : (
+        <div className={styles.grid}>
+          {visibleShips.map((ship) => (
+            <ShipCard key={ship.id} ship={ship} />
+          ))}
+
+          {/* Infinite scroll sentinel */}
+          {hasMore && (
+            <div
+              ref={loadMoreRef}
+              className={styles.sentinel}
+              aria-hidden="true"
+            />
+          )}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 export default Catalog;
-

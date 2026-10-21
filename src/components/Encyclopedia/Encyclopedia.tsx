@@ -1,12 +1,11 @@
 import { useState, useRef, useMemo } from 'react';
-import { type Vehicle, ShipStatus, ShipSortOption, ViewMode } from '../../types/vehicle';
+import { type Vehicle, ViewMode } from '../../types/vehicle';
 import { useI18n, useConfig } from '../../context';
 import { useShipsFilter } from './hooks/useShipsFilter';
 import { useVehicles } from './hooks/useVehicles';
-import { useInfiniteScroll } from './hooks/useInfiniteScroll';
 import { Header } from '../Header';
 import { NationsBar } from '../NationsBar';
-import { Catalog, CatalogToolbar } from '../Catalog';
+import { Catalog } from '../Catalog';
 import { ShipsHeader } from './components/ShipsHeader';
 import { TechTreeSection } from './components/TechTreeSection';
 import { ScrollToTop } from '../ui/ScrollToTop';
@@ -28,10 +27,6 @@ export function Encyclopedia() {
   const safeVehicles = useMemo(() => vehicles || [], [vehicles]);
 
   const [selectedNation, setSelectedNation] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedTier, setSelectedTier] = useState<number | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<ShipStatus>(ShipStatus.ALL);
-  const [selectedSort, setSelectedSort] = useState<ShipSortOption>(ShipSortOption.TIER_ASC);
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.GRID);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,33 +37,16 @@ export function Encyclopedia() {
     ? getFlagUrl(selectedNationObj.icons.large || selectedNationObj.icons.default) || null
     : null;
 
-  // Hook for filtering ships across all dimensions
+  // Global nation partition and search matches
   const {
     currentNationShips,
     matchingShipIds,
     otherNationMatches,
-    filteredCatalogShips,
   } = useShipsFilter({
     vehicles: safeVehicles,
     selectedNation,
-    selectedType,
-    selectedTier,
-    selectedStatus,
-    selectedSort,
     searchQuery,
     selectedLang: lang,
-  });
-
-
-  // Incremental chunk loading for catalog
-  const {
-    visibleItems: visibleCatalogShips,
-    displayLimit,
-    loadMoreRef,
-  } = useInfiniteScroll({
-    items: filteredCatalogShips,
-    chunkSize: 36,
-    resetDeps: [selectedNation, selectedType, selectedTier, selectedStatus, selectedSort, searchQuery, viewMode],
   });
 
   const handleSelectNation = (nationName: string | null) => {
@@ -122,12 +100,12 @@ export function Encyclopedia() {
             />
           </aside>
 
-          {/* View Switcher (Catalog / Tree) and Section Title */}
+          {/* View Switcher (Catalog / Tree) and Section Content */}
           <section ref={shipsSectionRef} className={styles.contentSection}>
             <ShipsHeader
               viewMode={viewMode}
               onViewModeChange={setViewMode}
-              count={searchQuery ? matchingShipIds.size : filteredCatalogShips.length}
+              count={searchQuery ? matchingShipIds.size : currentNationShips.length}
             />
 
             {viewMode === ViewMode.TREE ? (
@@ -141,27 +119,13 @@ export function Encyclopedia() {
                 onRetry={retryVehicles}
               />
             ) : (
-              <>
-                <CatalogToolbar
-                  selectedType={selectedType}
-                  onSelectType={setSelectedType}
-                  selectedStatus={selectedStatus}
-                  onSelectStatus={setSelectedStatus}
-                  selectedTier={selectedTier}
-                  onSelectTier={setSelectedTier}
-                  selectedSort={selectedSort}
-                  onSelectSort={setSelectedSort}
-                />
-                <Catalog
-                  ships={visibleCatalogShips}
-                  totalFilteredCount={filteredCatalogShips.length}
-                  displayLimit={displayLimit}
-                  loadMoreRef={loadMoreRef}
-                  isLoading={isVehiclesLoading}
-                  errorMessage={vehiclesError}
-                  onRetry={retryVehicles}
-                />
-              </>
+              <Catalog
+                ships={currentNationShips}
+                searchQuery={searchQuery}
+                isLoading={isVehiclesLoading}
+                errorMessage={vehiclesError}
+                onRetry={retryVehicles}
+              />
             )}
           </section>
         </div>

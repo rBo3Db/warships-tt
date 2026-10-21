@@ -4,7 +4,7 @@ import {
   doesShipMatch,
   useShipsFilter,
 } from '../hooks/useShipsFilter';
-import { ShipStatus, ShipSortOption, type Vehicle } from '../../../types/vehicle';
+import type { Vehicle } from '../../../types/vehicle';
 
 const createShip = (overrides: Partial<Vehicle>): Vehicle => ({
   id: 's_1',
@@ -55,12 +55,12 @@ describe('useShipsFilter', () => {
     });
   });
 
-  describe('filtering and sorting hook', () => {
+  describe('nation partitioning and search matching', () => {
     const ships: Vehicle[] = [
-      createShip({ id: '1', name: 'Yamato', level: 10, nation: 'japan', type: 'Battleship', tags: ['upgradeable'] }),
-      createShip({ id: '2', name: 'Fubuki', level: 6, nation: 'japan', type: 'Destroyer', tags: ['upgradeable'] }),
-      createShip({ id: '3', name: 'Atago', level: 8, nation: 'japan', type: 'Cruiser', tags: ['uiPremium'] }),
-      createShip({ id: '4', name: 'Iowa', level: 9, nation: 'usa', type: 'Battleship', tags: ['upgradeable'] }),
+      createShip({ id: '1', name: 'Yamato', level: 10, nation: 'japan', type: 'Battleship' }),
+      createShip({ id: '2', name: 'Fubuki', level: 6, nation: 'japan', type: 'Destroyer' }),
+      createShip({ id: '3', name: 'Atago', level: 8, nation: 'japan', type: 'Cruiser' }),
+      createShip({ id: '4', name: 'Iowa', level: 9, nation: 'usa', type: 'Battleship' }),
     ];
 
     it('filters ships by nation', () => {
@@ -68,33 +68,40 @@ describe('useShipsFilter', () => {
         useShipsFilter({
           vehicles: ships,
           selectedNation: 'japan',
-          selectedType: null,
-          selectedTier: null,
-          selectedStatus: ShipStatus.ALL,
           searchQuery: '',
           selectedLang: 'en',
         })
       );
 
       expect(result.current.currentNationShips).toHaveLength(3);
-      expect(result.current.filteredCatalogShips).toHaveLength(3);
+      expect(result.current.currentNationShips.map((s) => s.id)).toEqual(['1', '2', '3']);
     });
 
-    it('filters ships by type and status', () => {
+    it('returns all ships if no nation is selected', () => {
       const { result } = renderHook(() =>
         useShipsFilter({
           vehicles: ships,
-          selectedNation: 'japan',
-          selectedType: 'Cruiser',
-          selectedTier: null,
-          selectedStatus: ShipStatus.PREMIUM,
+          selectedNation: null,
           searchQuery: '',
           selectedLang: 'en',
         })
       );
 
-      expect(result.current.filteredCatalogShips).toHaveLength(1);
-      expect(result.current.filteredCatalogShips[0].id).toBe('3');
+      expect(result.current.currentNationShips).toHaveLength(4);
+    });
+
+    it('finds matching ship IDs in current nation', () => {
+      const { result } = renderHook(() =>
+        useShipsFilter({
+          vehicles: ships,
+          selectedNation: 'japan',
+          searchQuery: 'Yamato',
+          selectedLang: 'en',
+        })
+      );
+
+      expect(result.current.matchingShipIds.has('1')).toBe(true);
+      expect(result.current.matchingShipIds.size).toBe(1);
     });
 
     it('finds matches in other nations when searching', () => {
@@ -102,49 +109,14 @@ describe('useShipsFilter', () => {
         useShipsFilter({
           vehicles: ships,
           selectedNation: 'japan',
-          selectedType: null,
-          selectedTier: null,
-          selectedStatus: ShipStatus.ALL,
           searchQuery: 'Iowa',
           selectedLang: 'en',
         })
       );
 
-      expect(result.current.filteredCatalogShips).toHaveLength(0);
+      expect(result.current.matchingShipIds.size).toBe(0);
       expect(result.current.otherNationMatches).toHaveLength(1);
       expect(result.current.otherNationMatches[0].id).toBe('4');
-    });
-
-    it('sorts ships correctly (tier asc & desc)', () => {
-      const { result: asc } = renderHook(() =>
-        useShipsFilter({
-          vehicles: ships,
-          selectedNation: 'japan',
-          selectedType: null,
-          selectedTier: null,
-          selectedStatus: ShipStatus.ALL,
-          selectedSort: ShipSortOption.TIER_ASC,
-          searchQuery: '',
-          selectedLang: 'en',
-        })
-      );
-
-      expect(asc.current.filteredCatalogShips.map((s) => s.level)).toEqual([6, 8, 10]);
-
-      const { result: desc } = renderHook(() =>
-        useShipsFilter({
-          vehicles: ships,
-          selectedNation: 'japan',
-          selectedType: null,
-          selectedTier: null,
-          selectedStatus: ShipStatus.ALL,
-          selectedSort: ShipSortOption.TIER_DESC,
-          searchQuery: '',
-          selectedLang: 'en',
-        })
-      );
-
-      expect(desc.current.filteredCatalogShips.map((s) => s.level)).toEqual([10, 8, 6]);
     });
   });
 });
