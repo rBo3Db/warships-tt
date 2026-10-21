@@ -133,15 +133,6 @@
   transition: opacity var(--transition-fast, 0.15s ease), filter var(--transition-fast, 0.15s ease);
 }
 
-.badge {
-  font-size: 0.7rem;
-  padding: 1px 4px;
-  border-radius: var(--radius-sm, 2px);
-  border: var(--border-subtle);
-  background: var(--color-bg-card, #182022);
-  color: var(--color-text-muted, #8b949e);
-}
-
 .shipName {
   margin: 0;
   font-size: 0.9rem;
