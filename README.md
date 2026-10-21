@@ -1,6 +1,6 @@
 # World of Warships: Encyclopedia and Tech Tree
 
-https://warships-tt-git-main-rbo3dbs-projects.vercel.app/
+https://warships-tt.vercel.app/ deployed
 High-performance single-page web application for exploring warship specifications and interactive tech trees across all nations in World of Warships.
 
 > Developed with AI assistance, under meticulous human guidance and technical direction.
