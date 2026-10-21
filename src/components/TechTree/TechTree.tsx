@@ -71,7 +71,13 @@ export function TechTree({
   return (
     <div className={styles.wrapper}>
       {/* Scrollable Tree View with SVG connection lines */}
-      <div ref={containerRef} className={styles.treeScrollContainer}>
+      <div
+        ref={containerRef}
+        className={styles.treeScrollContainer}
+        tabIndex={0}
+        role="region"
+        aria-label={ui.techTree}
+      >
         <TechTreeSvgLayer
           lines={svgLines}
           activeLinkKeys={activeLineage.linkKeys}

@@ -1,114 +1,92 @@
-# ⚓ World of Warships — Encyclopedia & Tech Tree
+# World of Warships: Encyclopedia and Tech Tree
 
-> Высокопроизводительное SPA-приложение для исследования энциклопедии кораблей и интерактивного дерева развития всех наций World of Warships / Мир Кораблей.
+High-performance single-page web application for exploring warship specifications and interactive tech trees across all nations in World of Warships.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)
 ![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite)
-![Vitest](https://img.shields.io/badge/Tests-113%20passed-success?style=flat-square&logo=vitest)
-![Bundle Size](https://img.shields.io/badge/Bundle-~97kB%20gzip-brightgreen?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-113%20passed-success?style=flat-square&logo=vitest)
+![Bundle Size](https://img.shields.io/badge/Bundle-~98kB%20gzip-brightgreen?style=flat-square)
 
 ---
 
-## 🎯 Ключевые архитектурные фокусы
+## Architectural Focus
 
-Приложение спроектировано с упором на максимальное быстродействие, мгновенный отклик интерфейса, бережное отношение к памяти и нулевые паразитные ререндеры.
+The application is engineered for minimal latency, zero redundant renders, resilient caching, and a lightweight runtime footprint.
 
-### 1. ⚡ Zero Unnecessary Re-renders (Минимум ререндеров)
-- **React Compiler (`babel-plugin-react-compiler`)**: Автоматическая гранулярная мемоизация компонентов и зависимостей на уровне компилятора без необходимости ручного захламления кода десятками `useMemo` и `useCallback`.
-- **Отказ от эффектов синхронизации (Adjusting state during rendering)**:
-  В пагинации `useInfiniteScroll` устранён классический антипаттерн `useEffect(() => setDisplayLimit(chunkSize), [deps])`, вызывавший двойной рендер и смещение макета (CLS). Сброс состояния выполняется мгновенно во время фазы рендера React до коммита в DOM.
-- **Уничтожение Prop Drilling**:
-  Состояние фильтров каталога (`selectedType`, `selectedTier`, `selectedStatus`, `selectedSort`) инкапсулировано непосредственно внутри каталога `useCatalogFilter`. Верхнеуровневый компонент `Encyclopedia` освобождён от десятка сквозных пропсов и содержит только глобальное состояние экрана.
-- **Бинарные пороги событий (Binary Thresholds)**:
-  Слушатели скролла (например, `ScrollToTop`) с флагом `{ passive: true }` обновляют стейт только при физическом пересечении числового порога (400px), гарантируя стабильные 60/120 FPS и полное отсутствие ререндеров во время активного скроллинга страницы.
-- **Вычисляемые переводы без загрязнения стейта**:
-  Сообщения об ошибках и тексты интерфейса вычисляются на лету во время рендера из `ui[key]`, что гарантирует мгновенный перевод без сетевых запросов и предотвращает ре-синхронизацию хуков.
+### 1. Minimal Re-renders
+- **React 19 & React Compiler**: Automatic component and expression memoization via `@rolldown/plugin-babel` and `babel-plugin-react-compiler`.
+- **Render-phase State Adjustment**: Pagination limit resets inside `useInfiniteScroll` happen synchronously during render phase instead of cascading through `useEffect`, avoiding double renders and cumulative layout shifts.
+- **State Encapsulation**: Catalog filter state (`type`, `tier`, `status`, `sort`) and infinite scroll logic are isolated inside `useCatalogFilter`. The root `Encyclopedia` component is decoupled from filter churn.
+- **Binary Event Thresholds**: Scroll listeners (e.g. `ScrollToTop`) use passive event listeners and fire state updates only when crossing the visibility threshold (400px), preserving 60/120 FPS.
+- **Derived Localizations**: Error banners and UI copy are computed during render from static dictionaries, avoiding unnecessary state sync cycles.
 
----
+### 2. Multi-Tier Caching and Offline-First
+- **Frame-0 Startup (0 ms)**: `useVehicles` and `useAppBootstrap` read normalized records synchronously from storage on initial mount. The catalog and tree render on the very first frame without blocking spinners.
+- **Stale-While-Revalidate (SWR)**: Cached data displays immediately while a background sync verifies freshness against the remote Wargaming API.
+- **Promise Deduplication**: Concurrent fetch requests share in-flight promises (`activeVehiclesPromise`, `activeNationsPromise`), eliminating redundant HTTP requests.
+- **Graceful Degradation**: If the network or remote API is unavailable, the application remains fully functional with cached data and non-blocking warning banners.
 
-### 2. 💾 Многоуровневое кэширование и Offline-First архитектура
-- **Frame 0 Rendering (Загрузка за 0 мс)**:
-  При открытии страницы `useVehicles` и `useAppBootstrap` синхронно считывают нормализованные данные из `localStorage` (`getCachedVehiclesSync`). Пользователь видит каталог и нации **в первый же кадр отрисовки (0 мс)** без блокирующих спиннеров и ожидания ответов сети.
-- **Stale-While-Revalidate (SWR)**:
-  Пока отображаются мгновенно поднятые из кэша данные, в фоне запускается тихая сверка с удалённым GraphQL/REST API Wargaming. Если данные на сервере обновились — интерфейс плавно обновляется.
-- **Дедупликация сетевых запросов**:
-  Глобальные обещания (`activeVehiclesPromise`, `activeNationsPromise`) объединяют параллельные запросы к одному эндпоинту, исключая повторную загрузку одних и тех же тяжёлых JSON по сети.
-- **Graceful Degradation (Мягкая обработка сбоев сети)**:
-  Если сервер недоступен, приложение **не блокирует экран**, а продолжает полноценно работать на кэшированных данных, отображая лишь ненавязчивый информационный баннер `ErrorBanner` с кнопкой ручного повтора.
-- **IndexedDB + LocalStorage**:
-  Обеспечивает долговременное хранение всей базы кораблей, их параметров, веток прокачки и путей к медиа-серверу изображений.
+### 3. DOM & Layout Optimization
+- **Chunked Infinite Scroll**: Renders warships in batches of 36 via `IntersectionObserver`, keeping DOM node counts low and responsive.
+- **Accessible Tech Tree with Custom Scroll**: The horizontal tree container supports keyboard navigation (`tabIndex={0}`, `role="region"`), touch panning, and a custom gray scrollbar. SVG connection lines dynamically recalculate via container `ResizeObserver`.
+- **Zero UI-Library Overhead**: Built with pure CSS Modules and CSS variables. Total production styles weigh ~23 kB, and the JavaScript bundle is ~98 kB (gzipped).
+
+### 4. Internationalization (i18n)
+- 19 supported locales (EN, RU, DE, FR, JA, ZH, ES, etc.).
+- Client-side instant language switching without additional HTTP requests.
+- Dynamic locale extraction with static fallback configurations.
 
 ---
 
-### 3. 🚀 Производительность и оптимизация DOM
-- **Infinite Scroll через `IntersectionObserver`**:
-  Сотни кораблей рендерятся чанками (по 36 штук) по мере прокрутки. В DOM никогда не находится избыточное число нод, что снижает нагрузку на браузер и экономит память.
-- **Динамический `ResizeObserver` для веток технологий**:
-  Расчёт SVG-координат связей между исследуемыми кораблями в `TechTree` привязан к `ResizeObserver` контейнера. Линии пересчитываются только при реальном изменении геометрии (ресайз, смена шрифтов, адаптив).
-- **Легковесный дизайн без сторонних UI-библиотек**:
-  Приложение построено на чистом модульном CSS (CSS Modules) с дизайн-токенами (`--color-*`, `--border-*`). Итоговый бандл приложения весит всего **~22 kB CSS** и **~97 kB JS (gzip)**.
+## Tech Stack
 
----
-
-### 4. 🌍 Глобальная интернационализация (i18n)
-- Поддержка **19 мировых локалей** (RU, EN, DE, FR, JA, ZH, ES и др.).
-- Список доступных языков в интерфейсе формируется динамически на основе локализаций Wargaming API с автоматическим резервным списком (`FALLBACK_LANGUAGES`).
-- Переключение языка происходит мгновенно на клиенте: все названия кораблей, наций и классов извлекаются из локального кэша `ship.localization.mark[lang]` без единого дополнительного HTTP-запроса.
-
----
-
-## 🛠️ Стек технологий
-
-| Технология | Назначение |
+| Tool | Purpose |
 |---|---|
-| **React 19** | Современный UI-движок с поддержкой React Compiler |
-| **TypeScript 5.x** | Строгая статическая типизация всех структур API и UI |
-| **Vite 8** | Молниеносная сборка и HMR |
-| **CSS Modules + CSS Variables** | Изолированная стилизация, дизайн-система и темы |
-| **Vitest + React Testing Library** | Высокоскоростное тестирование логики, хуков и UI |
-| **Oxlint** | Сверхбыстрый линтер нового поколения на Rust |
+| **React 19** | Core UI library with React Compiler support |
+| **TypeScript 5.x** | Strict end-to-end type safety |
+| **Vite 8** | Fast build tooling and HMR |
+| **CSS Modules** | Scoped, zero-runtime styling |
+| **Vitest & React Testing Library** | Unit and integration testing |
+| **Oxlint** | High-performance Rust-based linter |
 
 ---
 
-## 🧪 Тестирование и надёжность
+## Testing
 
-В проекте реализован строгий подход к тестированию: покрыты сервисы кэширования, хуки фильтрации, пагинации, синка данных, а также ключевые UI-компоненты.
+Comprehensive test suite covering services, custom hooks, and UI components.
 
-- **21 тестовый набор (Test Suite)**
-- **113 тестов** (100% passing)
+- **21 test suites**
+- **113 tests passed (100%)**
 
 ```bash
-# Запуск полного набора тестов
+# Run tests
 npm test
 
-# Запуск тестов в режиме наблюдателя (watch mode)
+# Run tests in watch mode
 npm run test:watch
 ```
 
 ---
 
-## 🚀 Команды проекта
+## Scripts
 
 ```bash
-# Установка зависимостей
-npm install
-
-# Запуск локального сервера разработки (HMR)
+# Start development server
 npm run dev
 
-# Проверка типов TypeScript и сборка продакшен-бандла
+# Run type check and production build
 npm run build
 
-# Быстрая проверка линтером Oxlint
+# Run linter
 npm run lint
 
-# Локальный предпросмотр продакшен-сборки
+# Preview production build locally
 npm run preview
 ```
 
 ---
 
-## 📦 Сборка и деплой
+## Deployment
 
-Проект настроен с поддержкой относительных путей (`base: './'`) и готов для автоматического развёртывания на любых статических хостингах (GitHub Pages, Cloudflare Pages, Vercel). Настроен рабочий CI/CD пайплайн в `.github/workflows/deploy.yml`.
+Configured for static hosting (GitHub Pages, Cloudflare Pages, Vercel) with relative asset paths (`base: './'`). Includes an automated deployment workflow at `.github/workflows/deploy.yml`.

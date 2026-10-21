@@ -1,128 +1,101 @@
-# ⚓ World of Warships: Encyclopedia & Tech Tree
+# World of Warships: Architecture and Project Overview
 
-Интерактивное веб-приложение для исследования базы кораблей и деревьев развития всех наций **World of Warships** / **Мир Кораблей**.
+An interactive single-page application for exploring warship encyclopedia data and tech research trees in World of Warships.
 
-Проект разработан как демонстрация бескомпромиссной производительности клиентской части (Client-Side Performance), передовых паттернов React 19, архитектуры с мгновенным откликом (Instant UX) и глубокой оптимизации рендеринга.
+The project is built around client-side performance, instant user feedback, zero redundant renders, and resilient data caching.
 
 ---
 
-## 🎯 Архитектурный манифест проекта
-
-Главная цель архитектуры — **нулевая задержка интерфейса** при работе с сотнями сложных объектов кораблей, тяжёлыми деревьями прокачки и динамической фильтрацией.
+## Architecture Principles
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          Пользовательский интерфейс                    │
-├──────────────────────────────────┬─────────────────────────────────────┤
-│  ⚡ Zero-Lag Rendering           │  💾 Multi-Tier Storage             │
-│  - React Compiler автоматизация │  - Frame-0 синхронный старт (0 мс)  │
-│  - Отказ от useEffect-пинг-понга│  - SWR (Stale-While-Revalidate)     │
-│  - Локализация состояния        │  - In-flight Promise deduplication  │
-├──────────────────────────────────┼─────────────────────────────────────┤
-│  🚀 DOM & Layout Optimization    │  🌍 Zero-Request i18n               │
-│  - Chunked IntersectionObserver  │  - 19 мировых локалей               │
-│  - ResizeObserver для SVG-графа  │  - Мгновенный свитч без сети        │
-│  - Vanilla CSS Modules (~22 kB)  │  - Резервные fallback-словари       │
-└──────────────────────────────────┴─────────────────────────────────────┘
++------------------------------------------------------------------------+
+|                             User Interface                             |
++------------------------------------+-----------------------------------+
+|  Zero-Lag Rendering                |  Multi-Tier Storage               |
+|  - Automatic compiler memoization  |  - Frame-0 synchronous boot (0ms) |
+|  - Render-phase state adjustment   |  - Stale-While-Revalidate (SWR)   |
+|  - Localized filter hooks          |  - In-flight Promise deduplication|
++------------------------------------+-----------------------------------+
+|  DOM and Layout Performance        |  Zero-Request i18n                |
+|  - Chunked IntersectionObserver    |  - 19 global locales              |
+|  - SVG graph with ResizeObserver   |  - Instant client-side switching  |
+|  - Lightweight CSS Modules (~23kB) |  - Fallback dictionary strategy   |
++------------------------------------+-----------------------------------+
 ```
 
 ---
 
-## 1. ⚡ Фокус: Минимум ререндеров (Zero Unnecessary Re-renders)
+## 1. Zero Unnecessary Re-renders
 
-В классических React-приложениях работа со сложными фильтрами, пагинацией и графами связей часто страдает от каскадных ререндеров, паразитных вызовов эффектов и микро-фризов. В проекте применён комплексный подход к устранению лишних циклов обновления:
+### 1.1. React 19 and React Compiler
+- Uses `babel-plugin-react-compiler` via `@rolldown/plugin-babel` to automatically memoize components, hooks, and JSX trees during build time.
+- Minimizes boilerplate and manual dependency tuning.
 
-### 1.1. React Compiler (`babel-plugin-react-compiler`)
-- Использование компилятора React 19 избавляет кодовую базу от рутинного ручного оборачивания функций и объектов в `useMemo` и `useCallback`.
-- Компилятор автоматически строит граф реактивности на этапе сборки с помощью `@rolldown/plugin-babel`, мемоизируя JSX-ноды и вычисления с математической точностью.
+### 1.2. Render-Phase State Adjustment
+- Avoids cascading `useEffect` updates for list resets.
+- When search queries, tier filters, or nation selections change, `useInfiniteScroll` resets the pagination offset during the render pass before DOM mutation.
 
-### 1.2. Отказ от каскадных `useEffect` (Adjusting State During Rendering)
-- **Проблема**: Стандартный паттерн сброса лимита пагинации или фильтра через `useEffect(() => setLimit(36), [filters])` вызывает 2 последовательных рендера (первый с устаревшим лимитом, второй — с новым), приводя к прыжкам интерфейса (layout shift).
-- **Решение**: В хуке `useInfiniteScroll` внедрён канонический паттерн React 19 — проверка изменения внешних параметров непосредственно в фазе рендера (`if (prevKey !== currentKey) { setLimit(chunkSize); }`). React синхронно прерывает текущий проход и немедленно пересчитывает компонент с актуальным состоянием **до коммита в DOM**.
+### 1.3. State Encapsulation and Prop Drilling Elimination
+- All catalog filter parameters (`type`, `tier`, `status`, `sort`) and pagination mechanics are encapsulated in `useCatalogFilter`.
+- The root `Encyclopedia` container maintains only high-level route state (`selectedNation`, `viewMode`, `searchQuery`), preventing parent re-renders when toggling ship filters.
 
-### 1.3. Уничтожение Prop Drilling и локализация стейтов
-- Фильтры каталога (`selectedType`, `selectedTier`, `selectedStatus`, `selectedSort`) и пагинация вынесены из глобального контекста страницы `Encyclopedia` в специализированный хук `useCatalogFilter`, живущий внутри компонента `Catalog`.
-- Родительские компоненты не знают о переключении уровней или классов кораблей и не перерисовываются при изменении фильтров каталога.
+### 1.4. Binary Event Thresholds
+- Scroll listeners (such as `ScrollToTop`) register with `{ passive: true }` and update state strictly when passing the 400px threshold.
+- Eliminates per-pixel re-renders, maintaining 60/120 FPS during rapid scrolling.
 
-### 1.4. Бинарные пороги событий (Binary Thresholds)
-- Все слушатели событий скролла (например, кнопка `ScrollToTop`) используют `{ passive: true }` и проверяют только факт пересечения числового порога видимости (`scrollY > 400`).
-- Стейт не обновляется на каждый пиксель прокрутки, обеспечивая плавные **60 / 120 FPS** даже на слабых мобильных устройствах.
-
-### 1.5. Вычисляемые производные данные (Derived State)
-- Локализованные названия, сообщения об ошибках (`getErrorMessage(status, language)`) и счётчики найденных единиц техники вычисляются «на лету» в фазе рендеринга из стабильных структур данных, без дублирования в `useState` и без риска рассинхронизации.
+### 1.5. Derived State
+- Localized error text and counts are computed during the render pass from existing state and translation tables, preventing state synchronization desynchronization.
 
 ---
 
-## 2. 💾 Фокус: Многоуровневое кэширование и Offline-First
+## 2. Multi-Tier Caching and Offline-First
 
-Пользователь не должен видеть пустой белый экран или блокирующие спиннеры загрузки.
+### 2.1. Frame-0 Startup (0 ms Initial Paint)
+- `useVehicles` and `useAppBootstrap` read normalized records synchronously from storage on initial mount (`getCachedVehiclesSync`).
+- Catalog items and tech tree structures render on the very first frame without empty layout flashes or loading spinners.
 
-### 2.1. Frame-0 Rendering (Старт за 0 миллисекунд)
-- При первом запуске приложения `useVehicles` и `useAppBootstrap` синхронно извлекают нормализованный снапшот базы из `localStorage` (`getCachedVehiclesSync`).
-- Пользователь видит каталог и дерево развития **в первый же кадр отрисовки (0 мс)** без ожидания сетевого ответа.
-
-### 2.2. Паттерн Stale-While-Revalidate (SWR)
-- Пока интерфейс мгновенно отображает кэшированные данные, в фоновом потоке запускается тихая проверка свежести через Wargaming API.
-- Если на бэкенде появились новые корабли или изменились балансные характеристики, кэш перезаписывается, и стейт мягко обновляется без прерывания пользовательской сессии.
+### 2.2. Stale-While-Revalidate (SWR)
+- Stored data is presented immediately.
+- A background worker queries the Wargaming API. If remote data contains balance updates or newly added ships, the cache updates silently and triggers a smooth UI sync.
 
 ### 2.3. In-flight Promise Deduplication
-- Параллельные вызовы `fetchVehicles` или `fetchNations` перехватываются глобальными промисами-дедупликаторами (`activeVehiclesPromise`, `activeNationsPromise`).
-- Исключена ситуация, когда одновременное монтирование нескольких компонентов генерирует пачку дублирующих сетевых запросов.
+- Shared promises (`activeVehiclesPromise`, `activeNationsPromise`) deduplicate concurrent requests.
+- Parallel component mounts cannot produce duplicate network traffic.
 
-### 2.4. Graceful Degradation (Устойчивость к сбоям)
-- При полном отсутствии интернета или падении API Wargaming приложение продолжает полноценно функционировать на кэшированных ресурсах.
-- Экран не блокируется ошибкой: выводится компактный баннер `ErrorBanner` с уведомлением о работе в автономном режиме и возможностью ручного повтора.
-
----
-
-## 3. 🚀 Фокус: DOM-производительность и граф связей Tech Tree
-
-Отрисовка базы из сотен боевых кораблей и графов прокачки требует особого контроля над нагрузкой на браузер:
-
-### 3.1. Чанковый Infinite Scroll через `IntersectionObserver`
-- В режиме каталога корабли выводятся порциями по 36 единиц по мере приближения скролла к маркерному элементу (Sentinel).
-- Отсутствие перегрузки DOM тысячами тяжёлых карточек обеспечивает мгновенную отзывчивость поиска и фильтров.
-
-### 3.2. Динамический расчёт SVG-графа связей через `ResizeObserver`
-- Дерево развития (`TechTree`) соединяет исследуемые корабли динамическими векторными линиями (кривые Безье и ортогональные связи).
-- Координаты связей извлекаются синхронно через `getBoundingClientRect()`, а отслеживание изменений привязано к `ResizeObserver` контейнера дерева. Линии пересчитываются только при реальном изменении размеров колонок, сменах зума или масштабировании окна.
-
-### 3.3. Нулевой оверхед на сторонние UI-библиотеки
-- Отсутствие «тяжёлых» дизайн-систем (MUI, AntD, Tailwind runtime).
-- Использованы нативные **CSS Modules** и система CSS-переменных (`--color-*`, `--glass-*`, `--spacing-*`).
-- Вес стилей всего проекта в продакшене — **~22 kB**, а весь JS-бандл — **~97 kB (gzip)**.
+### 2.4. Graceful Degradation
+- If network requests fail or the remote endpoint is unreachable, the application remains fully interactive using cached assets.
+- A non-intrusive `ErrorBanner` informs the user of offline status with a manual retry option.
 
 ---
 
-## 4. 🌍 Фокус: Интернационализация без сетевых задержек (i18n)
+## 3. DOM and Layout Optimization
 
-- **19 мировых локалей**: русский, английский, немецкий, французский, японский, китайский, испанский и др.
-- Справочник доступных языков извлекается динамически из API, сохраняя надёжный локальный fallback (`FALLBACK_LANGUAGES`).
-- Переключение языка происходит **мгновенно**: локализованные названия классов, кораблей и наций берутся из предварительно распакованного словаря `localization[lang]` без единого дополнительного HTTP-запроса к серверу.
+### 3.1. Chunked Infinite Scroll
+- Catalog items render in batches of 36 via `IntersectionObserver`.
+- Keeps DOM node counts bounded, ensuring fluid interaction on mobile devices.
 
----
+### 3.2. Accessible Tech Tree with Dynamic SVG Connections
+- Tech tree nodes are linked by dynamic vector connectors computed via container measurements.
+- Layout calculations update through a container `ResizeObserver`, avoiding window-level resize polling.
+- The scroll container is keyboard-accessible (`tabIndex={0}`, `role="region"`), touch-enabled, and styled with an accessible gray scrollbar.
 
-## 5. 🧪 Качество кода и тестирование
-
-Проект спроектирован с упором на стабильность и самодокументируемость кода:
-
-- **100% покрытие ключевой логики**:
-  - `useVehicles` (синхронизация, кэширование, обработка ошибок сети);
-  - `useCatalogFilter` и `useShipsFilter` (комбинированная фильтрация наций, классов, уровней и текстового поиска);
-  - `useInfiniteScroll` (корректность инкремента чанков и отсутствие дублирующих триггеров);
-  - UI-компоненты (`Loader`, `TechTreePremiums`, `ErrorBanner` и др.).
-- **21 тестовый набор (Test Suite)** и **113 тестов** на базе `Vitest` + `@testing-library/react`.
-- Сверхбыстрая статическая проверка кода через линтер **Oxlint** (написан на Rust).
+### 3.3. Zero UI-Library Overhead
+- Implemented with scoped CSS Modules and semantic design tokens (`--color-*`, `--border-*`).
+- Eliminates third-party UI framework bloat (~23 kB CSS and ~98 kB gzipped JS).
 
 ---
 
-## 🛠️ Стек технологий
+## 4. Internationalization (i18n)
 
-- **Фреймворк**: React 19 (`react`, `react-dom`)
-- **Сборка & HMR**: Vite 8
-- **Оптимизация рендеринга**: React Compiler (`babel-plugin-react-compiler`)
-- **Язык**: TypeScript 5.x / 6.0
-- **Тестирование**: Vitest 5, `@testing-library/react`, `jsdom`
-- **Стилизация**: CSS Modules, CSS Custom Properties
-- **Линтинг**: Oxlint
-- **CI/CD**: GitHub Actions (`deploy.yml`) для статического деплоя
+- Supports 19 locales: English, Russian, German, French, Japanese, Chinese, Spanish, and others.
+- Instant client-side language switching without subsequent network requests.
+- Automatic browser language detection with reliable fallback dictionaries (`FALLBACK_LANGUAGES`).
+
+---
+
+## 5. Testing and Code Quality
+
+- **100% test pass rate**: 21 test suites, 113 tests passing under `Vitest` and `React Testing Library`.
+- Strict TypeScript typings across all API payloads, normalized entities, and component props.
+- High-speed static analysis with `Oxlint`.
