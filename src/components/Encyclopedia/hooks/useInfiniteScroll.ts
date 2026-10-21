@@ -28,11 +28,19 @@ export function useInfiniteScroll<T>({
   const itemsLengthRef = useRef(items.length);
   itemsLengthRef.current = items.length;
 
-  // Reset display limit when dependencies change (e.g. filters, search query, or viewMode)
-  useEffect(() => {
+  const [prevChunkSize, setPrevChunkSize] = useState(chunkSize);
+  const [prevResetDeps, setPrevResetDeps] = useState(resetDeps);
+
+  // Reset display limit immediately during render when dependencies or chunkSize change
+  const areDepsEqual =
+    resetDeps.length === prevResetDeps.length &&
+    resetDeps.every((dep, i) => Object.is(dep, prevResetDeps[i]));
+
+  if (chunkSize !== prevChunkSize || !areDepsEqual) {
+    setPrevChunkSize(chunkSize);
+    setPrevResetDeps(resetDeps);
     setDisplayLimit(chunkSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chunkSize, ...resetDeps]);
+  }
 
   // Robust callback ref: attaches observer whenever the sentinel DOM element mounts/remounts
   const loadMoreRef = useCallback(

@@ -1,7 +1,15 @@
 import type { Vehicle } from '../../../types/vehicle';
-import { useI18n, useConfig } from '../../../context';
+import { useI18n } from '../../../context/I18nContext';
+import { useConfig } from '../../../context/ConfigContext';
 import { toRomanTier } from '../../../utils/roman';
-import { getShipTitle, getShipIconPath, isPremiumShip, isSpecialShip } from '../../../utils/ship';
+import {
+  getShipTitle,
+  getShipIconPath,
+  getVehicleTypeIconPath,
+  getVehicleTypeFallbackIcon,
+  isPremiumShip,
+  isSpecialShip,
+} from '../../../utils/ship';
 import { ShipBadges } from '../../ui/ShipBadges';
 import styles from '../TechTree.module.css';
 
@@ -28,11 +36,11 @@ export function TechTreePremiums({
         {ships.map((ship) => {
           const shipTitle = getShipTitle(ship, lang);
           const typeInfo = vehicleTypes[ship.type];
-          const typeIcon = getMediaUrl(typeInfo?.icons?.default);
-          const imgUrl = getMediaUrl(getShipIconPath(ship));
-
           const isPremium = isPremiumShip(ship);
           const isSpecial = isSpecialShip(ship);
+          const typeIconPath = getVehicleTypeIconPath(typeInfo, { isPremium, isSpecial });
+          const typeIcon = (typeIconPath ? getMediaUrl(typeIconPath) : '') || getVehicleTypeFallbackIcon(ship.type);
+          const imgUrl = getMediaUrl(getShipIconPath(ship));
 
           const isMatch = isSearchActive && Boolean(matchingShipIds?.has(ship.id));
           const isDimmed = isSearchActive && !isMatch;

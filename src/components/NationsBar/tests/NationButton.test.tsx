@@ -9,10 +9,15 @@ const mockNation: Nation = {
   id: 1,
   name: 'japan',
   color: 0,
-  order: 1,
+  tags: [],
   icons: {
     default: 'japan_flag.png',
     large: 'japan_flag_large.png',
+    local_large: 'japan_flag_large.png',
+    local_tiny: 'japan_flag_tiny.png',
+    small: 'japan_flag_small.png',
+    local_small: 'japan_flag_small.png',
+    tiny: 'japan_flag_tiny.png',
   },
   localization: {
     mark: { ru: 'Япония', en: 'Japan' },

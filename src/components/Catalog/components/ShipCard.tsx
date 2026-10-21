@@ -6,6 +6,8 @@ import {
   isPremiumShip,
   isSpecialShip,
   getShipIconPath,
+  getVehicleTypeIconPath,
+  getVehicleTypeFallbackIcon,
 } from '../../../utils/ship';
 import { ShipBadges } from '../../ui/ShipBadges';
 import { ShipImage } from '../../ui/ShipImage';
@@ -19,18 +21,19 @@ export function ShipCard({ ship }: ShipCardProps) {
   const { lang } = useI18n();
   const { vehicleTypes, getNation, getMediaUrl, getFlagUrl } = useConfig();
 
+  const isPremium = isPremiumShip(ship);
+  const isSpecial = isSpecialShip(ship);
+
   const shipTitle = getShipTitle(ship, lang);
   const typeInfo = vehicleTypes[ship.type];
-  const typeIconUrl = getMediaUrl(typeInfo?.icons?.default);
+  const typeIconRelative = getVehicleTypeIconPath(typeInfo, { isPremium, isSpecial });
+  const typeIconUrl = (typeIconRelative ? getMediaUrl(typeIconRelative) : '') || getVehicleTypeFallbackIcon(ship.type);
   const shipImgUrl = getMediaUrl(getShipIconPath(ship));
 
   const shipNation = getNation(ship.nation);
   const shipFlagUrl = shipNation
     ? getFlagUrl(shipNation.icons.small || shipNation.icons.default)
     : null;
-
-  const isPremium = isPremiumShip(ship);
-  const isSpecial = isSpecialShip(ship);
 
   return (
     <div className={styles.card}>

@@ -1,5 +1,6 @@
 import type { VehicleTypeInfo } from '../../../types/vehicle';
 import { useI18n, useConfig } from '../../../context';
+import { getVehicleTypeIconPath, getVehicleTypeFallbackIcon } from '../../../utils/ship';
 import styles from '../Catalog.module.css';
 
 export interface TypeFilterButtonProps {
@@ -19,7 +20,8 @@ export function TypeFilterButton({
   const { getMediaUrl } = useConfig();
 
   const typeTitle = typeInfo.localization?.mark?.[lang] || typeKey;
-  const iconUrl = getMediaUrl(typeInfo.icons?.default);
+  const iconPath = getVehicleTypeIconPath(typeInfo);
+  const iconUrl = (iconPath ? getMediaUrl(iconPath) : '') || getVehicleTypeFallbackIcon(typeKey);
 
   return (
     <button

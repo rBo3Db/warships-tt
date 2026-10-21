@@ -1,6 +1,7 @@
 import type { TechTreeData } from '../../../utils/techTree';
 import { useI18n, useConfig } from '../../../context';
 import { toRomanTier } from '../../../utils/roman';
+import { getVehicleTypeIconPath, getVehicleTypeFallbackIcon } from '../../../utils/ship';
 import { TechTreeNode } from './TechTreeNode';
 import styles from '../TechTree.module.css';
 
@@ -40,7 +41,8 @@ export function TechTreeGrid({
       {treeData.classes.map((cls) => {
         const classInfo = vehicleTypes[cls];
         const classTitle = classInfo?.localization?.mark?.[lang] || cls;
-        const classIcon = getMediaUrl(classInfo?.icons?.default);
+        const classIconPath = getVehicleTypeIconPath(classInfo);
+        const classIcon = (classIconPath ? getMediaUrl(classIconPath) : '') || getVehicleTypeFallbackIcon(cls);
 
         return (
           <div key={cls} className={styles.classRow}>

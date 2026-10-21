@@ -47,6 +47,11 @@
   border-color: transparent;
 }
 
+.itemSelected .typeIcon {
+  filter: brightness(0);
+  opacity: 0.95;
+}
+
 .itemSelected:hover {
   background: #b5b0b1;
   color: var(--color-bg-base, #0C1117);
@@ -56,6 +61,7 @@
   width: 16px;
   height: 16px;
   object-fit: contain;
+  transition: opacity var(--transition-fast, 0.15s ease), filter var(--transition-fast, 0.15s ease);
 }
 
 .grid {
